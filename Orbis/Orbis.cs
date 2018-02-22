@@ -6,12 +6,12 @@ namespace Orbis
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class Game1 : Game
+    public class Orbis : Game
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        public Game1()
+        public Orbis()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
