@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Resources;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -27,3 +28,10 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly: ComVisible(false)]
+[assembly: AssemblyTitleAttribute("Orbis")]
+[assembly: AssemblyDescriptionAttribute("Virtual world map generator and history simulator")]
+[assembly: AssemblyCompanyAttribute("Salty Seal Studios")]
+[assembly: AssemblyProductAttribute("")]
+[assembly: AssemblyCopyrightAttribute("Salty Seal Studio 2017")]
+[assembly: NeutralResourcesLanguageAttribute("en-GB")]
+
