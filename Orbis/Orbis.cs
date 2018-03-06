@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+using Orbis.UI;
+
 namespace Orbis
 {
     /// <summary>
@@ -10,6 +12,7 @@ namespace Orbis
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        UIPanel UIRootPanel;
 
         public Orbis()
         {
@@ -26,7 +29,6 @@ namespace Orbis
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
             base.Initialize();
         }
 
@@ -39,6 +41,8 @@ namespace Orbis
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            // build the UI;
+            BuidUI(spriteBatch);
             // TODO: use this.Content to load your game content here
         }
 
@@ -48,6 +52,7 @@ namespace Orbis
         /// </summary>
         protected override void UnloadContent()
         {
+            Content.Unload();
             // TODO: Unload any non ContentManager content here
         }
 
@@ -71,9 +76,19 @@ namespace Orbis
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+            UIRootPanel.Draw(gameTime);
 
             base.Draw(gameTime);
+        }
+
+        private void BuidUI(SpriteBatch sb)
+        {
+            var menuBackground = Content.Load<Texture2D>(@"UI\Placeholder");
+            UIRootPanel = new UIPanel(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, spriteBatch, menuBackground);
+            var redRect = new Texture2D(GraphicsDevice, 1, 1);
+            redRect.SetData(new[] { Color.Red });
+            UIRootPanel.AddChild(new UIPanel(0, 0, 200, GraphicsDevice.Viewport.Height, spriteBatch, redRect));
+            UIRootPanel.AddChild(new UIPanel(GraphicsDevice.Viewport.Width - 200, 0, 200, GraphicsDevice.Viewport.Height, spriteBatch, redRect));
         }
     }
 }
