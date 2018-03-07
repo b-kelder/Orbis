@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Orbis.Engine;
+using System.Collections.Generic;
 
 namespace Orbis
 {
@@ -10,6 +12,9 @@ namespace Orbis
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+
+        List<Entity> entities = new List<Entity>();
+        
 
         public Orbis()
         {
@@ -39,7 +44,11 @@ namespace Orbis
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            // Call all drawables
+            foreach (var item in entities)
+            {
+                item.LoadContent(Content);
+            }
         }
 
         /// <summary>
@@ -48,7 +57,11 @@ namespace Orbis
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
+            // Call all drawables
+            foreach (var item in entities)
+            {
+                item.UnloadContent();
+            }
         }
 
         /// <summary>
@@ -58,7 +71,11 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // TODO: Add your update logic here
+            // Call all drawables
+            foreach (var item in entities)
+            {
+                item.Update(gameTime);
+            }
 
             base.Update(gameTime);
         }
@@ -71,9 +88,38 @@ namespace Orbis
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+            spriteBatch.Begin();
+
+            // Call all drawables
+            foreach (var item in entities)
+            {
+                item.Draw(spriteBatch);
+            }
+
+            spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        /// <summary>
+        /// Add an entity to the world.
+        /// </summary>
+        /// <param name="entity">Entity to add.</param>
+        public void AddEntity(Entity entity)
+        {
+            entities.Add(entity);
+        }
+
+        /// <summary>
+        /// Remove an entity if it exists.
+        /// </summary>
+        /// <param name="entity">Entity to remove.</param>
+        public void RemoveEntity(Entity entity)
+        {
+            if (entities.Contains(entity))
+            {
+                entities.Remove(entity);
+            }
         }
     }
 }
