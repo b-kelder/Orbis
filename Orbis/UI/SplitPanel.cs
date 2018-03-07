@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Orbis.UI.Exceptions;
 
 namespace Orbis.UI
@@ -105,10 +106,13 @@ namespace Orbis.UI
         ///     Draw the split panel's children.
         /// </summary>
         /// 
+        /// <param name="spriteBatch">
+        ///     The spriteBatch to use for drawing the UI Element.
+        /// </param>
         /// <param name="gameTime">
         ///     The game loop's current game time.
         /// </param>
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
             // If drawing is attempted when the split panel ha's not been completed yet, an exception is thrown.
             // This should never happen intentionally.
@@ -117,7 +121,7 @@ namespace Orbis.UI
                 throw new OrbisUIException("Split panel is missing its children.");
             }
 
-            base.Draw(gameTime);
+            base.Draw(spriteBatch, gameTime);
         }
 
         /// <summary>

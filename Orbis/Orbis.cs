@@ -11,15 +11,21 @@ namespace Orbis
     public class Orbis : Game
     {
         GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
-        UIElement UIRootPanel;
+        UIWindow UI;
 
         public Orbis()
         {
-            graphics = new GraphicsDeviceManager(this);
+            graphics = new GraphicsDeviceManager(this)
+            {
+                PreferredBackBufferWidth = 1600,
+                PreferredBackBufferHeight = 900
+            };
+
             Content.RootDirectory = "Content";
             Window.Title = "Orbis";
-            //graphics.ToggleFullScreen();
+
+            UI = new UIWindow(this);
+            Components.Add(UI);
         }
 
         /// <summary>
@@ -31,8 +37,7 @@ namespace Orbis
         protected override void Initialize()
         {
             this.IsMouseVisible = true;
-
-            System.Diagnostics.Debug.WriteLine("testKek");
+            Window.AllowUserResizing = false;
             // TODO: Add your initialization logic here
             base.Initialize();
         }
@@ -43,11 +48,6 @@ namespace Orbis
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // build the UI;
-            BuidUI(spriteBatch);
             // TODO: use this.Content to load your game content here
         }
 
@@ -79,47 +79,9 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.DarkGreen);
-
-            UIRootPanel.Draw(gameTime);
+            //GraphicsDevice.Clear(Color.DarkGreen);
 
             base.Draw(gameTime);
-        }
-
-        private void BuidUI(SpriteBatch sb)
-        {
-            var menuBackground = Content.Load<Texture2D>(@"UI\Placeholder");
-            UIRootPanel = new SplitPanel()
-            {
-                RelativeRectangle = new Rectangle(Point.Zero, Window.ClientBounds.Size),
-                SplitDirection = SplitDirection.Vertical,
-                FixedChild = 1
-            };
-            
-            UIRootPanel.AddChild(new Panel()
-            {
-                SpriteBatch = sb,
-                BackgroundTexture = menuBackground
-            });
-
-            var rightChild = new SplitPanel()
-            {
-                Split = 200,
-                SplitDirection = SplitDirection.Horizontal,
-                FixedChild = 0
-            };
-            UIRootPanel.AddChild(rightChild);
-
-            var redRect = new Texture2D(GraphicsDevice, 1, 1);
-            redRect.SetData(new[] { Color.Red });
-            rightChild.AddChild(new Panel()
-            {
-                SpriteBatch = sb,
-                BackgroundTexture = redRect
-            });
-            var yellowRect = new Texture2D(GraphicsDevice, 1, 1);
-            yellowRect.SetData(new[] { Color.Yellow });
-            rightChild.AddChild(new Button());
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Orbis.UI.Exceptions;
 
 namespace Orbis.UI
@@ -160,14 +161,17 @@ namespace Orbis.UI
         /// <summary>
         ///     Draw the UI Element.
         /// </summary>
+        /// <param name="spriteBatch">
+        ///     The SpriteBatch to use for drawing textures.
+        /// </param>
         /// <param name="gameTime">
         ///     The game loop's current game time.
         /// </param>
-        public virtual void Draw(GameTime gameTime)
+        public virtual void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
             foreach (UIElement child in Children)
             {
-                child.Draw(gameTime);
+                child.Draw(spriteBatch, gameTime);
             }
         }
 

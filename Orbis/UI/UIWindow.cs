@@ -40,13 +40,47 @@ namespace Orbis.UI
         /// <param name="game"></param>
         public UIWindow(Game game) : base(game)
         {
-            
+            RootElement = new SplitPanel()
+            {
+                FixedChild = 1,
+                SplitDirection = SplitDirection.Vertical,
+                Split = 200
+            };
         }
 
         public override void Initialize()
         {
             WindowSize = Game.Window.ClientBounds.Size;
             RootElement.Size = WindowSize;
+
+            var rightChild = new SplitPanel()
+            {
+                Split = 200,
+                SplitDirection = SplitDirection.Horizontal,
+                FixedChild = 0
+            };
+            RootElement.AddChild(rightChild);
+
+            var redRect = new Texture2D(GraphicsDevice, 1, 1);
+            redRect.SetData(new[] { Color.Red });
+            rightChild.AddChild(new Panel()
+            {
+                BackgroundTexture = redRect
+            });
+
+            var yellowRect = new Texture2D(GraphicsDevice, 1, 1);
+            yellowRect.SetData(new[] { Color.Yellow });
+            rightChild.AddChild(new Panel()
+            {
+                BackgroundTexture = yellowRect
+            });
+
+            var blueRect = new Texture2D(GraphicsDevice, 1, 1);
+            blueRect.SetData(new[] { Color.Blue });
+            RootElement.AddChild(new Panel()
+            {
+                BackgroundTexture = blueRect
+            });
 
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
 
@@ -59,15 +93,17 @@ namespace Orbis.UI
             if (WindowSize != newWindowSize)
             {
                 RootElement.Size = newWindowSize;
+                WindowSize = newWindowSize;
             }
 
+            System.Diagnostics.Debug.WriteLine(WindowSize);
             base.Update(gameTime);
         }
 
         public override void Draw(GameTime gameTime)
         {
             _spriteBatch.Begin(SpriteSortMode.BackToFront);
-            RootElement.Draw(gameTime);
+            RootElement.Draw(_spriteBatch, gameTime);
             _spriteBatch.End();
             base.Draw(gameTime);
         }

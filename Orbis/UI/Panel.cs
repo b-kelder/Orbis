@@ -15,14 +15,9 @@ namespace Orbis.UI
     public class Panel : UIElement
     {
         /// <summary>
-        ///     The sprite batch used by this element to draw itself.
-        /// </summary>
-        public SpriteBatch SpriteBatch { get; set; }
-
-        /// <summary>
         ///     The background texture for this panel.
         /// </summary>
-        public Texture2D BackgroundTexture { get; set; }
+        public virtual Texture2D BackgroundTexture { get; set; }
 
         /// <summary>
         ///     The children of this UI Element.
@@ -46,18 +41,20 @@ namespace Orbis.UI
         /// <summary>
         ///     Draw the panel.
         /// </summary>
+        /// 
+        /// <param name="spriteBatch">
+        ///     The SpriteBatch to use for drawing textures.
+        /// </param>
         /// <param name="gameTime">
         ///     The game loop's current game time.
         /// </param>
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            if (SpriteBatch != null && BackgroundTexture != null && Visible)
+            if (spriteBatch != null && BackgroundTexture != null)
             {
-                SpriteBatch.Begin(SpriteSortMode);
-                SpriteBatch.Draw(BackgroundTexture, this.AbsoluteRectangle, Color.White);
-                SpriteBatch.End();
+                spriteBatch.Draw(BackgroundTexture, this.AbsoluteRectangle, Color.White);
             }
-            base.Draw(gameTime);
+            base.Draw(spriteBatch, gameTime);
         }
 
         /// <summary>

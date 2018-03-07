@@ -3,6 +3,7 @@
     public enum AnchorPosition
     {
         TopLeft,
-        TopRight
+        TopRight,
+        Center
     }
 }

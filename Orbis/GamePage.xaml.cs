@@ -28,6 +28,9 @@ namespace Orbis
         {
             this.InitializeComponent();
 
+            this.MinWidth = 800;
+            this.MinHeight = 600;
+
 			// Create the game.
 			var launchArguments = string.Empty;
             _game = MonoGame.Framework.XamlGame<Orbis>.Create(launchArguments, Window.Current.CoreWindow, swapChainPanel);

@@ -35,7 +35,7 @@ namespace Orbis
     {
         this.InitializeComponent();
         this.Suspending += OnSuspending;
-
+        
         //API check to ensure the "RequiresPointerMode" property exists, ensuring project is running on build 14393 or later
         if (Windows.Foundation.Metadata.ApiInformation.IsPropertyPresent("Windows.UI.Xaml.Application", "RequiresPointerMode"))
         {
@@ -87,11 +87,6 @@ namespace Orbis
 
             rootFrame.NavigationFailed += OnNavigationFailed;
 
-            if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
-            {
-                //TODO: Load state from previously suspended application
-            }
-
             // Place the frame in the current Window
             Window.Current.Content = rootFrame;
         }
@@ -127,7 +122,6 @@ namespace Orbis
     private void OnSuspending(object sender, SuspendingEventArgs e)
     {
         var deferral = e.SuspendingOperation.GetDeferral();
-        //TODO: Save application state and stop any background activity
         deferral.Complete();
     }
 }
