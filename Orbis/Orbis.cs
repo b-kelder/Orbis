@@ -18,6 +18,8 @@ namespace Orbis
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            Window.Title = "Orbis";
+            //graphics.ToggleFullScreen();
         }
 
         /// <summary>
@@ -28,13 +30,9 @@ namespace Orbis
         /// </summary>
         protected override void Initialize()
         {
-            Window.ClientSizeChanged += (sender, args) => 
-            {
-                if (UIRootPanel != null)
-                {
-                    UIRootPanel.Size = Window.ClientBounds.Size;
-                }
-            };
+            this.IsMouseVisible = true;
+
+            System.Diagnostics.Debug.WriteLine("testKek");
             // TODO: Add your initialization logic here
             base.Initialize();
         }
@@ -121,11 +119,7 @@ namespace Orbis
             });
             var yellowRect = new Texture2D(GraphicsDevice, 1, 1);
             yellowRect.SetData(new[] { Color.Yellow });
-            rightChild.AddChild(new Panel()
-            {
-                SpriteBatch = sb,
-                BackgroundTexture = yellowRect
-            });
+            rightChild.AddChild(new Button());
         }
     }
 }

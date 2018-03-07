@@ -11,7 +11,7 @@ namespace Orbis.UI
     /// <summary>
     ///     Represents an element in the Orbis UI.
     /// </summary>
-    public abstract class UIElement : IDrawable
+    public abstract class UIElement
     {
         /// <summary>
         ///     The parent element for this UI Element.
@@ -150,65 +150,11 @@ namespace Orbis.UI
         protected Rectangle _relativeRect;
 
         /// <summary>
-        ///     I don't even quite know what this does.
-        /// </summary>
-        public int DrawOrder
-        {
-            get
-            {
-                return _drawOrder;
-            }
-            set
-            {
-                // Event handlers should not be triggered if the value has not actually changed.
-                if (_drawOrder != value)
-                {
-                    DrawOrderChanged.Invoke(this, EventArgs.Empty);
-                    _drawOrder = value;
-                }
-            }
-        }
-        private int _drawOrder;
-
-        /// <summary>
-        ///     Is the element visible?
-        /// </summary>
-        public bool Visible
-        {
-            get
-            {
-                return _visible;
-            }
-            set
-            {
-                // Event handlers should not be triggered if the value has not actually changed.
-                if (_visible != value)
-                {
-                    VisibleChanged.Invoke(this, EventArgs.Empty);
-                    _visible = value;
-                }
-            }
-        }
-        private bool _visible;
-
-        /// <summary>
-        ///     I don't know what this should do.
-        /// </summary>
-        public event EventHandler<EventArgs> DrawOrderChanged;
-
-        /// <summary>
-        ///     I don't know what this should do.
-        /// </summary>
-        public event EventHandler<EventArgs> VisibleChanged;
-
-        /// <summary>
         ///     Base constructor for UI elements.
         /// </summary>
         public UIElement() {
             Parent = null;
             _relativeRect = Rectangle.Empty;
-            _drawOrder = 0;
-            _visible = true;
         }
 
         /// <summary>

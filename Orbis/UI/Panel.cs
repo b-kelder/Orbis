@@ -53,7 +53,7 @@ namespace Orbis.UI
         {
             if (SpriteBatch != null && BackgroundTexture != null && Visible)
             {
-                SpriteBatch.Begin();
+                SpriteBatch.Begin(SpriteSortMode);
                 SpriteBatch.Draw(BackgroundTexture, this.AbsoluteRectangle, Color.White);
                 SpriteBatch.End();
             }
