@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using Microsoft.Xna.Framework;
-
 using Orbis.UI.Exceptions;
 
 namespace Orbis.UI
@@ -103,6 +101,13 @@ namespace Orbis.UI
             _fixedChild = 1;
         }
 
+        /// <summary>
+        ///     Draw the split panel's children.
+        /// </summary>
+        /// 
+        /// <param name="gameTime">
+        ///     The game loop's current game time.
+        /// </param>
         public override void Draw(GameTime gameTime)
         {
             // If drawing is attempted when the split panel ha's not been completed yet, an exception is thrown.
@@ -186,6 +191,10 @@ namespace Orbis.UI
         /// <summary>
         ///     Add a child element to the split panel.
         /// </summary>
+        /// 
+        /// <param name="child">
+        ///     The element to add as a child.
+        /// </param>
         public override void AddChild(UIElement child)
         {
             if (_children.Count == 2)
