@@ -102,11 +102,16 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Engine\Entity.cs" />
+    <Compile Include="Dice.cs" />
     <Compile Include="GamePage.xaml.cs">
       <DependentUpon>GamePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Orbis.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="World\Biome.cs" />
+    <Compile Include="World\Cell.cs" />
+    <Compile Include="World\Civilization.cs" />
+    <Compile Include="World\Scene.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />
