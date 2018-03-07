@@ -106,9 +106,17 @@
     </Compile>
     <Compile Include="Orbis.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rendering\Camera.cs" />
+    <Compile Include="Rendering\Material.cs" />
+    <Compile Include="Rendering\Mesh.cs" />
+    <Compile Include="Rendering\MeshCombiner.cs" />
+    <Compile Include="Rendering\ObjParser.cs" />
+    <Compile Include="Rendering\RenderableMesh.cs" />
+    <Compile Include="Rendering\RenderInstance.cs" />
     <Compile Include="TopographyHelper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\train.obj" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -121,6 +129,7 @@
     <Content Include="Content\checkerboard.png" />
     <Content Include="Content\hex_grass.png" />
     <Content Include="Content\hex_brick.png" />
+    <Content Include="Content\train.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
