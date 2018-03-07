@@ -59,6 +59,9 @@ namespace Orbis.UI
             base.Draw(gameTime);
         }
 
+        /// <summary>
+        ///     Add a child to the panel.
+        /// </summary>
         public override void AddChild(UIElement child)
         {
             _children.Add(child);

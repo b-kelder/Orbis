@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Orbis.UI.Exceptions;
 
 namespace Orbis.UI
@@ -45,6 +44,7 @@ namespace Orbis.UI
                 {
                     absoluteRect.Location = absoluteRect.Location + Parent.AbsoluteRectangle.Location;
                 }
+
                 return absoluteRect;
             }
         }
@@ -61,11 +61,13 @@ namespace Orbis.UI
             }
             set
             {
+                // Negative sizes don't work for drawing.
                 if (value.X < 0 || value.Y < 0)
                 {
                     throw new OrbisUIException("Element size can not be negative.");
                 }
 
+                // To prevent issues, elements are not allowed exceed the boundaries of their parent.
                 if (Parent != null)
                 {
                     var parentRect = Parent.AbsoluteRectangle;
@@ -76,6 +78,7 @@ namespace Orbis.UI
 
                 if (_relativeRect.Size != value)
                 {
+                    // Resetting the layout if the value hasn't changed is inefficiënt and therefore avoided.
                     _relativeRect.Size = value;
                     ResetLayout();
                 }
@@ -105,6 +108,7 @@ namespace Orbis.UI
 
                 if (_relativeRect.Location != value)
                 {
+                    // Resetting layout if the value has not changed is inefficiënt and therefore avoided.
                     _relativeRect.Location = value;
                     ResetLayout();
                 }
@@ -122,6 +126,7 @@ namespace Orbis.UI
             }
             set
             {
+                //
                 if (Parent != null)
                 {
                     var parentRect = Parent.AbsoluteRectangle;
@@ -132,6 +137,7 @@ namespace Orbis.UI
 
                 if (_relativeRect != value)
                 {
+                    // Resetting layout if the value has not changed is inefficiënt and therefore avoided.
                     _relativeRect = value;
                     ResetLayout();
                 }
@@ -239,7 +245,7 @@ namespace Orbis.UI
         }
 
         /// <summary>
-        ///     Check if the given absolute rectangle fits within the parent rectangle.
+        ///     Check if the given absolute rectangle fits within the given parent rectangle.
         /// </summary>
         protected void CheckElementBoundaries(Rectangle absoluteRect, Rectangle parentRect)
         {

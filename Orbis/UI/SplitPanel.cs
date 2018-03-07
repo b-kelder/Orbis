@@ -29,9 +29,8 @@ namespace Orbis.UI
 
         /// <summary>
         ///     The position at which the divider between the two elements is placed.
-        ///     Should be between 0 and 1.
         /// </summary>
-        public float Split
+        public int Split
         {
             get
             {
@@ -39,15 +38,39 @@ namespace Orbis.UI
             }
             set
             {
-                var clamped = MathHelper.Clamp(value, 0.01F, 0.99F);
-                if (_split != clamped)
+                if (_split != value)
                 {
-                    _split = clamped;
+                    _split = value;
                     ResetLayout();
                 }
             }
         }
-        private float _split;
+        private int _split;
+
+        /// <summary>
+        ///     Number of the child that has a fixed size.
+        /// </summary>
+        public int FixedChild
+        {
+            get
+            {
+                return _fixedChild;
+            }
+            set
+            {
+                if (value != 1 && value != 2)
+                {
+                    throw new OrbisUIException("Fixed child index out of range.");
+                }
+
+                if (_fixedChild != value)
+                {
+                    _fixedChild = value;
+                    ResetLayout();
+                }
+            }
+        }
+        private int _fixedChild;
 
         /// <summary>
         ///     The direction in which the panel splits the children.
@@ -75,8 +98,9 @@ namespace Orbis.UI
         /// </summary>
         public SplitPanel() : base() {
             _children = new List<UIElement>(2);
-            _split = .5F;
+            _split = 800;
             _splitDirection = SplitDirection.Vertical;
+            _fixedChild = 1;
         }
 
         /// <summary>
@@ -90,26 +114,57 @@ namespace Orbis.UI
 
                 if (SplitDirection == SplitDirection.Vertical)
                 {
-                    _children[0].RelativeRectangle = new Rectangle(
-                        Point.Zero,
-                        new Point((int)Math.Floor(absoluteRect.Width * _split), absoluteRect.Height));
-                    if (_children.Count > 1)
+                    if (FixedChild == 1)
                     {
-                        _children[1].RelativeRectangle = new Rectangle(
-                            new Point((int)Math.Floor(absoluteRect.Width * _split), 0),
-                            new Point((int)Math.Floor(absoluteRect.Width * _split), absoluteRect.Height));
+                        _children[0].RelativeRectangle = new Rectangle(
+                        Point.Zero,
+                        new Point(_split, absoluteRect.Height));
+                        if (_children.Count > 1)
+                        {
+                            _children[1].RelativeRectangle = new Rectangle(
+                                new Point(_split, 0),
+                                new Point(absoluteRect.Width - _split, absoluteRect.Height));
+                        }
                     }
+                    else
+                    {
+                        _children[0].RelativeRectangle = new Rectangle(
+                        Point.Zero,
+                        new Point(absoluteRect.Width - _split, absoluteRect.Height));
+                        if (_children.Count > 1)
+                        {
+                            _children[1].RelativeRectangle = new Rectangle(
+                                new Point(absoluteRect.Width - _split, 0),
+                                new Point(_split, absoluteRect.Height));
+                        }
+                    }
+                    
                 }
                 else if (SplitDirection == SplitDirection.Horizontal)
                 {
-                    _children[0].RelativeRectangle = new Rectangle(
-                        Point.Zero,
-                        new Point(absoluteRect.Width, (int)Math.Floor(absoluteRect.Height * _split)));
-                    if (_children.Count > 1)
+                    if (FixedChild == 1)
                     {
-                        _children[1].RelativeRectangle = new Rectangle(
-                            new Point(0, (int)Math.Floor(absoluteRect.Height * _split)),
-                            new Point(absoluteRect.Width, (int)Math.Floor(absoluteRect.Height * _split)));
+                        _children[0].RelativeRectangle = new Rectangle(
+                        Point.Zero,
+                        new Point(absoluteRect.Width, _split));
+                        if (_children.Count > 1)
+                        {
+                            _children[1].RelativeRectangle = new Rectangle(
+                                new Point(0, _split),
+                                new Point(absoluteRect.Width, absoluteRect.Height - _split));
+                        }
+                    }
+                    else
+                    {
+                        _children[0].RelativeRectangle = new Rectangle(
+                        Point.Zero,
+                        new Point(absoluteRect.Width, absoluteRect.Height - _split));
+                        if (_children.Count > 1)
+                        {
+                            _children[1].RelativeRectangle = new Rectangle(
+                                new Point(0, absoluteRect.Height - _split),
+                                new Point(absoluteRect.Width, _split));
+                        }
                     }
                 }
             }

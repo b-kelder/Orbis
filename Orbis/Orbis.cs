@@ -93,7 +93,9 @@ namespace Orbis
             var menuBackground = Content.Load<Texture2D>(@"UI\Placeholder");
             UIRootPanel = new SplitPanel()
             {
-                Size = Window.ClientBounds.Size
+                RelativeRectangle = new Rectangle(Point.Zero, Window.ClientBounds.Size),
+                SplitDirection = SplitDirection.Vertical,
+                FixedChild = 2
             };
             
             UIRootPanel.AddChild(new Panel()
@@ -104,8 +106,9 @@ namespace Orbis
 
             var rightChild = new SplitPanel()
             {
-                Split = 0.75F,
-                SplitDirection = SplitDirection.Horizontal
+                Split = 200,
+                SplitDirection = SplitDirection.Horizontal,
+                FixedChild = 1
             };
             UIRootPanel.AddChild(rightChild);
 
