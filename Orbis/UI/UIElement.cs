@@ -159,8 +159,24 @@ namespace Orbis.UI
         }
 
         /// <summary>
+        ///     Perform the update for this frame.
+        /// </summary>
+        /// 
+        /// <param name="gameTime">
+        ///     The game loop's current game time.
+        /// </param>
+        public virtual void Update(GameTime gameTime)
+        {
+            foreach (var child in Children)
+            {
+                child.Update(gameTime);
+            }
+        }
+
+        /// <summary>
         ///     Draw the UI Element.
         /// </summary>
+        /// 
         /// <param name="spriteBatch">
         ///     The SpriteBatch to use for drawing textures.
         /// </param>

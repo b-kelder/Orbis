@@ -77,16 +77,24 @@ namespace Orbis.UI
 
             var blueRect = new Texture2D(GraphicsDevice, 1, 1);
             blueRect.SetData(new[] { Color.Blue });
-            RootElement.AddChild(new Panel()
-            {
-                BackgroundTexture = blueRect
-            });
+            RootElement.AddChild(new Button());
+            //new Panel()
+            //{
+            //    BackgroundTexture = blueRect
+            //}
 
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
 
             base.Initialize();
         }
 
+        /// <summary>
+        ///     Peform the UI update for this frame.
+        /// </summary>
+        /// 
+        /// <param name="gameTime">
+        ///     The game loop's current game time.
+        /// </param>
         public override void Update(GameTime gameTime)
         {
             var newWindowSize = Game.Window.ClientBounds.Size;
@@ -96,7 +104,8 @@ namespace Orbis.UI
                 WindowSize = newWindowSize;
             }
 
-            System.Diagnostics.Debug.WriteLine(WindowSize);
+            RootElement.Update(gameTime);
+
             base.Update(gameTime);
         }
 

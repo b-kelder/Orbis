@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace Orbis.UI
@@ -21,9 +22,9 @@ namespace Orbis.UI
         }
 
         /// <summary>
-        ///     Memes
+        ///     Perform the update for this frame.
         /// </summary>
-        public void Tet()
+        public override void Update(GameTime gameTime)
         {
             var mouseState = Mouse.GetState();
             if (this.AbsoluteRectangle.Contains(mouseState.Position))
@@ -32,7 +33,6 @@ namespace Orbis.UI
                 {
                     System.Diagnostics.Debug.WriteLine("kek");
                 }
-                
             }
         }
     }
