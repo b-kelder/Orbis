@@ -112,6 +112,7 @@
     <Compile Include="World\Cell.cs" />
     <Compile Include="World\Civilization.cs" />
     <Compile Include="World\Scene.cs" />
+    <Compile Include="World\WorldGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />

@@ -14,6 +14,10 @@ namespace Orbis.World
         /// List of neighbour cells
         /// </summary>
         public List<Cell> Neighbours { get; set; }
+        /// <summary>
+        /// The current owner of the cell
+        /// </summary>
+        public Civilization Owner { get; set; }
 
         /// <summary>
         /// The biome that this cell is based on

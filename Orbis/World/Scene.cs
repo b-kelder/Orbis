@@ -8,7 +8,7 @@ namespace Orbis.World
 {
     class Scene
     {
-        public int[][] WorldMap { get; set; }
+        public Cell[,] WorldMap { get; set; }
         public List<Civilization> Civilizations { get; set; }
 
         public Scene()

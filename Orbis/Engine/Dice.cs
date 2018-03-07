@@ -8,7 +8,7 @@ namespace Orbis.Engine
 {
     static class Dice
     {
-        static Random random = new Random(192836);
+        static Random random = new Random(0);
 
         /// <summary>
         /// Roll any amount of dice with any amount of sides and get the total result.
