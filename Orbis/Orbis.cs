@@ -14,13 +14,16 @@ namespace Orbis
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        VertexPositionTexture[] testPiramids;
         VertexPositionTexture[] testHex;
-        VertexPositionTexture[] testVerts;
-        BasicEffect effect;
         Texture2D texture;
+        Texture2D texturePiramid;
         Vector3 camPos = new Vector3(0, 40, 20);
+        Vector3 camCenter = Vector3.Zero;
 
         BasicEffect hexEffect;
+        BasicEffect piramidEffect;
+
         private float rotation;
         private float distance;
         private float angle;
@@ -39,64 +42,92 @@ namespace Orbis
         /// </summary>
         protected override void Initialize()
         {
-            testVerts = new VertexPositionTexture[6];
-
-            testVerts[0].Position = new Vector3(-20, -20, -5);
-            testVerts[1].Position = new Vector3(-20, 20, -5);
-            testVerts[2].Position = new Vector3(20, -20, -5);
-
-            testVerts[3].Position = testVerts[1].Position;
-            testVerts[4].Position = new Vector3(20, 20, -5);
-            testVerts[5].Position = testVerts[2].Position;
-
-            testVerts[0].TextureCoordinate = new Vector2(0, 0);
-            testVerts[1].TextureCoordinate = new Vector2(0, 1);
-            testVerts[2].TextureCoordinate = new Vector2(1, 0);
-
-            testVerts[3].TextureCoordinate = testVerts[1].TextureCoordinate;
-            testVerts[4].TextureCoordinate = new Vector2(1, 1);
-            testVerts[5].TextureCoordinate = testVerts[2].TextureCoordinate;
-
+            // Hex generation test
+            var piramids = new List<VertexPositionTexture>();
             var hexes = new List<VertexPositionTexture>();
+            Random rand = new Random();
             float sideXPos = (float)Math.Cos(MathHelper.ToRadians(30));
             float sideYPos = (float)Math.Sin(MathHelper.ToRadians(30));
+            int range = 10;
+            for(int p = -range; p <= range; p++)
+            {
+                for(int q = -range; q <= range; q++)
+                {
+                    if(Math.Abs(q + p) > range)
+                    {
+                        continue;
+                    }
+                    Vector2 position = TopographyHelper.HexToWorld(new Point(p, q));
+                    hexes.AddRange(CreateHex(new Vector3(position.X, position.Y, 0)));
 
-            float rowOffset = 1 + sideYPos;
-            float columnOffset = sideXPos;
-
-            hexes.AddRange(CreateHex(new Vector3(0, 0, 0)));
-            hexes.AddRange(CreateHex(new Vector3(-columnOffset * 2, 0, 0)));
-            hexes.AddRange(CreateHex(new Vector3(columnOffset * 2, 0, 0)));
-            hexes.AddRange(CreateHex(new Vector3(-columnOffset, rowOffset, 0)));
-            hexes.AddRange(CreateHex(new Vector3(columnOffset, rowOffset, 0)));
-            hexes.AddRange(CreateHex(new Vector3(-columnOffset, -rowOffset, 0)));
-            hexes.AddRange(CreateHex(new Vector3(columnOffset, -rowOffset, 0)));
-
-            hexes.AddRange(CreateHex(new Vector3(0, 0, 7)));
-            hexes.AddRange(CreateHex(new Vector3(-columnOffset * 2, 0, 1)));
-            hexes.AddRange(CreateHex(new Vector3(columnOffset * 2, 0, 2)));
-            hexes.AddRange(CreateHex(new Vector3(-columnOffset, rowOffset, 3)));
-            hexes.AddRange(CreateHex(new Vector3(columnOffset, rowOffset, 4)));
-            hexes.AddRange(CreateHex(new Vector3(-columnOffset, -rowOffset, 5)));
-            hexes.AddRange(CreateHex(new Vector3(columnOffset, -rowOffset, 6)));
+                    if(rand.Next(10) <= 1)
+                    {
+                        piramids.AddRange(CreatePiramid(new Vector3(position.X, position.Y, 0)));
+                    }
+                }
+            }
 
             testHex = hexes.ToArray();
+            testPiramids = piramids.ToArray();
 
             // TODO: Add your initialization logic here
-            effect = new BasicEffect(graphics.GraphicsDevice);
             hexEffect = new BasicEffect(graphics.GraphicsDevice);
+            piramidEffect = new BasicEffect(graphics.GraphicsDevice);
 
             rotation = 0;
             distance = 20;
-            angle = -45;
+            angle = -60;
 
             base.Initialize();
+        }
+
+        public VertexPositionTexture[] CreatePiramid(Vector3 center)
+        {
+            var verts = new VertexPositionTexture[12];
+            verts[0].Position = new Vector3(-1, -1, 0);
+            verts[1].Position = new Vector3(-1, 1, 0);
+            verts[2].Position = new Vector3(0, 0, 2);
+
+            verts[3].Position = verts[1].Position;
+            verts[4].Position = new Vector3(1, 1, 0);
+            verts[5].Position = verts[2].Position;
+
+            verts[6].Position = verts[4].Position;
+            verts[7].Position = new Vector3(1, -1, 0);
+            verts[8].Position = verts[2].Position;
+
+            verts[9].Position = verts[7].Position;
+            verts[10].Position = verts[0].Position;
+            verts[11].Position = verts[2].Position;
+
+            verts[0].TextureCoordinate = new Vector2(1, 1);
+            verts[1].TextureCoordinate = new Vector2(0, 1);
+            verts[2].TextureCoordinate = new Vector2(0.5f, 0);
+
+            verts[3].TextureCoordinate = verts[0].TextureCoordinate;
+            verts[4].TextureCoordinate = verts[1].TextureCoordinate;
+            verts[5].TextureCoordinate = verts[2].TextureCoordinate;
+
+            verts[6].TextureCoordinate = verts[0].TextureCoordinate;
+            verts[7].TextureCoordinate = verts[1].TextureCoordinate;
+            verts[8].TextureCoordinate = verts[2].TextureCoordinate;
+
+            verts[9].TextureCoordinate = verts[0].TextureCoordinate;
+            verts[10].TextureCoordinate = verts[1].TextureCoordinate;
+            verts[11].TextureCoordinate = verts[2].TextureCoordinate;
+
+            for(int i = 0; i< verts.Length; i++)
+            {
+                verts[i].Position = verts[i].Position * 0.4f + center;
+            }
+
+            return verts;
         }
 
         public VertexPositionTexture[] CreateHex(Vector3 center)
         {
             var verts = new VertexPositionTexture[12];
-            var uvMatrix = Matrix.CreateTranslation(new Vector3(0.5f, 0.5f, 0)) * Matrix.CreateScale(0.5f);
+            var uvMatrix = Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(new Vector3(0.5f, 0.5f, 0)) * Matrix.CreateScale(1, -1, 1);
 
             float sideYPos = (float)Math.Sin(MathHelper.ToRadians(30));
             float sideXPos = (float)Math.Cos(MathHelper.ToRadians(30));
@@ -119,7 +150,7 @@ namespace Orbis
 
             for(int i = 0; i < verts.Length; i++)
             {
-                var v3 = Vector3.Transform(verts[i].Position, uvMatrix);
+                var v3 = Vector3.Transform(verts[i].Position - center, uvMatrix);
                 verts[i].TextureCoordinate = new Vector2(v3.X, v3.Y);
             }
 
@@ -136,9 +167,14 @@ namespace Orbis
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            using(var stream = TitleContainer.OpenStream("Content/checkerboard.png"))
+            using(var stream = TitleContainer.OpenStream("Content/hex_grass.png"))
             {
                 texture = Texture2D.FromStream(this.GraphicsDevice, stream);
+            }
+
+            using(var stream = TitleContainer.OpenStream("Content/hex_brick.png"))
+            {
+                texturePiramid = Texture2D.FromStream(this.GraphicsDevice, stream);
             }
         }
 
@@ -161,6 +197,7 @@ namespace Orbis
             // TODO: Add your update logic here
 
             var state = Keyboard.GetState();
+            var camMoveDelta = Vector3.Zero;
 
             float speed = 20 * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -185,14 +222,42 @@ namespace Orbis
             {
                 rotation += speed;
             }
+            if(state.IsKeyDown(Keys.OemPlus))
+            {
+                distance -= speed;
+            }
+            if(state.IsKeyDown(Keys.OemMinus))
+            {
+                distance += speed;
+            }
+
+            if(state.IsKeyDown(Keys.W))
+            {
+                camMoveDelta.Y += speed * 0.07f;
+            }
+            if(state.IsKeyDown(Keys.A))
+            {
+                camMoveDelta.X -= speed * 0.07f;
+            }
+            if(state.IsKeyDown(Keys.S))
+            {
+                camMoveDelta.Y -= speed * 0.07f;
+            }
+            if(state.IsKeyDown(Keys.D))
+            {
+                camMoveDelta.X += speed * 0.07f;
+            }
 
             angle = MathHelper.Clamp(angle, -80, -5);
+            distance = MathHelper.Clamp(distance, 1, 4000);
+
+            camCenter += Vector3.Transform(camMoveDelta, Matrix.CreateRotationZ(MathHelper.ToRadians(rotation)));
 
             var camMatrix = Matrix.CreateTranslation(0, -distance, 0) *
                Matrix.CreateRotationX(MathHelper.ToRadians(angle)) *
                Matrix.CreateRotationZ(MathHelper.ToRadians(rotation));
 
-            camPos = Vector3.Transform(Vector3.Zero, camMatrix);
+            camPos = Vector3.Transform(Vector3.Zero, camMatrix) + camCenter;
 
             base.Update(gameTime);
         }
@@ -207,42 +272,14 @@ namespace Orbis
 
             // TODO: Add your drawing code here
             DrawHex();
-            DrawTestVerts();
-          
+            DrawPiramids();
 
             base.Draw(gameTime);
         }
 
-        void DrawTestVerts()
-        {
-            var camLookAtVector = Vector3.Zero;
-            var camUpVector = Vector3.UnitZ;
-
-            effect.View = Matrix.CreateLookAt(camPos, camLookAtVector, camUpVector);
-            float aspectRatio = graphics.PreferredBackBufferWidth / (float)graphics.PreferredBackBufferHeight;
-            float fov = MathHelper.PiOver4;
-            float nearClipPlane = 1;
-            float farClipPlane = 200;
-
-            effect.Projection = Matrix.CreatePerspectiveFieldOfView(fov, aspectRatio, nearClipPlane, farClipPlane);
-
-            effect.TextureEnabled = true;
-            effect.Texture = texture;
-
-            foreach(var pass in effect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-
-                graphics.GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList,
-                    testVerts,
-                    0,
-                    2);
-            }
-        }
-
         void DrawHex()
         {
-            var camLookAtVector = Vector3.Zero;
+            var camLookAtVector = camCenter;
             var camUpVector = Vector3.UnitZ;
 
             hexEffect.View = Matrix.CreateLookAt(camPos, camLookAtVector, camUpVector);
@@ -265,7 +302,33 @@ namespace Orbis
                     0,
                     testHex.Length / 3);
             }
+        }
 
+        void DrawPiramids()
+        {
+            var camLookAtVector = camCenter;
+            var camUpVector = Vector3.UnitZ;
+
+            piramidEffect.View = Matrix.CreateLookAt(camPos, camLookAtVector, camUpVector);
+            float aspectRatio = graphics.PreferredBackBufferWidth / (float)graphics.PreferredBackBufferHeight;
+            float fov = MathHelper.PiOver4;
+            float nearClipPlane = 1;
+            float farClipPlane = 200;
+
+            piramidEffect.Projection = Matrix.CreatePerspectiveFieldOfView(fov, aspectRatio, nearClipPlane, farClipPlane);
+
+            piramidEffect.TextureEnabled = true;
+            piramidEffect.Texture = texturePiramid;
+
+            foreach(var pass in piramidEffect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+
+                graphics.GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList,
+                    testPiramids,
+                    0,
+                    testPiramids.Length / 3);
+            }
         }
     }
 }
