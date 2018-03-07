@@ -95,7 +95,7 @@ namespace Orbis
             {
                 RelativeRectangle = new Rectangle(Point.Zero, Window.ClientBounds.Size),
                 SplitDirection = SplitDirection.Vertical,
-                FixedChild = 2
+                FixedChild = 1
             };
             
             UIRootPanel.AddChild(new Panel()
@@ -108,7 +108,7 @@ namespace Orbis
             {
                 Split = 200,
                 SplitDirection = SplitDirection.Horizontal,
-                FixedChild = 1
+                FixedChild = 0
             };
             UIRootPanel.AddChild(rightChild);
 

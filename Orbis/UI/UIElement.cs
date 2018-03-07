@@ -126,9 +126,9 @@ namespace Orbis.UI
             }
             set
             {
-                //
                 if (Parent != null)
                 {
+                    // The rectangle is relative to the parent, so it should be calculated based on the parent.
                     var parentRect = Parent.AbsoluteRectangle;
                     var newAbsoluteRect = new Rectangle(value.Location + parentRect.Location, value.Size);
 
@@ -160,6 +160,7 @@ namespace Orbis.UI
             }
             set
             {
+                // Event handlers should not be triggered if the value has not actually changed.
                 if (_drawOrder != value)
                 {
                     DrawOrderChanged.Invoke(this, EventArgs.Empty);
@@ -180,6 +181,7 @@ namespace Orbis.UI
             }
             set
             {
+                // Event handlers should not be triggered if the value has not actually changed.
                 if (_visible != value)
                 {
                     VisibleChanged.Invoke(this, EventArgs.Empty);
@@ -237,6 +239,11 @@ namespace Orbis.UI
         /// <summary>
         ///     Add a child to the UI Element.
         /// </summary>
+        /// 
+        /// <param name="child">
+        ///     The child to add.
+        /// </param>
+        /// 
         /// <exception cref="OrbisUIException" />
         public virtual void AddChild(UIElement child)
         {
@@ -245,8 +252,36 @@ namespace Orbis.UI
         }
 
         /// <summary>
-        ///     Check if the given absolute rectangle fits within the given parent rectangle.
+        ///     Replace one of the element's children.
         /// </summary>
+        /// 
+        /// <param name="childIndex">
+        ///     The index of the child to replace.
+        /// </param>
+        /// <param name="newChild">
+        ///     The child to replace it with.
+        /// </param>
+        /// 
+        /// <exception cref="OrbisUIException" />
+        public virtual void ReplaceChild(int childIndex, UIElement newChild)
+        {
+            newChild.Parent = this;
+            ResetLayout();
+        }
+
+        /// <summary>
+        ///     Check if the given absolute rectangle fits within the given parent rectangle
+        ///     and throw an appropriate exception if it doesn't.
+        /// </summary>
+        /// 
+        ///<param name="absoluteRect">
+        ///     The absolute rectangle to check.
+        ///</param>
+        ///<param name="parentRect">
+        ///     The rect within which the absoluterect needs to exist.
+        ///</param>
+        ///
+        ///<exception cref="OrbisUIException" />
         protected void CheckElementBoundaries(Rectangle absoluteRect, Rectangle parentRect)
         {
             if (parentRect.Width != 0 && parentRect.Height != 0)

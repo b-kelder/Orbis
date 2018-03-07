@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Orbis.UI.Exceptions;
 
 namespace Orbis.UI
 {
@@ -69,6 +70,30 @@ namespace Orbis.UI
             CheckElementBoundaries(child.AbsoluteRectangle, this.AbsoluteRectangle);
 
             base.AddChild(child);
+        }
+
+        /// <summary>
+        ///     Replace one of the panel's children.
+        /// </summary>
+        /// 
+        /// <param name="childIndex">
+        ///     The index of the child to replace.
+        /// </param>
+        /// <param name="newChild">
+        ///     The child to replace it with.
+        /// </param>
+        /// 
+        /// <exception cref="OrbisUIException" />
+        public override void ReplaceChild(int childIndex, UIElement newChild)
+        {
+            if (childIndex < 0 || childIndex >= _children.Count)
+            {
+                throw new OrbisUIException("Child index out of range.");
+            }
+
+            Children[childIndex] = newChild;
+
+            base.ReplaceChild(childIndex, newChild);
         }
     }
 }
