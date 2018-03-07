@@ -15,107 +15,181 @@ namespace Orbis.UI
     public abstract class UIElement : IDrawable
     {
         /// <summary>
-        ///     The position of the anchor for this element;
-        /// </summary>
-        public UIAnchorPosition AnchorPosition { get; set; }
-
-        /// <summary>
         ///     The parent element for this UI Element.
         /// </summary>
         public UIElement Parent
         {
             get;
-            // Only other UI Elements can set the parent, and shouldn't unless it is in the Addchild of the parent.
             protected set;
         }
 
         /// <summary>
         ///     The children of this UI Element.
         /// </summary>
-        public UIElement[] Children
+        abstract public UIElement[] Children
+        {
+            get;
+        }
+
+        /// <summary>
+        ///     A rectangle with the absolute on-screen position and size of the element.
+        /// </summary>
+        public Rectangle AbsoluteRectangle
         {
             get
             {
-                return _children.ToArray();
+                var absoluteRect = new Rectangle(_relativeRect.Location, _relativeRect.Size);
+
+                // If the element has a parent, the absolute position needs to e converted to a relative one.
+                if (Parent != null)
+                {
+                    absoluteRect.Location = absoluteRect.Location + Parent.AbsoluteRectangle.Location;
+                }
+                return absoluteRect;
             }
         }
-        protected List<UIElement> _children;
 
         /// <summary>
-        ///     The rectangle of the element relative to the parent element.
+        ///     The size of the UI Element.
+        /// </summary>
+        /// <exception cref="OrbisUIException" />
+        public Point Size
+        {
+            get
+            {
+                return _relativeRect.Size;
+            }
+            set
+            {
+                if (value.X < 0 || value.Y < 0)
+                {
+                    throw new OrbisUIException("Element size can not be negative.");
+                }
+
+                if (Parent != null)
+                {
+                    var parentRect = Parent.AbsoluteRectangle;
+                    var newAbsoluteRect = new Rectangle(_relativeRect.Location + parentRect.Location, value);
+
+                    CheckElementBoundaries(newAbsoluteRect, parentRect);
+                }
+
+                if (_relativeRect.Size != value)
+                {
+                    _relativeRect.Size = value;
+                    ResetLayout();
+                }
+                
+            }
+        }
+
+        /// <summary>
+        ///     The location of the element relative to its parent.
+        /// </summary>
+        /// <exception cref="OrbisUIException" />
+        public Point RelativeLocation
+        {
+            get
+            {
+                return _relativeRect.Location;
+            }
+            set
+            {
+                if (Parent != null)
+                {
+                    var parentRect = Parent.AbsoluteRectangle;
+                    var newAbsoluteRect = new Rectangle(value + parentRect.Location, _relativeRect.Size);
+
+                    CheckElementBoundaries(newAbsoluteRect, parentRect);
+                }
+
+                if (_relativeRect.Location != value)
+                {
+                    _relativeRect.Location = value;
+                    ResetLayout();
+                }
+            }
+        }
+
+        /// <summary>
+        ///     The size of the element and location relative to the parent.
         /// </summary>
         public Rectangle RelativeRectangle
         {
             get
             {
-                var relativeRect = new Rectangle(_elementRect.Location, _elementRect.Size);
-
-                // If the element has a parent, the absolute position needs to e converted to a relative one.
-                if (Parent != null)
-                {
-                    relativeRect.Location = relativeRect.Location - Parent._elementRect.Location;
-                }
-                return relativeRect;
+                return _relativeRect;
             }
             set
             {
-                var absoluteRect = value;
-
-                // If the item has a parent, the relative position must be converted to an absolute position for drawing.
                 if (Parent != null)
                 {
-                    var parentRect = Parent._elementRect;
+                    var parentRect = Parent.AbsoluteRectangle;
+                    var newAbsoluteRect = new Rectangle(value.Location + parentRect.Location, value.Size);
 
-                    //if (AnchorPosition == UIAnchorPosition.TopRight)
-                    //{
-                    //    absoluteRect.X = parentRect.Right - absoluteRect.X - absoluteRect.Width;
-                    //}
-
-                    if (absoluteRect.X > parentRect.Width || absoluteRect.X < 0
-                            || absoluteRect.Y > parentRect.Y || absoluteRect.Y < 0)
-                    {
-                        throw new OrbisUIException("Relative position may not exceed the boundaries of the parent.");
-                    }
-
-                    if (absoluteRect.X + absoluteRect.Width > parentRect.Width
-                        || absoluteRect.Y + absoluteRect.Height > parentRect.Height)
-                    {
-                        throw new OrbisUIException("Size may not exceed the boundaries of the parent.");
-                    }
-
-                    absoluteRect.Location = absoluteRect.Location + parentRect.Location;
+                    CheckElementBoundaries(newAbsoluteRect, parentRect);
                 }
 
-                _elementRect = absoluteRect;
+                if (_relativeRect != value)
+                {
+                    _relativeRect = value;
+                    ResetLayout();
+                }
             }
         }
-        protected Rectangle _elementRect;
+
+        /// <summary>
+        ///     Represents the relative position and size of the UI Element.
+        /// </summary>
+        protected Rectangle _relativeRect;
 
         /// <summary>
         ///     I don't even quite know what this does.
         /// </summary>
         public int DrawOrder
         {
-            get;
-            set;
+            get
+            {
+                return _drawOrder;
+            }
+            set
+            {
+                if (_drawOrder != value)
+                {
+                    DrawOrderChanged.Invoke(this, EventArgs.Empty);
+                    _drawOrder = value;
+                }
+            }
         }
+        private int _drawOrder;
 
         /// <summary>
         ///     Is the element visible?
         /// </summary>
         public bool Visible
         {
-            get;
-            set;
+            get
+            {
+                return _visible;
+            }
+            set
+            {
+                if (_visible != value)
+                {
+                    VisibleChanged.Invoke(this, EventArgs.Empty);
+                    _visible = value;
+                }
+            }
         }
+        private bool _visible;
 
         /// <summary>
-        ///     I don't know what this does.
+        ///     I don't know what this should do.
         /// </summary>
         public event EventHandler<EventArgs> DrawOrderChanged;
 
         /// <summary>
-        ///     I don't know what this does.
+        ///     I don't know what this should do.
         /// </summary>
         public event EventHandler<EventArgs> VisibleChanged;
 
@@ -124,41 +198,9 @@ namespace Orbis.UI
         /// </summary>
         public UIElement() {
             Parent = null;
-            _elementRect = new Rectangle();
-            _children = new List<UIElement>();
-        }
-
-        /// <summary>
-        ///     Base constructor for UI elements.
-        /// </summary>
-        /// <param name="parent">
-        ///     The parent element for this UI Element.
-        /// </param>
-        public UIElement(UIElement parent)
-        {
-            _elementRect = new Rectangle();
-            _children = new List<UIElement>();
-        }
-
-        /// <summary>
-        ///     Base constructor for UI elements.
-        /// </summary>
-        public UIElement(int x, int y, int width, int height)
-        {
-            _elementRect = new Rectangle(x, y, width, height);
-            _children = new List<UIElement>();
-        }
-
-        /// <summary>
-        ///     Base constructor for UI elements.
-        /// </summary>
-        /// <param name="parent">
-        ///     The parent element for this UI Element.
-        /// </param>
-        public UIElement(int x, int y, int width, int height, UIElement parent)
-        {
-            _elementRect = new Rectangle(x, y, width, height);
-            _children = new List<UIElement>();
+            _relativeRect = Rectangle.Empty;
+            _drawOrder = 0;
+            _visible = true;
         }
 
         /// <summary>
@@ -176,20 +218,44 @@ namespace Orbis.UI
         }
 
         /// <summary>
+        ///     Reset the layout of the element and all of its children.
+        /// </summary>
+        public virtual void ResetLayout()
+        {
+            foreach (UIElement child in Children)
+            {
+                child.ResetLayout();
+            }
+        }
+
+        /// <summary>
         ///     Add a child to the UI Element.
         /// </summary>
         /// <exception cref="OrbisUIException" />
-        public void AddChild(UIElement child)
+        public virtual void AddChild(UIElement child)
         {
-            if (!_elementRect.Contains(child._elementRect.Location))
-            {
-                throw new OrbisUIException("Cannot add children with a position outside the boundaries of the parent.");
-            }
-
-            child._elementRect = Rectangle.Intersect(_elementRect, child._elementRect);
-
-            _children.Add(child);
             child.Parent = this;
+            ResetLayout();
+        }
+
+        /// <summary>
+        ///     Check if the given absolute rectangle fits within the parent rectangle.
+        /// </summary>
+        protected void CheckElementBoundaries(Rectangle absoluteRect, Rectangle parentRect)
+        {
+            if (parentRect.Width != 0 && parentRect.Height != 0)
+            {
+                if (!parentRect.Contains(absoluteRect.Location))
+                {
+                    throw new OrbisUIException("Element location can not be outside the parent boundaries.");
+                }
+
+                if (absoluteRect.Width > parentRect.Width
+                    || absoluteRect.Height > parentRect.Height)
+                {
+                    throw new OrbisUIException("Element can not expand beyond the parent.");
+                }
+            }
         }
     }
 }

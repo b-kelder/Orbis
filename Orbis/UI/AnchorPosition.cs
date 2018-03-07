@@ -1,6 +1,6 @@
 ﻿namespace Orbis.UI
 {
-    public enum UIAnchorPosition
+    public enum AnchorPosition
     {
         TopLeft,
         TopRight

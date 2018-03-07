@@ -12,7 +12,7 @@ namespace Orbis
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        UIPanel UIRootPanel;
+        UIElement UIRootPanel;
 
         public Orbis()
         {
@@ -28,6 +28,13 @@ namespace Orbis
         /// </summary>
         protected override void Initialize()
         {
+            Window.ClientSizeChanged += (sender, args) => 
+            {
+                if (UIRootPanel != null)
+                {
+                    UIRootPanel.Size = Window.ClientBounds.Size;
+                }
+            };
             // TODO: Add your initialization logic here
             base.Initialize();
         }
@@ -74,7 +81,7 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.DarkGreen);
 
             UIRootPanel.Draw(gameTime);
 
@@ -84,11 +91,38 @@ namespace Orbis
         private void BuidUI(SpriteBatch sb)
         {
             var menuBackground = Content.Load<Texture2D>(@"UI\Placeholder");
-            UIRootPanel = new UIPanel(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, spriteBatch, menuBackground);
+            UIRootPanel = new SplitPanel()
+            {
+                Size = Window.ClientBounds.Size
+            };
+            
+            UIRootPanel.AddChild(new Panel()
+            {
+                SpriteBatch = sb,
+                BackgroundTexture = menuBackground
+            });
+
+            var rightChild = new SplitPanel()
+            {
+                Split = 0.75F,
+                SplitDirection = SplitDirection.Horizontal
+            };
+            UIRootPanel.AddChild(rightChild);
+
             var redRect = new Texture2D(GraphicsDevice, 1, 1);
             redRect.SetData(new[] { Color.Red });
-            UIRootPanel.AddChild(new UIPanel(0, 0, 200, GraphicsDevice.Viewport.Height, spriteBatch, redRect));
-            UIRootPanel.AddChild(new UIPanel(GraphicsDevice.Viewport.Width - 200, 0, 200, GraphicsDevice.Viewport.Height, spriteBatch, redRect));
+            rightChild.AddChild(new Panel()
+            {
+                SpriteBatch = sb,
+                BackgroundTexture = redRect
+            });
+            var yellowRect = new Texture2D(GraphicsDevice, 1, 1);
+            yellowRect.SetData(new[] { Color.Yellow });
+            rightChild.AddChild(new Panel()
+            {
+                SpriteBatch = sb,
+                BackgroundTexture = yellowRect
+            });
         }
     }
 }

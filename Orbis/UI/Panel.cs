@@ -11,7 +11,7 @@ namespace Orbis.UI
     /// <summary>
     ///     Represents a drawable panel in the UI.
     /// </summary>
-    public class UIPanel : UIElement
+    public class Panel : UIElement
     {
         /// <summary>
         ///     The sprite batch used by this element to draw itself.
@@ -24,22 +24,22 @@ namespace Orbis.UI
         public Texture2D BackgroundTexture { get; set; }
 
         /// <summary>
-        ///     Create a new <see cref="UIPanel"/> without a parent and texture;
+        ///     The children of this UI Element.
         /// </summary>
-        public UIPanel() : base() { }
-
-        /// <summary>
-        ///     Create a new <see cref="UIPanel"/> without parent and texture;
-        /// </summary>
-        public UIPanel(int x, int y, int width, int height) : base(x, y, width, height) { }
-
-        /// <summary>
-        ///     Create a new <see cref="UIPanel"/> with the given texture
-        /// </summary>
-        public UIPanel(int x, int y, int width, int height, SpriteBatch spriteBatch, Texture2D texture) : base(x, y, width, height)
+        public override UIElement[] Children
         {
-            SpriteBatch = spriteBatch;
-            BackgroundTexture = texture;
+            get
+            {
+                return _children.ToArray();
+            }
+        }
+        private List<UIElement> _children;
+
+        /// <summary>
+        ///     Create a new <see cref="Panel"/>.
+        /// </summary>
+        public Panel() : base() {
+            _children = new List<UIElement>();
         }
 
         /// <summary>
@@ -50,13 +50,22 @@ namespace Orbis.UI
         /// </param>
         public override void Draw(GameTime gameTime)
         {
-            if (SpriteBatch != null && BackgroundTexture != null)
+            if (SpriteBatch != null && BackgroundTexture != null && Visible)
             {
                 SpriteBatch.Begin();
-                SpriteBatch.Draw(BackgroundTexture, _elementRect, Color.White);
+                SpriteBatch.Draw(BackgroundTexture, this.AbsoluteRectangle, Color.White);
                 SpriteBatch.End();
             }
             base.Draw(gameTime);
+        }
+
+        public override void AddChild(UIElement child)
+        {
+            _children.Add(child);
+
+            CheckElementBoundaries(child.AbsoluteRectangle, this.AbsoluteRectangle);
+
+            base.AddChild(child);
         }
     }
 }
