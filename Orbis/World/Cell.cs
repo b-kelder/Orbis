@@ -35,7 +35,9 @@ namespace Orbis.World
         /// Modifier for the amount of usable space for the population
         /// </summary>
         public int PopulationValue { get; set; }
-
+        /// <summary>
+        /// The noise value based on the heightmap
+        /// </summary>
         public double NoiseValue { get; set; }
 
         public Cell(double noise)
