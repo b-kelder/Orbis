@@ -9,6 +9,9 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Orbis.UI
 {
+    /// <summary>
+    ///     A UI Window responsible for drawing the GUI and managing UI Elements.
+    /// </summary>
     public class UIWindow : DrawableGameComponent
     {
         /// <summary>
@@ -63,9 +66,20 @@ namespace Orbis.UI
 
             var redRect = new Texture2D(GraphicsDevice, 1, 1);
             redRect.SetData(new[] { Color.Red });
-            rightChild.AddChild(new Panel()
+            
+            var redPanel = new Panel()
             {
                 BackgroundTexture = redRect
+            };
+            rightChild.AddChild(redPanel);
+
+            var greenRect = new Texture2D(GraphicsDevice, 1, 1);
+            greenRect.SetData(new[] { Color.Green });
+            redPanel.AddChild(new Button()
+            {
+                AnchorPosition = AnchorPosition.TopRight,
+                RelativeRectangle = new Rectangle(-100, 100, 100, 50),
+                BackgroundTexture = greenRect
             });
 
             var yellowRect = new Texture2D(GraphicsDevice, 1, 1);
@@ -77,11 +91,12 @@ namespace Orbis.UI
 
             var blueRect = new Texture2D(GraphicsDevice, 1, 1);
             blueRect.SetData(new[] { Color.Blue });
-            RootElement.AddChild(new Button());
-            //new Panel()
-            //{
-            //    BackgroundTexture = blueRect
-            //}
+            RootElement.AddChild(new Panel()
+            {
+                BackgroundTexture = blueRect
+            });
+
+            
 
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -27,9 +28,6 @@ namespace Orbis
 		public GamePage()
         {
             this.InitializeComponent();
-
-            this.MinWidth = 800;
-            this.MinHeight = 600;
 
 			// Create the game.
 			var launchArguments = string.Empty;

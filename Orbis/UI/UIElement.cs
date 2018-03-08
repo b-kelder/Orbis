@@ -32,21 +32,66 @@ namespace Orbis.UI
         }
 
         /// <summary>
+        ///     The anchor mode for this element.
+        ///     Decides where the element anchors to the parent.
+        /// </summary>
+        public AnchorPosition AnchorPosition
+        {
+            get
+            {
+                return _anchorPos;
+            }
+            set
+            {
+                // Resetting layout when the value hasn't changed is inefficiënt and therefore avoided.
+                if (_anchorPos != value)
+                {
+                    _anchorPos = value;
+                    ResetLayout();
+                }
+            }
+        }
+        /// <summary>
+        ///     The position in the parent element relative to which this element is positioned.
+        /// </summary>
+        protected AnchorPosition _anchorPos;
+
+        /// <summary>
         ///     A rectangle with the absolute on-screen position and size of the element.
         /// </summary>
         public Rectangle AbsoluteRectangle
         {
             get
             {
-                var absoluteRect = new Rectangle(_relativeRect.Location, _relativeRect.Size);
+                return GetNewAbsoluteRect(_relativeRect);
+            }
+        }
 
-                // If the element has a parent, the absolute position needs to e converted to a relative one.
-                if (Parent != null)
+        /// <summary>
+        ///     The size of the element and location relative to the parent.
+        /// </summary>
+        public Rectangle RelativeRectangle
+        {
+            get
+            {
+                return _relativeRect;
+            }
+            set
+            {
+                // Prevent pointless checks by only changing if the value is actually different.
+                if (_relativeRect != value)
                 {
-                    absoluteRect.Location = absoluteRect.Location + Parent.AbsoluteRectangle.Location;
-                }
+                    if (Parent != null)
+                    {
+                        // The rectangle is relative to the parent, so it should be calculated based on the parent.
+                        var newAbsoluteRect = GetNewAbsoluteRect(value);
 
-                return absoluteRect;
+                        CheckElementBoundaries(newAbsoluteRect, Parent.AbsoluteRectangle);
+                    }
+
+                    _relativeRect = value;
+                    ResetLayout();
+                }
             }
         }
 
@@ -62,28 +107,27 @@ namespace Orbis.UI
             }
             set
             {
-                // Negative sizes don't work for drawing.
-                if (value.X < 0 || value.Y < 0)
-                {
-                    throw new OrbisUIException("Element size can not be negative.");
-                }
-
-                // To prevent issues, elements are not allowed exceed the boundaries of their parent.
-                if (Parent != null)
-                {
-                    var parentRect = Parent.AbsoluteRectangle;
-                    var newAbsoluteRect = new Rectangle(_relativeRect.Location + parentRect.Location, value);
-
-                    CheckElementBoundaries(newAbsoluteRect, parentRect);
-                }
-
+                // Prevent pointless checks by only changing if the value is actually different.
                 if (_relativeRect.Size != value)
                 {
-                    // Resetting the layout if the value hasn't changed is inefficiënt and therefore avoided.
+                    // Negative sizes don't work for drawing.
+                    if (value.X < 0 || value.Y < 0)
+                    {
+                        throw new OrbisUIException("Element size can not be negative.");
+                    }
+
+                    // To prevent issues, elements are not allowed exceed the boundaries of their parent.
+                    if (Parent != null)
+                    {
+                        var parentRect = Parent.AbsoluteRectangle;
+                        var newAbsoluteRect = GetNewAbsoluteRect(new Rectangle(_relativeRect.Location, value));
+
+                        CheckElementBoundaries(newAbsoluteRect, parentRect);
+                    }
+                    
                     _relativeRect.Size = value;
                     ResetLayout();
                 }
-                
             }
         }
 
@@ -99,47 +143,18 @@ namespace Orbis.UI
             }
             set
             {
-                if (Parent != null)
-                {
-                    var parentRect = Parent.AbsoluteRectangle;
-                    var newAbsoluteRect = new Rectangle(value + parentRect.Location, _relativeRect.Size);
-
-                    CheckElementBoundaries(newAbsoluteRect, parentRect);
-                }
-
+                // Prevent pointless checks by only changing when the value is different from the current one.
                 if (_relativeRect.Location != value)
                 {
-                    // Resetting layout if the value has not changed is inefficiënt and therefore avoided.
+                    if (Parent != null)
+                    {
+                        var parentRect = Parent.AbsoluteRectangle;
+                        var newAbsoluteRect = GetNewAbsoluteRect(new Rectangle(value, Size));
+
+                        CheckElementBoundaries(newAbsoluteRect, parentRect);
+                    }
+
                     _relativeRect.Location = value;
-                    ResetLayout();
-                }
-            }
-        }
-
-        /// <summary>
-        ///     The size of the element and location relative to the parent.
-        /// </summary>
-        public Rectangle RelativeRectangle
-        {
-            get
-            {
-                return _relativeRect;
-            }
-            set
-            {
-                if (Parent != null)
-                {
-                    // The rectangle is relative to the parent, so it should be calculated based on the parent.
-                    var parentRect = Parent.AbsoluteRectangle;
-                    var newAbsoluteRect = new Rectangle(value.Location + parentRect.Location, value.Size);
-
-                    CheckElementBoundaries(newAbsoluteRect, parentRect);
-                }
-
-                if (_relativeRect != value)
-                {
-                    // Resetting layout if the value has not changed is inefficiënt and therefore avoided.
-                    _relativeRect = value;
                     ResetLayout();
                 }
             }
@@ -156,6 +171,7 @@ namespace Orbis.UI
         public UIElement() {
             Parent = null;
             _relativeRect = Rectangle.Empty;
+            _anchorPos = AnchorPosition.TopLeft;
         }
 
         /// <summary>
@@ -214,7 +230,10 @@ namespace Orbis.UI
         public virtual void AddChild(UIElement child)
         {
             child.Parent = this;
+
             ResetLayout();
+
+            CheckElementBoundaries(child.AbsoluteRectangle, this.AbsoluteRectangle);
         }
 
         /// <summary>
@@ -232,7 +251,10 @@ namespace Orbis.UI
         public virtual void ReplaceChild(int childIndex, UIElement newChild)
         {
             newChild.Parent = this;
+            
             ResetLayout();
+
+            CheckElementBoundaries(newChild.AbsoluteRectangle, this.AbsoluteRectangle);
         }
 
         /// <summary>
@@ -263,6 +285,45 @@ namespace Orbis.UI
                     throw new OrbisUIException("Element can not expand beyond the parent.");
                 }
             }
+        }
+
+        /// <summary>
+        ///     Get the absolute rectangle for a relative rectangle based on the parent.
+        /// </summary>
+        /// 
+        /// <param name="relativeRect">
+        ///     The relative rectangle.
+        /// </param>
+        /// 
+        /// <returns>
+        ///     The new absolute rectangle
+        /// </returns>
+        protected Rectangle GetNewAbsoluteRect(Rectangle relativeRect)
+        {
+            var absoluteRect = new Rectangle(relativeRect.Location, relativeRect.Size);
+
+            // If the element has a parent, the absolute position needs to e converted to a relative one.
+            if (Parent != null)
+            {
+                var parentRect = Parent.AbsoluteRectangle;
+
+                // Anchor positions decide what point of the parent the element is relative to.
+                if (_anchorPos == AnchorPosition.TopLeft)
+                {
+                    absoluteRect.Location = absoluteRect.Location + parentRect.Location;
+                }
+                else if (_anchorPos == AnchorPosition.TopRight)
+                {
+                    var parentTopRight = new Point(parentRect.Right, parentRect.Top);
+                    absoluteRect.Location = absoluteRect.Location + parentTopRight;
+                }
+                else if (_anchorPos == AnchorPosition.Center)
+                {
+                    absoluteRect.Location = absoluteRect.Location + parentRect.Center;
+                }
+            }
+
+            return absoluteRect;
         }
     }
 }

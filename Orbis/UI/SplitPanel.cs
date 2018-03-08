@@ -214,6 +214,7 @@ namespace Orbis.UI
         /// <summary>
         ///     Replace one of the split panel's children with a new one.
         /// </summary>
+        /// 
         /// <param name="childIndex">
         ///     The index of the child to replace.
         /// </param>
@@ -229,6 +230,9 @@ namespace Orbis.UI
             }
 
             _children[childIndex] = newChild;
+
+            // Children of split panels are always placed relative to the top left of the split panel.
+            newChild.AnchorPosition = AnchorPosition.TopLeft;
 
             base.ReplaceChild(childIndex, newChild);
         }

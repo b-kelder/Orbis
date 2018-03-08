@@ -63,9 +63,7 @@ namespace Orbis.UI
         public override void AddChild(UIElement child)
         {
             _children.Add(child);
-
-            CheckElementBoundaries(child.AbsoluteRectangle, this.AbsoluteRectangle);
-
+            
             base.AddChild(child);
         }
 

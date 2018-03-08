@@ -98,8 +98,14 @@ namespace Orbis
             // parameter
             rootFrame.Navigate(typeof(GamePage), e.Arguments);
         }
+
         // Ensure the current window is active
         Window.Current.Activate();
+
+
+        ApplicationView.PreferredLaunchViewSize = new Size(800.00, 600.00);
+        ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
+        ApplicationView.GetForCurrentView().SetPreferredMinSize(new Size(800.00, 600.00));
     }
 
     /// <summary>
