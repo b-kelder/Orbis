@@ -1,11 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+
 using Microsoft.Xna.Framework.Input;
 using Orbis.Engine;
 using Orbis.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+
 
 namespace Orbis
 {
@@ -16,6 +18,7 @@ namespace Orbis
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+
 
         BasicEffect basicShader;
 
@@ -29,10 +32,12 @@ namespace Orbis
         private Rendering.Model hexModel;
         private Rendering.Model houseHexModel;
 
+
         public Orbis()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            
         }
 
         /// <summary>
@@ -43,6 +48,7 @@ namespace Orbis
         /// </summary>
         protected override void Initialize()
         {
+
             // Shaders
             basicShader = new BasicEffect(graphics.GraphicsDevice);
 
@@ -190,12 +196,14 @@ namespace Orbis
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+
             hexModel = ModelLoader.LoadModel("Content/Meshes/hex.obj", "Content/Textures/hex.png",
                 basicShader, GraphicsDevice);
             houseHexModel = ModelLoader.LoadModel("Content/Meshes/hex_house.obj", "Content/Textures/hex_house.png",
                 basicShader, GraphicsDevice);
 
             LoadRenderInstances();
+
         }
 
         /// <summary>
@@ -204,7 +212,11 @@ namespace Orbis
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
+            // Call all drawables
+            foreach (var item in entities)
+            {
+                item.UnloadContent();
+            }
         }
 
         /// <summary>
@@ -214,7 +226,11 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // TODO: Add your update logic here
+            // Call all drawables
+            foreach (var item in entities)
+            {
+                item.Update(gameTime);
+            }
 
             var state = Keyboard.GetState();
             var camMoveDelta = Vector3.Zero;
@@ -294,7 +310,7 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
             // TODO: Add your drawing code here
             //DrawHex();
@@ -345,7 +361,35 @@ namespace Orbis
             }
 
 
+
             base.Draw(gameTime);
+
+            // Call all drawables
+            //foreach (var item in entities)
+            //{
+            //    item.Draw(spriteBatch);
+            //}
+        }
+
+        /// <summary>
+        /// Add an entity to the world.
+        /// </summary>
+        /// <param name="entity">Entity to add.</param>
+        public void AddEntity(Entity entity)
+        {
+            entities.Add(entity);
+        }
+
+        /// <summary>
+        /// Remove an entity if it exists.
+        /// </summary>
+        /// <param name="entity">Entity to remove.</param>
+        public void RemoveEntity(Entity entity)
+        {
+            if (entities.Contains(entity))
+            {
+                entities.Remove(entity);
+            }
         }
 
         /*void DrawInstance(PreparedRenderInstance instance)
