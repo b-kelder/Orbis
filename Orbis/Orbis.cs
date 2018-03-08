@@ -19,6 +19,8 @@ namespace Orbis
         RenderTarget2D rt;
         bool kek = false;
 
+        double ocean = 0.45;
+
         public Orbis()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -48,10 +50,11 @@ namespace Orbis
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            WorldGenerator worldGenerator = new WorldGenerator(20011998);
+            WorldGenerator worldGenerator = new WorldGenerator(2018);
 
             scene = new Scene();
-            worldGenerator.GenerateWorld(scene, 100, 100);
+            worldGenerator.GenerateWorld(scene, 1000, 1000);
+            worldGenerator.GenerateCivs(scene, 12);
 
             // Call all drawables
             foreach (var item in entities)
@@ -100,6 +103,7 @@ namespace Orbis
             if (!kek)
             {
                 var rectTexture = new Texture2D(GraphicsDevice, 1, 1);
+                Color color;
                 rectTexture.SetData(new[] { Color.White });
                 
                 spriteBatch.Begin();
@@ -110,7 +114,32 @@ namespace Orbis
                     {
                         Cell cell = scene.WorldMap[x, y];
 
-                        spriteBatch.Draw(rectTexture, new Rectangle(x * 10, y * 10, 10, 10), new Color((float)cell.NoiseValue, (float)cell.NoiseValue, (float)cell.NoiseValue));
+                        if (cell.Owner != null)
+                        {
+                            color = Color.Red;
+                        }
+                        else if (cell.NoiseValue < ocean)
+                        {
+                            color = new Color(0, 0, (float)cell.NoiseValue);
+                        }
+                        else if (cell.NoiseValue < ocean + 0.01)
+                        {
+                            color = new Color(127, 127, 0);
+                        }
+                        else if (cell.NoiseValue > 0.55)
+                        {
+                            color = new Color((float)cell.NoiseValue, (float)cell.NoiseValue, (float)cell.NoiseValue);
+                        }
+                        else if (cell.NoiseValue > 0.52)
+                        {
+                            color = new Color((float)cell.NoiseValue / 2, (float)cell.NoiseValue / 2, (float)cell.NoiseValue / 2);
+                        }
+                        else
+                        {
+                            color = new Color(0, 1 -(float)cell.NoiseValue, 0);
+                        }
+
+                        spriteBatch.Draw(rectTexture, new Rectangle(x, y, 1, 1), color);
                     }
                 }
 
@@ -123,7 +152,7 @@ namespace Orbis
             else
             {
                 spriteBatch.Begin();
-                spriteBatch.Draw(rt, new Rectangle(Point.Zero, new Point(1000, 1000)), Color.White);
+                spriteBatch.Draw(rt, new Rectangle(Point.Zero, new Point(2000, 2000)), Color.White);
                 spriteBatch.End();
             }
 

@@ -42,7 +42,7 @@ namespace Orbis.World
 
         public Civilization()
         {
-
+            Territory = new List<Cell>();
         }
     }
 }

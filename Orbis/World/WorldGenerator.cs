@@ -62,9 +62,50 @@ namespace Orbis.World
                     // Check if the cell has an owner
                     if (scene.WorldMap[x, y].Owner == null)
                     {
+                        if (scene.WorldMap[x,y].NoiseValue < 0.45 || scene.WorldMap[x, y].NoiseValue > 0.52)
+                        {
+                            continue;
+                        }
                         // Set the owner and break
                         civ.Territory.Add(scene.WorldMap[x, y]);
                         scene.WorldMap[x, y].Owner = civ;
+
+                        foreach (var item in scene.WorldMap[x, y].Neighbours)
+                        {
+                            civ.Territory.Add(item);
+                            item.Owner = civ;
+                            foreach (var item2 in item.Neighbours)
+                            {
+                                civ.Territory.Add(item2);
+                                item2.Owner = civ;
+                                foreach (var item3 in item2.Neighbours)
+                                {
+                                    civ.Territory.Add(item3);
+                                    item3.Owner = civ;
+                                    foreach (var item4 in item3.Neighbours)
+                                    {
+                                        civ.Territory.Add(item4);
+                                        item4.Owner = civ;
+                                        foreach (var item5 in item4.Neighbours)
+                                        {
+                                            civ.Territory.Add(item5);
+                                            item5.Owner = civ;
+                                            foreach (var item6 in item5.Neighbours)
+                                            {
+                                                civ.Territory.Add(item6);
+                                                item6.Owner = civ;
+                                                foreach (var item7 in item6.Neighbours)
+                                                {
+                                                    civ.Territory.Add(item7);
+                                                    item7.Owner = civ;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                         break;
                     }
                 }
@@ -94,7 +135,7 @@ namespace Orbis.World
             {
                 for (int y = 0; y < sizeY; y++)
                 {
-                    scene.WorldMap[x, y] = new Cell(perlin.OctavePerlin((x+0.5) / 100, (y+0.5) / 100, seed, 3, 10));
+                    scene.WorldMap[x, y] = new Cell(perlin.OctavePerlin((x+0.5) / 1000, (y+0.5) / 1000, seed, 10, 0.7));
 
                     //Debug.WriteLine("X:" + x + " Y:" + y + " NV:" + scene.WorldMap[x, y].NoiseValue);
                 }

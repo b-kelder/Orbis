@@ -20,10 +20,10 @@ namespace Orbis.Engine
 
         public double OctavePerlin(double x, double y, double z, int octaves, double persistence)
         {
-            double total        = 0;
-            double frequency    = 1;
-            double amplitude    = 1;
-            double maxValue     = 0;    // Used for normalizing result to 0.0 - 1.0
+            double total = 0;
+            double frequency = 1;
+            double amplitude = 1;
+            double maxValue = 0;    // Used for normalizing result to 0.0 - 1.0
 
             for (int i = 0; i < octaves; i++)
             {
