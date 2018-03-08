@@ -1,4 +1,5 @@
-﻿using Orbis.Engine;
+﻿using Microsoft.Xna.Framework;
+using Orbis.Engine;
 using System;
 using System.Collections.Generic;
 
@@ -21,13 +22,59 @@ namespace Orbis.World
             random = new Random(seed);
         }
 
+        public void GenerateCivs(Scene scene, int count)
+        {
+            scene.Civilizations = new List<Civilization>();
+            for(int i = 0; i < count; i++)
+            {
+                // Create a civ with all base values
+                Civilization civ = new Civilization
+                {
+                    DefenceModifier = Dice.Roll(6, 1),
+                    OffenceModifier = Dice.Roll(6, 1),
+                    Population = 1,
+                    TechnologyProgress = 0,
+                    Wealth = 0,
+                };
+
+                // Select a random starting cell for the civ
+                int x, y;
+                // Loop until no cell is available or until break
+                while(scene.Civilizations.Count < scene.WorldMap.CellCount)
+                {
+                    // Get random X and Y coordinates
+                    // TODO: Make random function that always gives tile within radius?
+                    x = random.Next(scene.WorldMap.Radius, scene.WorldMap.Radius);
+                    y = random.Next(scene.WorldMap.Radius, scene.WorldMap.Radius);
+
+                    // Check if the cell has an owner
+                    var cell = scene.WorldMap.GetCell(x, y);
+                    if(cell != null && cell.Owner == null)
+                    {
+                        if(cell.Elevation < 0.45 || cell.Elevation > 0.52)
+                        {
+                            continue;
+                        }
+                        // Set the owner and break
+                        civ.Territory.Add(cell);
+                        cell.Owner = civ;
+
+                        break;
+                    }
+                }
+
+                // Add the civ to the world
+                scene.Civilizations.Add(civ);
+            }
+        }
+
         /// <summary>
         /// Generate and place civs on the world map
         /// A world map needs to be generated before this function can be called
         /// </summary>
         /// <param name="scene">The scene to generate for</param>
         /// <param name="amount">The amount of civs to generate</param>
-        public void GenerateCivs(Scene scene, int amount)
+        /*public void GenerateCivs(Scene scene, int amount)
         {
             if (scene.WorldMap.Length <= 0)
             {
@@ -78,6 +125,43 @@ namespace Orbis.World
                 scene.Civilizations.Add(civ);
             }
         }
+        */
+
+        public void GenerateWorld(Scene scene, int radius)
+        {
+            Perlin perlin = new Perlin(5);
+            float boundsX = TopographyHelper.HexToWorld(new Point(radius, 0)).X;
+            float boundsY = TopographyHelper.HexToWorld(new Point(0, radius)).Y;
+            var perlinZ = random.NextDouble();
+
+            scene.WorldMap = new Map(radius);
+
+            for(int p = -radius; p <= radius; p++)
+            {
+                for(int q = -radius; q <= radius; q++)
+                {
+                    var cell = scene.WorldMap.GetCell(p, q);
+                    if(cell == null)
+                    {
+                        continue;
+                    }
+
+                    // Set cell neighbors
+                    cell.Neighbours = scene.WorldMap.GetNeighbours(new Point(p, q));
+
+                    // Set cell height
+                    var worldPoint = TopographyHelper.HexToWorld(new Point(p, q));
+                    var perlinPoint = (worldPoint + new Vector2(boundsX, boundsY)) * 0.001f;
+                    cell.Elevation = perlin.OctavePerlin(perlinPoint.X, perlinPoint.Y, perlinZ, 10, 0.7);
+
+                    // Set biome TODO: Set biome
+                    cell.Biome = null;
+
+                    // Calculate cell values
+                    cell.CalculateModifiers();
+                }
+            }
+        }
 
         /// <summary>
         /// Generate a hex grid world map with a specified size
@@ -85,7 +169,7 @@ namespace Orbis.World
         /// <param name="scene">The scene to generate the world for</param>
         /// <param name="sizeX">The size in X</param>
         /// <param name="sizeY">The size in Y</param>
-        public void GenerateWorld(Scene scene, int sizeX, int sizeY)
+        /*public void GenerateWorld(Scene scene, int sizeX, int sizeY)
         {
             Perlin perlin = new Perlin(5);
 
@@ -152,6 +236,6 @@ namespace Orbis.World
                     scene.WorldMap[x, y].CalculateModifiers();
                 }
             }
-        }
+        }*/
     }
 }

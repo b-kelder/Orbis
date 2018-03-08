@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Orbis.Engine;
 using Orbis.Rendering;
+using Orbis.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -116,8 +117,8 @@ namespace Orbis
             var houseHexCombiner = new MeshCombiner();
 
             Random rand = new Random();
-            int range = 100;
-            float amplitude = 25;
+            int range = 50;
+            float amplitude = 12;
 
             var perlin = new Perlin(range);
 
@@ -126,37 +127,29 @@ namespace Orbis
 
             Debug.WriteLine("HalfBounds: " + boundsX + " - " + boundsY);
 
+            Map map = new Map(range);
+
             for(int p = -range; p <= range; p++)
             {
                 for(int q = -range; q <= range; q++)
                 {
-                    if(Math.Abs(q + p) > range)
+                    var cell = map.GetCell(p, q);
+                    if(cell == null)
                     {
                         continue;
                     }
 
-                    var vector = TopographyHelper.HexToWorld(new Point(p, q));
-                    var perlinPoint = (vector + new Vector2(boundsX, boundsY))/ range;
-                    var height = perlin.OctavePerlin(perlinPoint.X, perlinPoint.Y, 0, 4, 0.9);
-
-                    Vector3 position = new Vector3(vector, (float)height * amplitude);
-
-                    if(rand.Next(40) <= 1)
+                    var worldPoint = TopographyHelper.HexToWorld(new Point(p, q));
+                    var perlinPoint = (worldPoint + new Vector2(boundsX, boundsY)) * 0.04f;
+                    cell.Elevation = perlin.OctavePerlin(perlinPoint.X, perlinPoint.Y, 0, 3, 0.7f);
+                    var position = new Vector3(
+                        worldPoint,
+                        (float)cell.Elevation * amplitude);
+                    hexCombiner.Add(new MeshInstance
                     {
-                        houseHexCombiner.Add(new MeshInstance
-                        {
-                            mesh = houseHexMesh,
-                            matrix = Matrix.CreateTranslation(position),
-                        });
-                    }
-                    else
-                    {
-                        hexCombiner.Add(new MeshInstance
-                        {
-                            mesh = hexMesh,
-                            matrix = Matrix.CreateTranslation(position),
-                        });
-                    }
+                        mesh = hexMesh,
+                        matrix = Matrix.CreateTranslation(position)
+                    });
                 }
             }
 

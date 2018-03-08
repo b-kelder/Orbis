@@ -38,11 +38,17 @@ namespace Orbis.World
         /// <summary>
         /// The noise value based on the heightmap
         /// </summary>
-        public double NoiseValue { get; set; }
+        public double Elevation { get; set; }
+        /// <summary>
+        /// Indicates if this entire cell is water
+        /// </summary>
+        public bool IsWater { get; set; }
 
-        public Cell(double noise)
+        public Point Coordinates { get; set; }
+
+        public Cell(Point coordinates)
         {
-            NoiseValue = noise;
+            Coordinates = coordinates;
         }
 
         /// <summary>
