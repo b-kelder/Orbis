@@ -101,11 +101,14 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Engine\Dice.cs" />
+    <Compile Include="Engine\Perlin.cs" />
     <Compile Include="GamePage.xaml.cs">
       <DependentUpon>GamePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Orbis.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+<<<<<<< HEAD
     <Compile Include="UI\Button.cs" />
     <Compile Include="UI\Exceptions\OrbisUIException.cs" />
     <Compile Include="UI\SimulationWindow.cs" />
@@ -115,8 +118,29 @@
     <Compile Include="UI\UIElement.cs" />
     <Compile Include="UI\Panel.cs" />
     <Compile Include="UI\UIWindow.cs" />
+=======
+    <Compile Include="Rendering\Camera.cs" />
+    <Compile Include="Rendering\Material.cs" />
+    <Compile Include="Rendering\Mesh.cs" />
+    <Compile Include="Rendering\MeshCombiner.cs" />
+    <Compile Include="Rendering\Model.cs" />
+    <Compile Include="Rendering\ModelLoader.cs" />
+    <Compile Include="Rendering\ObjParser.cs" />
+    <Compile Include="Rendering\RenderableMesh.cs" />
+    <Compile Include="Rendering\RenderInstance.cs" />
+    <Compile Include="TopographyHelper.cs" />
+    <Compile Include="World\Biome.cs" />
+    <Compile Include="World\Cell.cs" />
+    <Compile Include="World\Civilization.cs" />
+    <Compile Include="World\Scene.cs" />
+    <Compile Include="World\WorldGenerator.cs" />
+>>>>>>> master
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\Textures\hex.png" />
+    <Content Include="Content\Textures\hex_house.png" />
+    <Content Include="Content\Meshes\hex.obj" />
+    <Content Include="Content\Meshes\hex_house.obj" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -148,6 +172,7 @@
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
