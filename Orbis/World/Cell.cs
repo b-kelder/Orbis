@@ -47,9 +47,9 @@ namespace Orbis.World
         public void CalculateModifiers()
         {
             // Generate basis value off a D20 roll
-            FoodValue = Dice.Roll(20, 1);
-            ResourceValue = Dice.Roll(20, 1);
-            PopulationValue = Dice.Roll(20, 1);
+            FoodValue = Dice.Roll(6, 1);
+            ResourceValue = Dice.Roll(6, 1);
+            PopulationValue = Dice.Roll(6, 1);
 
             // Add biome modifiers
             FoodValue += Biome.FoodModifier;
