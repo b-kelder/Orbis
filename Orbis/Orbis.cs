@@ -212,11 +212,6 @@ namespace Orbis
         /// </summary>
         protected override void UnloadContent()
         {
-            // Call all drawables
-            foreach (var item in entities)
-            {
-                item.UnloadContent();
-            }
         }
 
         /// <summary>
@@ -226,11 +221,6 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Call all drawables
-            foreach (var item in entities)
-            {
-                item.Update(gameTime);
-            }
 
             var state = Keyboard.GetState();
             var camMoveDelta = Vector3.Zero;
@@ -360,59 +350,8 @@ namespace Orbis
                 }
             }
 
-
-
             base.Draw(gameTime);
 
-            // Call all drawables
-            //foreach (var item in entities)
-            //{
-            //    item.Draw(spriteBatch);
-            //}
         }
-
-        /// <summary>
-        /// Add an entity to the world.
-        /// </summary>
-        /// <param name="entity">Entity to add.</param>
-        public void AddEntity(Entity entity)
-        {
-            entities.Add(entity);
-        }
-
-        /// <summary>
-        /// Remove an entity if it exists.
-        /// </summary>
-        /// <param name="entity">Entity to remove.</param>
-        public void RemoveEntity(Entity entity)
-        {
-            if (entities.Contains(entity))
-            {
-                entities.Remove(entity);
-            }
-        }
-
-        /*void DrawInstance(PreparedRenderInstance instance)
-        {
-            instance.effect.World = instance.matrix;
-            instance.effect.View = camera.CreateViewMatrix();
-            float aspectRatio = graphics.PreferredBackBufferWidth / (float)graphics.PreferredBackBufferHeight;
-            instance.effect.Projection = camera.CreateProjectionMatrix(aspectRatio);
-            instance.effect.TextureEnabled = true;
-            instance.effect.Texture = instance.texture;
-
-            graphics.GraphicsDevice.Indices = instance.mesh.IndexBuffer;
-            graphics.GraphicsDevice.SetVertexBuffer(instance.mesh.VertexBuffer);
-
-            foreach(var pass in instance.effect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-
-                graphics.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList,
-                    0,
-                    0,
-                    instance.mesh.IndexBuffer.IndexCount);
-            }
-        }*/
     }
 }
