@@ -33,6 +33,15 @@ namespace Orbis.UI
         }
 
         /// <summary>
+        ///     The simulation window used by the UI View.
+        /// </summary>
+        public SimulationWindow SimulationWindow
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         ///     The spritebatch used to draw the UI.
         /// </summary>
         private SpriteBatch _spriteBatch;
@@ -66,21 +75,9 @@ namespace Orbis.UI
 
             var redRect = new Texture2D(GraphicsDevice, 1, 1);
             redRect.SetData(new[] { Color.Red });
-            
-            var redPanel = new Panel()
-            {
-                BackgroundTexture = redRect
-            };
-            rightChild.AddChild(redPanel);
 
-            var greenRect = new Texture2D(GraphicsDevice, 1, 1);
-            greenRect.SetData(new[] { Color.Green });
-            redPanel.AddChild(new Button()
-            {
-                AnchorPosition = AnchorPosition.TopRight,
-                RelativeRectangle = new Rectangle(-100, 100, 100, 50),
-                BackgroundTexture = greenRect
-            });
+            SimulationWindow = new SimulationWindow(Game.GraphicsDevice);
+            rightChild.AddChild(SimulationWindow);
 
             var yellowRect = new Texture2D(GraphicsDevice, 1, 1);
             yellowRect.SetData(new[] { Color.Yellow });

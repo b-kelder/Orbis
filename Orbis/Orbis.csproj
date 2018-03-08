@@ -108,7 +108,6 @@
     </Compile>
     <Compile Include="Orbis.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-<<<<<<< HEAD
     <Compile Include="UI\Button.cs" />
     <Compile Include="UI\Exceptions\OrbisUIException.cs" />
     <Compile Include="UI\SimulationWindow.cs" />
@@ -118,7 +117,6 @@
     <Compile Include="UI\UIElement.cs" />
     <Compile Include="UI\Panel.cs" />
     <Compile Include="UI\UIWindow.cs" />
-=======
     <Compile Include="Rendering\Camera.cs" />
     <Compile Include="Rendering\Material.cs" />
     <Compile Include="Rendering\Mesh.cs" />
@@ -134,7 +132,6 @@
     <Compile Include="World\Civilization.cs" />
     <Compile Include="World\Scene.cs" />
     <Compile Include="World\WorldGenerator.cs" />
->>>>>>> master
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\Textures\hex.png" />

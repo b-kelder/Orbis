@@ -1,17 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
-<<<<<<< HEAD
 using Orbis.UI;
-=======
 using Microsoft.Xna.Framework.Input;
 using Orbis.Engine;
 using Orbis.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
->>>>>>> master
 
 namespace Orbis
 {
@@ -46,14 +41,11 @@ namespace Orbis
             };
 
             Content.RootDirectory = "Content";
-<<<<<<< HEAD
             Window.Title = "Orbis";
 
-            UI = new UIWindow(this);
-            Components.Add(UI);
-=======
-            
->>>>>>> master
+            //UI = new UIWindow(this);
+            //Components.Add(UI);
+            //UI.DrawOrder = 1;
         }
 
         /// <summary>
@@ -64,11 +56,9 @@ namespace Orbis
         /// </summary>
         protected override void Initialize()
         {
-<<<<<<< HEAD
             this.IsMouseVisible = true;
             Window.AllowUserResizing = false;
             // TODO: Add your initialization logic here
-=======
 
             // Shaders
             basicShader = new BasicEffect(graphics.GraphicsDevice);
@@ -82,8 +72,6 @@ namespace Orbis
             //camera.Mode = CameraMode.Orthographic;
 
             renderInstances = new List<RenderInstance>();
-
->>>>>>> master
             base.Initialize();
         }
 
@@ -146,7 +134,7 @@ namespace Orbis
             float boundsX = TopographyHelper.HexToWorld(new Point(range, 0)).X;
             float boundsY = TopographyHelper.HexToWorld(new Point(0, range)).Y;
 
-            Debug.WriteLine("HalfBounds: " + boundsX + " - " + boundsY);
+            //Debug.WriteLine("HalfBounds: " + boundsX + " - " + boundsY);
 
             for(int p = -range; p <= range; p++)
             {
@@ -215,21 +203,12 @@ namespace Orbis
         /// </summary>
         protected override void LoadContent()
         {
-<<<<<<< HEAD
-            // TODO: use this.Content to load your game content here
-=======
-            // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-
-
             hexModel = ModelLoader.LoadModel("Content/Meshes/hex.obj", "Content/Textures/hex.png",
                 basicShader, GraphicsDevice);
             houseHexModel = ModelLoader.LoadModel("Content/Meshes/hex_house.obj", "Content/Textures/hex_house.png",
                 basicShader, GraphicsDevice);
 
             LoadRenderInstances();
-
->>>>>>> master
         }
 
         /// <summary>
@@ -238,11 +217,8 @@ namespace Orbis
         /// </summary>
         protected override void UnloadContent()
         {
-<<<<<<< HEAD
             Content.Unload();
             // TODO: Unload any non ContentManager content here
-=======
->>>>>>> master
         }
 
         /// <summary>
@@ -331,9 +307,8 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-<<<<<<< HEAD
+            //GraphicsDevice.SetRenderTarget(UI.SimulationWindow.SimulationRenderTarget);
             //GraphicsDevice.Clear(Color.DarkGreen);
-=======
             GraphicsDevice.Clear(Color.Aqua);
 
             // TODO: Add your drawing code here
@@ -341,6 +316,7 @@ namespace Orbis
             //DrawPiramids();
             //DrawMesh(meshTest, piramidEffect, this.texturePiramid);
 
+            //float aspectRatio = UI.SimulationWindow.Size.X / (float)UI.SimulationWindow.Size.Y;
             float aspectRatio = graphics.PreferredBackBufferWidth / (float)graphics.PreferredBackBufferHeight;
             Matrix viewMatrix = camera.CreateViewMatrix();
             Matrix projectionMatrix = camera.CreateProjectionMatrix(aspectRatio);
@@ -383,10 +359,10 @@ namespace Orbis
                     }
                 }
             }
->>>>>>> master
+
+            //GraphicsDevice.SetRenderTarget(null);
 
             base.Draw(gameTime);
-
         }
     }
 }
