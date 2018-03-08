@@ -102,6 +102,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Engine\Dice.cs" />
+    <Compile Include="Engine\InputHandler.cs" />
     <Compile Include="Engine\Perlin.cs" />
     <Compile Include="GamePage.xaml.cs">
       <DependentUpon>GamePage.xaml</DependentUpon>

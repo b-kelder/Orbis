@@ -19,6 +19,7 @@ namespace Orbis
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        InputHandler input;
 
         BasicEffect basicShader;
 
@@ -37,7 +38,8 @@ namespace Orbis
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            
+
+            input = new InputHandler();
         }
 
         /// <summary>
@@ -221,59 +223,58 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-
-            var state = Keyboard.GetState();
+            input.UpdateInput();
+            
             var camMoveDelta = Vector3.Zero;
 
             float speed = 100 * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             float scale = camera.OrthographicScale;
 
-            if(state.IsKeyDown(Keys.LeftShift))
+            if(input.IsKeyDown(Keys.LeftShift))
             {
                 speed /= 5;
             }
-
-            if(state.IsKeyDown(Keys.Up))
+            if(input.IsKeyDown(Keys.Up))
             {
                 angle -= speed;
             }
-            if(state.IsKeyDown(Keys.Down))
+            if(input.IsKeyDown(Keys.Down))
             {
                 angle += speed;
             }
-            if(state.IsKeyDown(Keys.Left))
+            if(input.IsKeyDown(Keys.Left))
             {
                 rotation -= speed;
             }
-            if(state.IsKeyDown(Keys.Right))
+            if(input.IsKeyDown(Keys.Right))
             {
                 rotation += speed;
             }
-            if(state.IsKeyDown(Keys.OemPlus))
+            if (input.IsKeyDown(Keys.OemPlus))
             {
                 distance -= speed;
                 //scale -= speed;
             }
-            if(state.IsKeyDown(Keys.OemMinus))
+            if (input.IsKeyDown(Keys.OemMinus))
             {
                 distance += speed;
                 //scale += speed;
             }
 
-            if(state.IsKeyDown(Keys.W))
+            if(input.IsKeyDown(Keys.W))
             {
                 camMoveDelta.Y += speed * 0.07f;
             }
-            if(state.IsKeyDown(Keys.A))
+            if(input.IsKeyDown(Keys.A))
             {
                 camMoveDelta.X -= speed * 0.07f;
             }
-            if(state.IsKeyDown(Keys.S))
+            if(input.IsKeyDown(Keys.S))
             {
                 camMoveDelta.Y -= speed * 0.07f;
             }
-            if(state.IsKeyDown(Keys.D))
+            if(input.IsKeyDown(Keys.D))
             {
                 camMoveDelta.X += speed * 0.07f;
             }
