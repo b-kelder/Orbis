@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Orbis.Engine;
+using Orbis.World;
 using System.Collections.Generic;
 
 namespace Orbis
@@ -14,12 +15,15 @@ namespace Orbis
         SpriteBatch spriteBatch;
 
         List<Entity> entities = new List<Entity>();
-        
+        Scene scene;
+        RenderTarget2D rt;
+        bool kek = false;
 
         public Orbis()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            
         }
 
         /// <summary>
@@ -31,7 +35,7 @@ namespace Orbis
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
+            rt = new RenderTarget2D(GraphicsDevice, 1000, 1000);
             base.Initialize();
         }
 
@@ -43,6 +47,11 @@ namespace Orbis
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            WorldGenerator worldGenerator = new WorldGenerator(20011998);
+
+            scene = new Scene();
+            worldGenerator.GenerateWorld(scene, 100, 100);
 
             // Call all drawables
             foreach (var item in entities)
@@ -86,19 +95,45 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
-            spriteBatch.Begin();
-
-            // Call all drawables
-            foreach (var item in entities)
+            if (!kek)
             {
-                item.Draw(spriteBatch);
+                var rectTexture = new Texture2D(GraphicsDevice, 1, 1);
+                rectTexture.SetData(new[] { Color.White });
+                
+                spriteBatch.Begin();
+                GraphicsDevice.SetRenderTarget(rt);
+                for (int x = 0; x < scene.WorldMap.GetLength(0); x++)
+                {
+                    for (int y = 0; y < scene.WorldMap.GetLength(1); y++)
+                    {
+                        Cell cell = scene.WorldMap[x, y];
+
+                        spriteBatch.Draw(rectTexture, new Rectangle(x * 10, y * 10, 10, 10), new Color((float)cell.NoiseValue, (float)cell.NoiseValue, (float)cell.NoiseValue));
+                    }
+                }
+
+                kek = true;
+
+                spriteBatch.End();
+                GraphicsDevice.SetRenderTarget(null);
+                
+            }
+            else
+            {
+                spriteBatch.Begin();
+                spriteBatch.Draw(rt, new Rectangle(Point.Zero, new Point(1000, 1000)), Color.White);
+                spriteBatch.End();
             }
 
-            spriteBatch.End();
-
             base.Draw(gameTime);
+
+            // Call all drawables
+            //foreach (var item in entities)
+            //{
+            //    item.Draw(spriteBatch);
+            //}
         }
 
         /// <summary>

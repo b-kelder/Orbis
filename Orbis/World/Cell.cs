@@ -36,9 +36,11 @@ namespace Orbis.World
         /// </summary>
         public int PopulationValue { get; set; }
 
-        public Cell()
+        public double NoiseValue { get; set; }
+
+        public Cell(double noise)
         {
-            
+            NoiseValue = noise;
         }
 
         /// <summary>
@@ -52,9 +54,9 @@ namespace Orbis.World
             PopulationValue = Dice.Roll(6, 1);
 
             // Add biome modifiers
-            FoodValue += Biome.FoodModifier;
-            ResourceValue += Biome.ResourceModifier;
-            PopulationValue += Biome.PopulationModifier;
+            //FoodValue += Biome.FoodModifier;
+            //ResourceValue += Biome.ResourceModifier;
+            //PopulationValue += Biome.PopulationModifier;
 
             // Add modifiers based on terrain
             //TODO: Modifiers based on proximity of water, mountains.

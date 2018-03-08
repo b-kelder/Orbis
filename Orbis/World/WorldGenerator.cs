@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Orbis.Engine;
+using System.Diagnostics;
 
 namespace Orbis.World
 {
@@ -85,65 +87,71 @@ namespace Orbis.World
         /// <param name="sizeY">The size in Y</param>
         public void GenerateWorld(Scene scene, int sizeX, int sizeY)
         {
+            Perlin perlin = new Perlin(5);
+
             // Create a array to store cells
             scene.WorldMap = new Cell[sizeX, sizeY];
+
+            double seed = random.NextDouble();
 
             // Generate cells
             for (int x = 0; x < sizeX; x++)
             {
                 for (int y = 0; y < sizeY; y++)
                 {
-                    scene.WorldMap[x, y] = new Cell();
+                    scene.WorldMap[x, y] = new Cell(perlin.OctavePerlin((x+0.5) / 100, (y+0.5) / 100, seed, 3, 10));
+
+                    //Debug.WriteLine("X:" + x + " Y:" + y + " NV:" + scene.WorldMap[x, y].NoiseValue);
                 }
             }
 
-            // Set neighbours for each cell
-            for (int x = 0; x < sizeX; x++)
-            {
-                for (int y = 0; y < sizeY; y++)
-                {
-                    // Create a list to store the cells
-                    scene.WorldMap[x, y].Neighbours = new List<Cell>();
+            //// Set neighbours for each cell
+            //for (int x = 0; x < sizeX; x++)
+            //{
+            //    for (int y = 0; y < sizeY; y++)
+            //    {
+            //        // Create a list to store the cells
+            //        scene.WorldMap[x, y].Neighbours = new List<Cell>();
 
-                    // Check if a right neighbour exists
-                    if (x + 1 <= sizeX)
-                    {
-                        scene.WorldMap[x, y].Neighbours.Add(scene.WorldMap[x + 1, y]);
-                    }
-                    // Check if a bottom right neighbour exists
-                    if (y + 1 <= sizeY)
-                    {
-                        scene.WorldMap[x, y].Neighbours.Add(scene.WorldMap[x, y + 1]);
-                    }
-                    // Check if a bottom left neighbour exists
-                    if (x - 1 >= sizeX && y + 1 <= sizeY)
-                    {
-                        scene.WorldMap[x, y].Neighbours.Add(scene.WorldMap[x - 1, y + 1]);
-                    }
-                    // Check if a top right neighbour exists
-                    if (x + 1 <= sizeX && y - 1 >= sizeY)
-                    {
-                        scene.WorldMap[x, y].Neighbours.Add(scene.WorldMap[x + 1, y - 1]);
-                    }
-                    // Check if a left neighbour exists
-                    if (x - 1 >= sizeX)
-                    {
-                        scene.WorldMap[x, y].Neighbours.Add(scene.WorldMap[x - 1, y]);
-                    }
-                    // Check if a top left neighbour exists
-                    if (y - 1 >= sizeY)
-                    {
-                        scene.WorldMap[x, y].Neighbours.Add(scene.WorldMap[x, y - 1]);
-                    }
+            //        // Check if a right neighbour exists
+            //        if (x + 1 <= sizeX)
+            //        {
+            //            scene.WorldMap[x, y].Neighbours.Add(scene.WorldMap[x + 1, y]);
+            //        }
+            //        // Check if a bottom right neighbour exists
+            //        if (y + 1 <= sizeY)
+            //        {
+            //            scene.WorldMap[x, y].Neighbours.Add(scene.WorldMap[x, y + 1]);
+            //        }
+            //        // Check if a bottom left neighbour exists
+            //        if (x - 1 >= sizeX && y + 1 <= sizeY)
+            //        {
+            //            scene.WorldMap[x, y].Neighbours.Add(scene.WorldMap[x - 1, y + 1]);
+            //        }
+            //        // Check if a top right neighbour exists
+            //        if (x + 1 <= sizeX && y - 1 >= sizeY)
+            //        {
+            //            scene.WorldMap[x, y].Neighbours.Add(scene.WorldMap[x + 1, y - 1]);
+            //        }
+            //        // Check if a left neighbour exists
+            //        if (x - 1 >= sizeX)
+            //        {
+            //            scene.WorldMap[x, y].Neighbours.Add(scene.WorldMap[x - 1, y]);
+            //        }
+            //        // Check if a top left neighbour exists
+            //        if (y - 1 >= sizeY)
+            //        {
+            //            scene.WorldMap[x, y].Neighbours.Add(scene.WorldMap[x, y - 1]);
+            //        }
 
-                    // Set the biome for the cell based on heightmap
-                    // TODO: Set the biome for the cell based on heightmap
-                    scene.WorldMap[x, y].Biome = null;
+            //        // Set the biome for the cell based on heightmap
+            //        // TODO: Set the biome for the cell based on heightmap
+            //        scene.WorldMap[x, y].Biome = null;
 
-                    // Now all data has been set, calculate the modifiers
-                    scene.WorldMap[x, y].CalculateModifiers();
-                }
-            }
+            //        // Now all data has been set, calculate the modifiers
+            //        scene.WorldMap[x, y].CalculateModifiers();
+            //    }
+            //}
         }
     }
 }
