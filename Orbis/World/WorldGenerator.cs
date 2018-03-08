@@ -158,7 +158,7 @@ namespace Orbis.World
                     // Set cell height
                     var worldPoint = TopographyHelper.HexToWorld(new Point(p, q));
                     var perlinPoint = (worldPoint + new Vector2(boundsX, boundsY)) * 0.01f;
-                    cell.Elevation = perlin.OctavePerlin(perlinPoint.X, perlinPoint.Y, perlinZ, 7, 0.7) * MaxElevation;
+                    cell.Elevation = perlin.OctavePerlin(perlinPoint.X, perlinPoint.Y, perlinZ, 10, 0.7) * MaxElevation;
                     if(cell.Elevation <= SeaLevel)
                     {
                         cell.IsWater = true;

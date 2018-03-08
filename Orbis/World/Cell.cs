@@ -36,7 +36,7 @@ namespace Orbis.World
         /// </summary>
         public int PopulationValue { get; set; }
         /// <summary>
-        /// The noise value based on the heightmap
+        /// Terrain elevation level
         /// </summary>
         public double Elevation { get; set; }
         /// <summary>
