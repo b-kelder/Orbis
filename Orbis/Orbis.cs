@@ -1,9 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Orbis.Engine;
 using Orbis.Rendering;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Orbis
 {
@@ -16,8 +18,6 @@ namespace Orbis
         SpriteBatch spriteBatch;
 
         BasicEffect basicShader;
-        Material hexMaterial;
-        Material pyramidMaterial;
 
         Camera camera;
 
@@ -26,6 +26,8 @@ namespace Orbis
         private float rotation;
         private float distance;
         private float angle;
+        private Rendering.Model hexModel;
+        private Rendering.Model houseHexModel;
 
         public Orbis()
         {
@@ -55,53 +57,6 @@ namespace Orbis
             renderInstances = new List<RenderInstance>();
 
             base.Initialize();
-        }
-
-        private Mesh CreateHexMesh()
-        {
-            var vertices = new Vector3[6];
-            var uvs = new Vector2[6];
-            var triangles = new ushort[12];
-
-            float sideYPos = (float)Math.Sin(MathHelper.ToRadians(30));
-            float sideXPos = (float)Math.Cos(MathHelper.ToRadians(30));
-
-            vertices[0] = new Vector3(0, 1, 0);
-            vertices[1] = new Vector3(sideXPos, sideYPos, 0);
-            vertices[2] = new Vector3(sideXPos, -sideYPos, 0);
-            vertices[3] = new Vector3(0, -1, 0);
-            vertices[4] = new Vector3(-sideXPos, -sideYPos, 0);
-            vertices[5] = new Vector3(-sideXPos, sideYPos, 0);
-
-            for(int i = 0; i < vertices.Length; i++)
-            {
-                uvs[i] = (new Vector2(vertices[i].X, vertices[i].Y) + Vector2.One) * 0.5f;
-                uvs[i].Y = 1 - uvs[i].Y;
-            }
-
-            triangles[0] = 0;
-            triangles[1] = 1;
-            triangles[2] = 2;
-
-            triangles[3] = 0;
-            triangles[4] = 2;
-            triangles[5] = 3;
-
-            triangles[6] = 0;
-            triangles[7] = 3;
-            triangles[8] = 4;
-
-            triangles[9] = 0;
-            triangles[10] = 4;
-            triangles[11] = 5;
-
-            var mesh = new Mesh()
-            {
-                Vertices = vertices,
-                UVs = uvs,
-                Triangles = triangles,
-            };
-            return mesh;
         }
 
         private Mesh CreatePyramidMesh()
@@ -149,14 +104,22 @@ namespace Orbis
         private void LoadRenderInstances()
         {
             // Hex generation test
-            var hexMesh = CreateHexMesh();
-            var pyramidMesh = CreatePyramidMesh();
+            var hexMesh = hexModel.Mesh;
+            var houseHexMesh = houseHexModel.Mesh;
             var hexCombiner = new MeshCombiner();
-            var pyramidCombiner = new MeshCombiner();
+            var houseHexCombiner = new MeshCombiner();
 
             Random rand = new Random();
+            int range = 100;
+            float amplitude = 25;
 
-            int range = 300;
+            var perlin = new Perlin(range);
+
+            float boundsX = TopographyHelper.HexToWorld(new Point(range, 0)).X;
+            float boundsY = TopographyHelper.HexToWorld(new Point(0, range)).Y;
+
+            Debug.WriteLine("HalfBounds: " + boundsX + " - " + boundsY);
+
             for(int p = -range; p <= range; p++)
             {
                 for(int q = -range; q <= range; q++)
@@ -165,20 +128,27 @@ namespace Orbis
                     {
                         continue;
                     }
-                    Vector3 position = new Vector3(TopographyHelper.HexToWorld(new Point(p, q)), 0);
-                    hexCombiner.Add(new MeshInstance
-                    {
-                        mesh = hexMesh,
-                        matrix = Matrix.CreateTranslation(position),
-                    });
+
+                    var vector = TopographyHelper.HexToWorld(new Point(p, q));
+                    var perlinPoint = (vector + new Vector2(boundsX, boundsY))/ range;
+                    var height = perlin.OctavePerlin(perlinPoint.X, perlinPoint.Y, 0, 4, 0.9);
+
+                    Vector3 position = new Vector3(vector, (float)height * amplitude);
 
                     if(rand.Next(40) <= 1)
                     {
-                        // Spawn randomly scaled piramid
-                        pyramidCombiner.Add(new MeshInstance
+                        houseHexCombiner.Add(new MeshInstance
                         {
-                            mesh = pyramidMesh,
-                            matrix = Matrix.CreateScale((float)rand.NextDouble() * 0.4f + 0.8f) * Matrix.CreateTranslation(position),
+                            mesh = houseHexMesh,
+                            matrix = Matrix.CreateTranslation(position),
+                        });
+                    }
+                    else
+                    {
+                        hexCombiner.Add(new MeshInstance
+                        {
+                            mesh = hexMesh,
+                            matrix = Matrix.CreateTranslation(position),
                         });
                     }
                 }
@@ -191,19 +161,23 @@ namespace Orbis
                 renderInstances.Add(new RenderInstance()
                 {
                     mesh = new RenderableMesh(graphics.GraphicsDevice, mesh),
-                    material = hexMaterial,
+                    material = hexModel.Material,
                     matrix = Matrix.Identity,
                 });
+
+                Debug.WriteLine("Adding hex mesh");
             }
-            var combinedPyramids = pyramidCombiner.GetCombinedMeshes();
+            var combinedPyramids = houseHexCombiner.GetCombinedMeshes();
             foreach(var mesh in combinedPyramids)
             {
                 renderInstances.Add(new RenderInstance()
                 {
                     mesh = new RenderableMesh(graphics.GraphicsDevice, mesh),
-                    material = pyramidMaterial,
+                    material = houseHexModel.Material,
                     matrix = Matrix.Identity,
                 });
+
+                Debug.WriteLine("Adding pyramid mesh");
             }
         }
 
@@ -216,38 +190,10 @@ namespace Orbis
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            hexMaterial = new Material(basicShader);
-            pyramidMaterial = new Material(basicShader);
-
-            // TODO: use this.Content to load your game content here
-            using(var stream = TitleContainer.OpenStream("Content/hex_grass.png"))
-            {
-                hexMaterial.Texture = Texture2D.FromStream(this.GraphicsDevice, stream);
-            }
-
-            using(var stream = TitleContainer.OpenStream("Content/hex_brick.png"))
-            {
-                pyramidMaterial.Texture = Texture2D.FromStream(this.GraphicsDevice, stream);
-            }
-
-            Mesh trainMesh;
-            Material trainMat = new Material(basicShader);
-            using(var stream = TitleContainer.OpenStream("Content/train.png"))
-            {
-                trainMat.Texture = Texture2D.FromStream(this.GraphicsDevice, stream);
-            }
-
-            using(var stream = TitleContainer.OpenStream("Content/train.obj"))
-            {
-                trainMesh = ObjParser.FromStream(stream);
-            }
-
-            renderInstances.Add(new RenderInstance
-            {
-                mesh = new RenderableMesh(GraphicsDevice, trainMesh),
-                material = trainMat,
-                matrix = Matrix.Identity
-            });
+            hexModel = ModelLoader.LoadModel("Content/Meshes/hex.obj", "Content/Textures/hex.png",
+                basicShader, GraphicsDevice);
+            houseHexModel = ModelLoader.LoadModel("Content/Meshes/hex_house.obj", "Content/Textures/hex_house.png",
+                basicShader, GraphicsDevice);
 
             LoadRenderInstances();
         }

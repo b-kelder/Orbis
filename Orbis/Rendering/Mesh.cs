@@ -13,11 +13,59 @@ namespace Orbis.Rendering
     /// </summary>
     class Mesh
     {
-        public Vector3[] Vertices { get; set; }
-        public Vector2[] UVs { get; set; }
-        public ushort[] Triangles { get; set; }
+        private bool dirtyFlag;
+        private Vector3[] vertices;
+        private Vector2[] uvs;
+        private ushort[] triangles;
+
+        public Vector3[] Vertices {
+            get
+            {
+                return vertices;
+            }
+            set
+            {
+                if(vertices != value)
+                {
+                    dirtyFlag = true;
+                    vertices = value;
+                }
+            }
+        }
+        public Vector2[] UVs
+        {
+            get
+            {
+                return uvs;
+            }
+            set
+            {
+                if(uvs != value)
+                {
+                    dirtyFlag = true;
+                    uvs = value;
+                }
+            }
+        }
+        public ushort[] Triangles
+        {
+            get
+            {
+                return triangles;
+            }
+            set
+            {
+                if(triangles != value)
+                {
+                    dirtyFlag = true;
+                    triangles = value;
+                }
+            }
+        }
         public int VertexCount { get { return Vertices.Length; } }
         public int TriangleCount { get { return Triangles.Length / 3; } }
+        public bool Dirty { get { return dirtyFlag; } }
+        public RenderableMesh RenderableMesh { get; set; }
 
         public Mesh()
         {
@@ -55,9 +103,18 @@ namespace Orbis.Rendering
             return ib;
         }
 
-        public VertexDeclaration GetVertexDeclaration()
+        public void MakeRenderable(GraphicsDevice device)
         {
-            return VertexPositionTexture.VertexDeclaration;
+            if(Dirty)
+            {
+                // TODO: No idea if this is the correct course of action
+                if(RenderableMesh != null)
+                {
+                    RenderableMesh.Dispose();
+                }
+                RenderableMesh = new RenderableMesh(device, this);
+                dirtyFlag = false;
+            }
         }
 
         private void CombineMeshes(IEnumerable<MeshInstance> meshes)
