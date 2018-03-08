@@ -25,7 +25,9 @@ namespace Orbis.Engine
             double amplitude = 1;
             double maxValue = 0;    // Used for normalizing result to 0.0 - 1.0
 
-            for (int i = 0; i < octaves; i++)
+
+            for(int i = 0; i < octaves; i++)
+
             {
                 total += perlin(x * frequency, y * frequency, z * frequency) * amplitude;
 
@@ -39,7 +41,9 @@ namespace Orbis.Engine
         }
 
         // Hash lookup table as defined by Ken Perlin. This is a randomly arranged array of all numbers from 0-255 inclusive.
-        private static readonly int[] permutation = 
+
+        private static readonly int[] permutation =
+
         {
             151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140, 36,103,30,69, 142,
             8,99,37,240,21,10,23,190,6,148,247,120,234,75,0,26,197,62,94,252,219,203, 117,
@@ -60,7 +64,9 @@ namespace Orbis.Engine
         static Perlin()
         {
             p = new int[512];
-            for (int x = 0; x < 512; x++)
+
+            for(int x = 0; x < 512; x++)
+
             {
                 p[x] = permutation[x % 256];
             }
@@ -68,7 +74,9 @@ namespace Orbis.Engine
 
         public double perlin(double x, double y, double z)
         {
-            if (repeat > 0)
+
+            if(repeat > 0)
+
             {                                   // If we have any repeat on, change the coordinates to their "local" repetitions
                 x = x % repeat;
                 y = y % repeat;
@@ -80,21 +88,23 @@ namespace Orbis.Engine
             int zi = (int)z & 255;      // plus 1.  Next we calculate the location (from 0.0 to 1.0) in that cube.
             double xf = x - (int)x;     // We also fade the location to smooth the result.
             double yf = y - (int)y;
-    
+
             double zf = z - (int)z;
             double u = fade(xf);
             double v = fade(yf);
             double w = fade(zf);
 
             int aaa, aba, aab, abb, baa, bba, bab, bbb;
-            aaa = p[p[p[    xi ]+        yi ]+      zi ];
-            aba = p[p[p[    xi ]+    inc(yi)]+      zi ];
-            aab = p[p[p[    xi ]+        yi ]+  inc(zi)];
-            abb = p[p[p[    xi ]+    inc(yi)]+  inc(zi)];
-            baa = p[p[p[inc(xi)]+       yi  ]+      zi ];
-            bba = p[p[p[inc(xi)]+   inc(yi) ]+      zi ];
-            bab = p[p[p[inc(xi)]+       yi  ]+  inc(zi)];
-            bbb = p[p[p[inc(xi)]+   inc(yi) ]+  inc(zi)];
+
+            aaa = p[p[p[xi] + yi] + zi];
+            aba = p[p[p[xi] + inc(yi)] + zi];
+            aab = p[p[p[xi] + yi] + inc(zi)];
+            abb = p[p[p[xi] + inc(yi)] + inc(zi)];
+            baa = p[p[p[inc(xi)] + yi] + zi];
+            bba = p[p[p[inc(xi)] + inc(yi)] + zi];
+            bab = p[p[p[inc(xi)] + yi] + inc(zi)];
+            bbb = p[p[p[inc(xi)] + inc(yi)] + inc(zi)];
+
 
             /* 
              * The gradient function calculates the dot product between a pseudorandom
@@ -102,12 +112,14 @@ namespace Orbis.Engine
              * This is all then lerped together as a sort of weighted average based on the faded (u,v,w) values we made earlier.
              */
             double x1, x2, y1, y2;
-            x1 = lerp(grad(aaa, xf, yf, zf),            grad(baa, xf - 1, yf, zf),          u);                                     
-            x2 = lerp(grad(aba, xf, yf - 1, zf),        grad(bba, xf - 1, yf - 1, zf),      u);
+
+            x1 = lerp(grad(aaa, xf, yf, zf), grad(baa, xf - 1, yf, zf), u);
+            x2 = lerp(grad(aba, xf, yf - 1, zf), grad(bba, xf - 1, yf - 1, zf), u);
             y1 = lerp(x1, x2, v);
 
-            x1 = lerp(grad(aab, xf, yf, zf - 1),        grad(bab, xf - 1, yf, zf - 1),      u);
-            x2 = lerp(grad(abb, xf, yf - 1, zf - 1),    grad(bbb, xf - 1, yf - 1, zf - 1),  u);
+            x1 = lerp(grad(aab, xf, yf, zf - 1), grad(bab, xf - 1, yf, zf - 1), u);
+            x2 = lerp(grad(abb, xf, yf - 1, zf - 1), grad(bbb, xf - 1, yf - 1, zf - 1), u);
+
             y2 = lerp(x1, x2, v);
 
             // For convenience we bound it to 0 - 1 (theoretical min/max before is -1 - 1)
@@ -117,13 +129,16 @@ namespace Orbis.Engine
         public int inc(int num)
         {
             num++;
-            if (repeat > 0) num %= repeat;
+
+            if(repeat > 0) num %= repeat;
+
 
             return num;
         }
 
         public static double grad(int hash, double x, double y, double z)
         {
+
             switch (hash & 0xF)
             {
                 case 0x0: return x  + y;
