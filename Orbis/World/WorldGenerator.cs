@@ -12,6 +12,9 @@ namespace Orbis.World
         /// </summary>
         private Random random;
 
+        public float SeaLevel { get; set; }
+        public float MaxElevation { get; set; }
+
         /// <summary>
         /// World generator constructor
         /// </summary>
@@ -20,6 +23,8 @@ namespace Orbis.World
         {
             // Create a random object based on a seed
             random = new Random(seed);
+            SeaLevel = 8;
+            MaxElevation = 15;
         }
 
         public void GenerateCivs(Scene scene, int count)
@@ -44,14 +49,15 @@ namespace Orbis.World
                 {
                     // Get random X and Y coordinates
                     // TODO: Make random function that always gives tile within radius?
-                    x = random.Next(scene.WorldMap.Radius, scene.WorldMap.Radius);
-                    y = random.Next(scene.WorldMap.Radius, scene.WorldMap.Radius);
+                    x = random.Next(-scene.WorldMap.Radius, scene.WorldMap.Radius);
+                    y = random.Next(-scene.WorldMap.Radius, scene.WorldMap.Radius);
 
                     // Check if the cell has an owner
                     var cell = scene.WorldMap.GetCell(x, y);
                     if(cell != null && cell.Owner == null)
                     {
-                        if(cell.Elevation < 0.45 || cell.Elevation > 0.52)
+                        // No atlantis shenanigans
+                        if(cell.IsWater)
                         {
                             continue;
                         }
@@ -151,8 +157,12 @@ namespace Orbis.World
 
                     // Set cell height
                     var worldPoint = TopographyHelper.HexToWorld(new Point(p, q));
-                    var perlinPoint = (worldPoint + new Vector2(boundsX, boundsY)) * 0.001f;
-                    cell.Elevation = perlin.OctavePerlin(perlinPoint.X, perlinPoint.Y, perlinZ, 10, 0.7);
+                    var perlinPoint = (worldPoint + new Vector2(boundsX, boundsY)) * 0.01f;
+                    cell.Elevation = perlin.OctavePerlin(perlinPoint.X, perlinPoint.Y, perlinZ, 7, 0.7) * MaxElevation;
+                    if(cell.Elevation <= SeaLevel)
+                    {
+                        cell.IsWater = true;
+                    }
 
                     // Set biome TODO: Set biome
                     cell.Biome = null;

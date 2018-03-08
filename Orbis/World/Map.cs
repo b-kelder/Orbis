@@ -57,7 +57,8 @@ namespace Orbis.World
 
         private bool InBounds(int x, int y)
         {
-            return Math.Abs(x + y) <= Radius;
+            var idx = GetCellIndex(x, y);
+            return idx >= 0 && idx < cellData.Length && Math.Abs(x + y) <= Radius;
         }
 
         public List<Cell> GetNeighbours(Point point)
