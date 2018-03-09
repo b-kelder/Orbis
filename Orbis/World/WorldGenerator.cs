@@ -53,15 +53,10 @@ namespace Orbis.World
                 };
 
                 // Select a random starting cell for the civ
-                //int x, y;
                 // Loop until no cell is available or until break
                 while(scene.Civilizations.Count < scene.WorldMap.CellCount && availableCells.Count > 0)
                 {
-                    // Get random X and Y coordinates
                     // TODO: Make random function that always gives tile within radius?
-                    //x = random.Next(-scene.WorldMap.Radius, scene.WorldMap.Radius);
-                    //y = random.Next(-scene.WorldMap.Radius, scene.WorldMap.Radius);
-
                     // Get a random available cell from the range of available cells and remove it from the list of available cells.
                     var nextCell = availableCells[random.Next(0, availableCells.Count)];
                     availableCells.Remove(nextCell);
