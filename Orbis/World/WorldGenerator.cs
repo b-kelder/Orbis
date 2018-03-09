@@ -23,7 +23,7 @@ namespace Orbis.World
         {
             // Create a random object based on a seed
             random = new Random(seed);
-            SeaLevel = 17;
+            SeaLevel = 18;
             MaxElevation = 35;
         }
 
