@@ -23,12 +23,22 @@ namespace Orbis.World
         {
             // Create a random object based on a seed
             random = new Random(seed);
-            SeaLevel = 18;
+            SeaLevel = 17;
             MaxElevation = 35;
         }
 
         public void GenerateCivs(Scene scene, int count)
         {
+            var availableCells = new List<Point>();
+            for (int x = -scene.WorldMap.Radius; x <= scene.WorldMap.Radius; x++)
+            {
+                for (int y = -scene.WorldMap.Radius; y <= scene.WorldMap.Radius; y++)
+                {
+                    var cellPoint = new Point(x, y);
+                    availableCells.Add(cellPoint);
+                }
+            }
+            
             scene.Civilizations = new List<Civilization>();
             for(int i = 0; i < count; i++)
             {
@@ -43,21 +53,26 @@ namespace Orbis.World
                 };
 
                 // Select a random starting cell for the civ
-                int x, y;
+                //int x, y;
                 // Loop until no cell is available or until break
-                while(scene.Civilizations.Count < scene.WorldMap.CellCount)
+                while(scene.Civilizations.Count < scene.WorldMap.CellCount && availableCells.Count > 0)
                 {
                     // Get random X and Y coordinates
                     // TODO: Make random function that always gives tile within radius?
-                    x = random.Next(-scene.WorldMap.Radius, scene.WorldMap.Radius);
-                    y = random.Next(-scene.WorldMap.Radius, scene.WorldMap.Radius);
+                    //x = random.Next(-scene.WorldMap.Radius, scene.WorldMap.Radius);
+                    //y = random.Next(-scene.WorldMap.Radius, scene.WorldMap.Radius);
+
+                    // Get a random available cell from the range of available cells and remove it from the list of available cells.
+                    var nextCell = availableCells[random.Next(0, availableCells.Count)];
+                    availableCells.Remove(nextCell);
 
                     // Check if the cell has an owner
-                    var cell = scene.WorldMap.GetCell(x, y);
-                    if(cell != null && cell.Owner == null)
+                    var cell = scene.WorldMap.GetCell(nextCell.X, nextCell.Y);
+
+                    if (cell != null)
                     {
                         // No atlantis shenanigans
-                        if(cell.IsWater)
+                        if (cell.IsWater)
                         {
                             continue;
                         }
@@ -69,8 +84,15 @@ namespace Orbis.World
                     }
                 }
 
-                // Add the civ to the world
-                scene.Civilizations.Add(civ);
+                if (civ.Territory.Count > 0)
+                {
+                    // Add the civ to the world
+                    scene.Civilizations.Add(civ);
+                }
+                else
+                {
+                    break;
+                }
             }
         }
 
@@ -159,8 +181,8 @@ namespace Orbis.World
                     // Set cell height
                     var worldPoint = TopographyHelper.HexToWorld(new Point(p, q));
                     var perlinPoint = (worldPoint + new Vector2(boundsX, boundsY)) * 0.01f;
-                    cell.Elevation = perlin.OctavePerlin(perlinPoint.X, perlinPoint.Y, perlinZ,4, 0.7) * MaxElevation;
-                    if(cell.Elevation <= SeaLevel)
+                    cell.Elevation = perlin.OctavePerlin(perlinPoint.X, perlinPoint.Y, perlinZ, 4, 0.7) * MaxElevation;
+                    if (cell.Elevation <= SeaLevel)
                     {
                         cell.IsWater = true;
                     }
