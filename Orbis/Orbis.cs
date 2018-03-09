@@ -27,6 +27,9 @@ namespace Orbis
 
         List<RenderInstance> renderInstances;
 
+        Scene scene;
+        Simulator simulator;
+
         private float rotation;
         private float distance;
         private float angle;
@@ -49,14 +52,6 @@ namespace Orbis
         /// </summary>
         protected override void Initialize()
         {
-            scene = new Scene();
-            worldGenerator = new WorldGenerator(43675);
-
-            worldGenerator.GenerateWorld(scene, 100, 100);
-            worldGenerator.GenerateCivs(scene, 10);
-
-            //simulator = new Simulator(scene, 500);
-
             // Shaders
             basicShader = new BasicEffect(graphics.GraphicsDevice);
 
@@ -69,6 +64,8 @@ namespace Orbis
             //camera.Mode = CameraMode.Orthographic;
 
             renderInstances = new List<RenderInstance>();
+
+            
 
             base.Initialize();
         }
@@ -85,10 +82,11 @@ namespace Orbis
             var waterHexCombiner = new MeshCombiner();
 
             // Generate world
-            var scene = new Scene();
+            scene = new Scene();
             var generator = new WorldGenerator(new Random().Next());
             generator.GenerateWorld(scene, 100);
-            generator.GenerateCivs(scene, 250);
+            generator.GenerateCivs(scene, 25);
+            simulator = new Simulator(scene, 100);
 
             // Create world meshes
             int range = scene.WorldMap.Radius;
@@ -287,7 +285,7 @@ namespace Orbis
 
             camera.Position = Vector3.Transform(Vector3.Zero, camMatrix) + camera.LookTarget;
 
-            //simulator.Update();
+            simulator.Update();
 
             base.Update(gameTime);
         }

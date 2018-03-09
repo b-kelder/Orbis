@@ -66,6 +66,17 @@ namespace Orbis.Simulation
         /// <returns></returns>
         public ISimuationAction DetermineAction()
         {
+            int totalHousing = 0;
+            foreach (Cell cell in Territory)
+            {
+                totalHousing += cell.Housing;
+            }
+
+            if (Population > totalHousing)
+            {
+                return new SimulationActionExpand(this);
+            }
+
             // Return the do nothing action
             return new SimulationActionDoNothing();
         }

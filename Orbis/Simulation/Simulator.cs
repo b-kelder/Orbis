@@ -22,6 +22,8 @@ namespace Orbis.Simulation
         /// </summary>
         public int Tick { get; set; }
 
+        public int SimLength { get; set; }
+
         /// <summary>
         /// Queue of all by civs chosen actions.
         /// </summary>
@@ -48,6 +50,11 @@ namespace Orbis.Simulation
             }
 
             Scene = scene;
+            SimLength = length;
+
+            actionQueue = new Queue<ISimuationAction>();
+
+            Tick = 0;
         }
 
         /// <summary>
@@ -55,8 +62,28 @@ namespace Orbis.Simulation
         /// </summary>
         public void Update()
         {
+            Tick++;
+
+            if (Tick > SimLength)
+            {
+                return;
+            }
+            if (Tick == SimLength)
+            {
+                Debug.WriteLine("Tick: " + Tick);
+                Debug.WriteLine("========================");
+                
+                foreach (Civilization civ in Scene.Civilizations)
+                {
+                    Debug.WriteLine(civ.Name + " Population: " + civ.Population + " Size: " + civ.Territory.Count + " FOOD: " + civ.Food);
+                }
+
+                return;
+            }
             foreach (Civilization civ in Scene.Civilizations)
             {
+                actionQueue.Enqueue(civ.DetermineAction());
+
                 // Check if the civ is still alive.
                 if (civ.Dead)
                 {
@@ -72,11 +99,11 @@ namespace Orbis.Simulation
                 }
 
                 // Calculate birth
-                int births = Dice.Roll(4, civ.Population / 5);
+                int births = Dice.Roll(6, civ.Population / 5);
 
                 // Calculate deaths
                 int PeopleWithNoFood = (int)Math.Ceiling(civ.Population - civ.Food);
-                int deaths = Dice.Roll(4, civ.Population / 5) + PeopleWithNoFood;
+                int deaths = Dice.Roll(6, civ.Population / 5) + PeopleWithNoFood;
 
                 // Grow population based on birth and deaths
                 civ.Population += births - deaths;
@@ -84,20 +111,17 @@ namespace Orbis.Simulation
                 if (civ.Population <= 0)
                 {
                     civ.Dead = true;
-                    Debug.WriteLine(civ.Name + " died.");
-                }
-                else
-                {
-                    //if (civ.Population > totalHousing)
-                    {
-
-                    }
+                    Debug.WriteLine(civ.Name + " died in tick: " + Tick);
                 }
 
-                Debug.WriteLine(civ.Name + " Population: " + civ.Population + " Size: " + civ.Territory.Count);
+                //Debug.WriteLine(civ.Name + " Population: " + civ.Population + " Size: " + civ.Territory.Count);
             }
 
-            Tick++;
+            while (actionQueue.Count > 0)
+            {
+                ISimuationAction simuationAction = actionQueue.Dequeue();
+                simuationAction.PerformAction();
+            }
         }
     }
 }

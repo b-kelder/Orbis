@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Orbis.Simulation;
+using Orbis.Engine;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -62,122 +63,122 @@ namespace Orbis.World
         "Ecuador",
         "Estonia",
         "Egypt",
-        "Eritrea                                                                    ",
-        "Spain                                                                      ",
-        "Ethiopia                                                                   ",
-        "Finland                                                                    ",
-        "Fiji                                                                       ",
-        "Micronesia (Federated States of)                                           ",
-        "France                                                                     ",
-        "Gabon                                                                      ",
-        "United Kingdom of Great Britain and Northern Ireland                       ",
-        "Grenada                                                                    ",
-        "Georgia                                                                    ",
-        "Ghana                                                                      ",
-        "Gambia                                                                     ",
-        "Guinea                                                                     ",
-        "Equatorial Guinea                                                          ",
-        "Greece                                                                     ",
-        "Guatemala                                                                  ",
-        "Guinea-Bissau                                                              ",
-        "Guyana                                                                     ",
-        "Honduras                                                                   ",
-        "Croatia                                                                    ",
-        "Haiti                                                                      ",
-        "Hungary                                                                    ",
-        "Indonesia                                                                  ",
-        "Ireland                                                                    ",
-        "Israel                                                                     ",
-        "India                                                                      ",
-        "Iraq                                                                       ",
-        "Iran (Islamic Republic of)                                                 ",
-        "Iceland                                                                    ",
-        "Italy                                                                      ",
-        "Jamaica                                                                    ",
-        "Jordan                                                                     ",
-        "Japan                                                                      ",
-        "Kenya                                                                      ",
-        "Kyrgyzstan                                                                 ",
-        "Cambodia                                                                   ",
-        "Kiribati                                                                   ",
-        "Comoros                                                                    ",
-        "Saint Kitts and Nevis                                                      ",
-        "Democratic People's Republic of Korea                                      ",
-        "Republic of Korea                                                          ",
-        "Kuwait                                                                     ",
-        "Kazakhstan                                                                 ",
-        "Lao People's Democratic Republic                                           ",
-        "Lebanon                                                                    ",
-        "Saint Lucia                                                                ",
-        "Liechtenstein                                                              ",
-        "Sri Lanka                                                                  ",
-        "Liberia                                                                    ",
-        "Lesotho                                                                    ",
-        "Lithuania                                                                  ",
-        "Luxembourg                                                                 ",
-        "Latvia                                                                     ",
-        "Libyan Arab Jamahiriya                                                     ",
-        "Morocco                                                                    ",
-        "Monaco                                                                     ",
-        "Republic of Moldova                                                        ",
-        "Montenegro                                                                 ",
-        "Madagascar                                                                 ",
-        "Marshall Islands                                                           ",
-        "The former Yugoslav Republic of Macedonia                                  ",
-        "Mali                                                                       ",
-        "Myanmar                                                                    ",
-        "Mongolia                                                                   ",
-        "Mauritania                                                                 ",
-        "Malta                                                                      ",
-        "Mauritius                                                                  ",
-        "Maldives                                                                   ",
-        "Malawi                                                                     ",
-        "Mexico                                                                     ",
-        "Malaysia                                                                   ",
-        "Mozambique                                                                 ",
-        "Namibia                                                                    ",
-        "Niger                                                                      ",
-        "Nigeria                                                                    ",
-        "Nicaragua                                                                  ",
-        "Netherlands                                                                ",
-        "Norway                                                                     ",
-        "Nepal                                                                      ",
-        "Nauru                                                                      ",
-        "New Zealand                                                                ",
-        "Oman                                                                       ",
-        "Panama                                                                     ",
-        "Peru                                                                       ",
-        "Papua New Guinea                                                           ",
-        "Philippines                                                                ",
-        "Pakistan                                                                   ",
-        "Poland                                                                     ",
-        "Portugal                                                                   ",
-        "Palau                                                                      ",
-        "Paraguay                                                                   ",
-        "Qatar                                                                      ",
-        "Romania                                                                    ",
-        "Serbia                                                                     ",
-        "Russian Federation                                                         ",
-        "Rwanda                                                                     ",
-        "Saudi Arabia                                                               ",
-        "Solomon Islands                                                            ",
-        "Seychelles                                                                 ",
-        "Sudan                                                                      ",
-        "Sweden                                                                     ",
-        "Singapore                                                                  ",
-        "Slovenia                                                                   ",
-        "Slovakia                                                                   ",
-        "Sierra Leone                                                               ",
-        "San Marino                                                                 ",
-        "Senegal                                                                    ",
-        "Somalia                                                                    ",
-        "Suriname                                                                   ",
-        "South Sudan                                                                ",
-        "Sao Tome and Principe                                                      ",
-        "El Salvador                                                                ",
-        "Syrian Arab Republic                                                       ",
-        "Swaziland                                                                  ",
-        "Chad                                                                       ",
+        "Eritrea",
+        "Spain",
+        "Ethiopia",
+        "Finland",
+        "Fiji",
+        "Micronesia (Federated States of)",
+        "France",
+        "Gabon",
+        "United Kingdom of Great Britain and Northern Ireland",
+        "Grenada",
+        "Georgia",
+        "Ghana",
+        "Gambia",
+        "Guinea",
+        "Equatorial Guinea",
+        "Greece",
+        "Guatemala",
+        "Guinea-Bissau",
+        "Guyana",
+        "Honduras",
+        "Croatia",
+        "Haiti",
+        "Hungary",
+        "Indonesia",
+        "Ireland",
+        "Israel",
+        "India",
+        "Iraq",
+        "Iran (Islamic Republic of)",
+        "Iceland",
+        "Italy",
+        "Jamaica",
+        "Jordan",
+        "Japan",
+        "Kenya",
+        "Kyrgyzstan",
+        "Cambodia",
+        "Kiribati",
+        "Comoros",
+        "Saint Kitts and Nevis",
+        "Democratic People's Republic of Korea",
+        "Republic of Korea",
+        "Kuwait",
+        "Kazakhstan",
+        "Lao People's Democratic Republic",
+        "Lebanon",
+        "Saint Lucia",
+        "Liechtenstein",
+        "Sri Lanka",
+        "Liberia",
+        "Lesotho",
+        "Lithuania",
+        "Luxembourg",
+        "Latvia",
+        "Libyan Arab Jamahiriya",
+        "Morocco",
+        "Monaco",
+        "Republic of Moldova",
+        "Montenegro",
+        "Madagascar",
+        "Marshall Islands",
+        "The former Yugoslav Republic of Macedonia",
+        "Mali",
+        "Myanmar",
+        "Mongolia",
+        "Mauritania",
+        "Malta",
+        "Mauritius",
+        "Maldives",
+        "Malawi",
+        "Mexico",
+        "Malaysia",
+        "Mozambique",
+        "Namibia",
+        "Niger",
+        "Nigeria",
+        "Nicaragua",
+        "Netherlands",
+        "Norway",
+        "Nepal",
+        "Nauru",
+        "New Zealand",
+        "Oman",
+        "Panama",
+        "Peru",
+        "Papua New Guinea",
+        "Philippines",
+        "Pakistan",
+        "Poland",
+        "Portugal",
+        "Palau",
+        "Paraguay",
+        "Qatar",
+        "Romania",
+        "Serbia",
+        "Russian Federation",
+        "Rwanda",
+        "Saudi Arabia",
+        "Solomon Islands",
+        "Seychelles",
+        "Sudan",
+        "Sweden",
+        "Singapore",
+        "Slovenia",
+        "Slovakia",
+        "Sierra Leone",
+        "San Marino",
+        "Senegal",
+        "Somalia",
+        "Suriname",
+        "South Sudan",
+        "Sao Tome and Principe",
+        "El Salvador",
+        "Syrian Arab Republic",
+        "Swaziland",
+        "Chad",
         "Togo",
         "Thailand",
         "Tajikistan",
@@ -209,7 +210,6 @@ namespace Orbis.World
         /// Random object
         /// </summary>
         private Random random;
-
         public float SeaLevel { get; set; }
         public float MaxElevation { get; set; }
 
@@ -233,10 +233,11 @@ namespace Orbis.World
                 // Create a civ with all base values
                 Civilization civ = new Civilization
                 {
+                    Name = names[random.Next(names.Length)],
                     DefenceModifier = Dice.Roll(6, 1),
                     OffenceModifier = Dice.Roll(6, 1),
                     Population = 1,
-                    TechnologyProgress = 0,
+                    TechnologicalProgress = 0,
                     Wealth = 0,
                 };
 
@@ -271,67 +272,7 @@ namespace Orbis.World
                 scene.Civilizations.Add(civ);
             }
         }
-
-        /// <summary>
-        /// Generate and place civs on the world map
-        /// A world map needs to be generated before this function can be called
-        /// </summary>
-        /// <param name="scene">The scene to generate for</param>
-        /// <param name="amount">The amount of civs to generate</param>
-        /*public void GenerateCivs(Scene scene, int amount)
-        {
-            if (scene.WorldMap.Length <= 0)
-            {
-                throw new Exception("Worldmap not generated exception");
-            }
-
-            // Create a list of civs
-            scene.Civilizations = new List<Civilization>();
-
-            // Go through generation for all civs
-            for (int i = 0; i < amount; i++)
-            {
-                // Create a civ with all base values
-                Civilization civ = new Civilization
-                {
-                    Name = names[random.Next(names.Length - 1)].Trim(),
-                    DefenceModifier = Dice.Roll(6, 1),
-                    OffenceModifier = Dice.Roll(6, 1),
-                    Population = 1,
-                    TechnologicalProgress = 1,
-                    Wealth = 0,
-                };
-
-                // Select a random starting cell for the civ
-                int x, y;
-                // Loop until no cell is available or until break
-                while (scene.Civilizations.Count < scene.WorldMap.Length)
-                {
-                    // Get random X and Y coordinates
-                    x = random.Next(scene.WorldMap.GetLength(0));
-                    y = random.Next(scene.WorldMap.GetLength(1));
-
-                    // Check if the cell has an owner
-                    if (scene.WorldMap[x, y].Owner == null)
-                    {
-                        if (scene.WorldMap[x, y].NoiseValue < 0.45 || scene.WorldMap[x, y].NoiseValue > 0.52)
-                        {
-                            continue;
-                        }
-                        // Set the owner and break
-                        civ.Territory.Add(scene.WorldMap[x, y]);
-                        scene.WorldMap[x, y].Owner = civ;
-
-                        break;
-                    }
-                }
-
-                // Add the civ to the world
-                scene.Civilizations.Add(civ);
-            }
-        }
-        */
-
+        
         public void GenerateWorld(Scene scene, int radius)
         {
             Perlin perlin = new Perlin(5);
@@ -362,12 +303,13 @@ namespace Orbis.World
                     {
                         cell.IsWater = true;
                     }
-
-                    // Set biome TODO: Set biome
-                    cell.Biome = null;
-
-                    // Calculate cell values
-                    cell.CalculateModifiers();
+                    else
+                    {
+                        // Now all data has been set, calculate the modifiers
+                        cell.FoodMod = random.NextDouble() + random.Next(5);
+                        cell.ResourceMod = random.NextDouble();
+                        cell.Housing = random.Next(1, 100);
+                    }
                 }
             }
         }
