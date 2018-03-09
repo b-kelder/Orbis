@@ -32,11 +32,7 @@ namespace Orbis
         private float angle;
         private Rendering.Model hexModel;
         private Rendering.Model houseHexModel;
-
-        Scene scene;
-        Simulator simulator;
-        WorldGenerator worldGenerator;
-
+        private Rendering.Model waterHexModel;
 
         public Orbis()
         {
@@ -76,98 +72,69 @@ namespace Orbis
 
             base.Initialize();
         }
-
-        private Mesh CreatePyramidMesh()
-        {
-            var vertices = new Vector3[5];
-            var uvs = new Vector2[5];
-            var triangles = new ushort[12];
-
-            vertices[0] = new Vector3(-0.5f, 0.5f, 0);
-            vertices[1] = new Vector3(0.5f, 0.5f, 0);
-            vertices[2] = new Vector3(0.5f, -0.5f, 0);
-            vertices[3] = new Vector3(-0.5f, -0.5f, 0);
-            vertices[4] = new Vector3(0, 0, 0.65f);
-
-            uvs[0] = new Vector2(1, 1);
-            uvs[1] = new Vector2(0, 1);
-            uvs[2] = new Vector2(1, 1);
-            uvs[3] = new Vector2(0, 1);
-            uvs[4] = new Vector2(0.5f, 0);
-
-            triangles[0] = 0;
-            triangles[1] = 1;
-            triangles[2] = 4;
-
-            triangles[3] = 1;
-            triangles[4] = 2;
-            triangles[5] = 4;
-
-            triangles[6] = 2;
-            triangles[7] = 3;
-            triangles[8] = 4;
-
-            triangles[9] = 3;
-            triangles[10] = 0;
-            triangles[11] = 4;
-
-            return new Mesh
-            {
-                Vertices = vertices,
-                UVs = uvs,
-                Triangles = triangles,
-            };
-        }
-
+        
         private void LoadRenderInstances()
         {
             // Hex generation test
             var hexMesh = hexModel.Mesh;
             var houseHexMesh = houseHexModel.Mesh;
+            var waterHexMesh = waterHexModel.Mesh;
+            // Use mesh combiners to get a bit more performant mesh for now
             var hexCombiner = new MeshCombiner();
             var houseHexCombiner = new MeshCombiner();
+            var waterHexCombiner = new MeshCombiner();
 
-            Random rand = new Random(73457);
-            int range = 100;
-            float amplitude = 25;
+            // Generate world
+            var scene = new Scene();
+            var generator = new WorldGenerator(new Random().Next());
+            generator.GenerateWorld(scene, 100);
+            generator.GenerateCivs(scene, 250);
 
-            var perlin = new Perlin(range);
-
-            float boundsX = TopographyHelper.HexToWorld(new Point(range, 0)).X;
-            float boundsY = TopographyHelper.HexToWorld(new Point(0, range)).Y;
-
-            Debug.WriteLine("HalfBounds: " + boundsX + " - " + boundsY);
+            // Create world meshes
+            int range = scene.WorldMap.Radius;
 
             for(int p = -range; p <= range; p++)
             {
                 for(int q = -range; q <= range; q++)
                 {
-                    if(Math.Abs(q + p) > range)
+                    var cell = scene.WorldMap.GetCell(p, q);
+                    if(cell == null)
                     {
                         continue;
                     }
 
-                    var vector = TopographyHelper.HexToWorld(new Point(p, q));
-                    var perlinPoint = (vector + new Vector2(boundsX, boundsY))/ range;
-                    var height = perlin.OctavePerlin(perlinPoint.X, perlinPoint.Y, 0, 4, 0.9);
-
-                    Vector3 position = new Vector3(vector, (float)height * amplitude);
-
-                    if(rand.Next(40) <= 1)
+                    var worldPoint = TopographyHelper.HexToWorld(new Point(p, q));
+                    var position = new Vector3(
+                        worldPoint,
+                        (float)cell.Elevation);
+                    // Temporary way to make sea actually level
+                    if(cell.IsWater)
                     {
-                        houseHexCombiner.Add(new MeshInstance
+                        position.Z = generator.SeaLevel;
+                        waterHexCombiner.Add(new MeshInstance
                         {
-                            mesh = houseHexMesh,
-                            matrix = Matrix.CreateTranslation(position),
+                            mesh = waterHexMesh,
+                            matrix = Matrix.CreateTranslation(position)
                         });
                     }
                     else
                     {
-                        hexCombiner.Add(new MeshInstance
+                        if(cell.Owner != null)
                         {
-                            mesh = hexMesh,
-                            matrix = Matrix.CreateTranslation(position),
-                        });
+                            houseHexCombiner.Add(new MeshInstance
+                            {
+                                mesh = houseHexMesh,
+                                matrix = Matrix.CreateTranslation(position)
+                            });
+                        }
+                        else
+                        {
+                            hexCombiner.Add(new MeshInstance
+                            {
+                                mesh = hexMesh,
+                                matrix = Matrix.CreateTranslation(position)
+                            });
+                        }
                     }
                 }
             }
@@ -195,8 +162,23 @@ namespace Orbis
                     matrix = Matrix.Identity,
                 });
 
-                Debug.WriteLine("Adding pyramid mesh");
+                Debug.WriteLine("Adding civ home base mesh");
             }
+            combinedPyramids = waterHexCombiner.GetCombinedMeshes();
+            foreach(var mesh in combinedPyramids)
+            {
+                renderInstances.Add(new RenderInstance()
+                {
+                    mesh = new RenderableMesh(graphics.GraphicsDevice, mesh),
+                    material = waterHexModel.Material,
+                    matrix = Matrix.Identity,
+                });
+
+                Debug.WriteLine("Adding water mesh");
+            }
+
+            // Set cam to sea level
+            camera.LookTarget = new Vector3(camera.LookTarget.X, camera.LookTarget.Y, generator.SeaLevel);
         }
 
         /// <summary>
@@ -212,6 +194,8 @@ namespace Orbis
             hexModel = ModelLoader.LoadModel("Content/Meshes/hex.obj", "Content/Textures/hex.png",
                 basicShader, GraphicsDevice);
             houseHexModel = ModelLoader.LoadModel("Content/Meshes/hex_house.obj", "Content/Textures/hex_house.png",
+                basicShader, GraphicsDevice);
+            waterHexModel = ModelLoader.LoadModel("Content/Meshes/hex.obj", "Content/Textures/hex_water.png",
                 basicShader, GraphicsDevice);
 
             LoadRenderInstances();

@@ -124,6 +124,7 @@
     <Compile Include="TopographyHelper.cs" />
     <Compile Include="World\Biome.cs" />
     <Compile Include="World\Cell.cs" />
+    <Compile Include="World\Map.cs" />
     <Compile Include="Simulation\Civilization.cs" />
     <Compile Include="World\Scene.cs" />
     <Compile Include="World\WorldGenerator.cs" />
@@ -142,6 +143,7 @@
     <None Include="Orbis_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\Textures\hex_water.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
