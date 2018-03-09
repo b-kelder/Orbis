@@ -18,7 +18,6 @@ namespace Orbis
         GraphicsDeviceManager graphics;
         UIWindow UI;
 
-
         BasicEffect basicShader;
 
         Camera camera;
@@ -27,14 +26,14 @@ namespace Orbis
 
         Dictionary<string, ModelMesh> Meshes;
 
-        List<Tuple<Matrix, ModelMesh>> WorldModels;
+        BasicEffect[] Effects;
+        Tuple<Matrix, ModelMesh>[] WorldModels;
 
         private float rotation;
         private float distance;
         private float angle;
         private Rendering.Model hexModel;
         private Rendering.Model houseHexModel;
-
 
         public Orbis()
         {
@@ -48,7 +47,7 @@ namespace Orbis
             Window.Title = "Orbis";
 
             Meshes = new Dictionary<string, Microsoft.Xna.Framework.Graphics.ModelMesh>();
-            WorldModels = new List<Tuple<Matrix, ModelMesh>>();
+
 
             UI = new UIWindow(this);
             Components.Add(UI);
@@ -134,9 +133,8 @@ namespace Orbis
 
             var hexMesh = Meshes["hex"];
             var houseHexMesh = Meshes["houseHex"];
-            List<ModelBone> modelBones = new List<ModelBone>();
-            List<ModelMesh> modelMeshes = new List<ModelMesh>();
-            
+
+            var worldModels = new List<Tuple<Matrix, ModelMesh>>();
 
             Random rand = new Random();
             int range = 100;
@@ -168,7 +166,8 @@ namespace Orbis
 
                     if (rand.Next(40) <= 1)
                     {
-                        WorldModels.Add(new Tuple<Matrix, ModelMesh>(translationMatrix, houseHexMesh));
+                        
+                        worldModels.Add(new Tuple<Matrix, ModelMesh>(translationMatrix, houseHexMesh));
 
                         //houseHexCombiner.Add(new MeshInstance
                         //{
@@ -178,7 +177,7 @@ namespace Orbis
                     }
                     else
                     {
-                        WorldModels.Add(new Tuple<Matrix, ModelMesh>(translationMatrix, hexMesh));
+                        worldModels.Add(new Tuple<Matrix, ModelMesh>(translationMatrix, hexMesh));
                         //hexCombiner.Add(new MeshInstance
                         //{
                         //    mesh = hexMesh,
@@ -187,6 +186,8 @@ namespace Orbis
                     }
                 }
             }
+
+            WorldModels = worldModels.ToArray();
 
             // Combine meshes
             //var combinedHexes = hexCombiner.GetCombinedMeshes();
@@ -213,6 +214,8 @@ namespace Orbis
 
             //    Debug.WriteLine("Adding pyramid mesh");
             //}
+            
+            //var model = new Microsoft.Xna.Framework.Graphics.Model(GraphicsDevice, modelBones, modelMeshes);
         }
 
         /// <summary>
@@ -225,6 +228,8 @@ namespace Orbis
             //    basicShader, GraphicsDevice);
             //houseHexModel = ModelLoader.LoadModel("Content/Meshes/hex_house.obj", "Content/Textures/hex_house.png",
             //    basicShader, GraphicsDevice);
+
+            List<BasicEffect> effects = new List<BasicEffect>();
 
             var hexModel = Content.Load<Microsoft.Xna.Framework.Graphics.Model>("Meshes/hex");
             var hexMesh = hexModel.Meshes[0];
@@ -241,6 +246,11 @@ namespace Orbis
             houseHexEffect.Texture = houseHexTexture;
             houseHexEffect.TextureEnabled = true;
             Meshes.Add("houseHex", houseHexMesh);
+
+            effects.Add(houseHexEffect);
+            effects.Add(hexEffect);
+
+            Effects = effects.ToArray();
 
             LoadRenderInstances();
         }
@@ -341,7 +351,11 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.SetRenderTarget(UI.SimulationWindow.SimulationRenderTarget);
+            GraphicsDevice.Viewport = UI.SimulationWindow.SimulationViewport;
+            GraphicsDevice.BlendState = BlendState.Opaque;
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
+
             //GraphicsDevice.Clear(Color.DarkGreen);
             GraphicsDevice.Clear(Color.Aqua);
 
@@ -367,16 +381,38 @@ namespace Orbis
             //    materialBatches[instance.material].Add(instance);
             //}
 
-            foreach (var worldModel in WorldModels)
+            var effectCount = Effects.Length;
+            for (int effectIndex = 0; effectIndex < effectCount; effectIndex++)
             {
-                var effect = worldModel.Item2.Effects[0] as BasicEffect;
+                BasicEffect effect = Effects[effectIndex];
                 effect.View = viewMatrix;
                 effect.Projection = projectionMatrix;
-                effect.TextureEnabled = true;
-                effect.World = worldModel.Item1;
+            }
 
+            var modelCount = WorldModels.Length;
+            for (int modelIndex = 0; modelIndex < modelCount; modelIndex++)
+            {
+                var worldModel = WorldModels[modelIndex];
+                var modelEffectCount = worldModel.Item2.Effects.Count;
+                for (int effectIndex = 0; effectIndex < modelEffectCount; effectIndex++)
+                {
+                    BasicEffect effect = worldModel.Item2.Effects[effectIndex] as BasicEffect;
+                    effect.World = worldModel.Item1;
+                }
                 worldModel.Item2.Draw();
             }
+
+            //foreach (var worldModel in WorldModels)
+            //{
+            //    foreach (BasicEffect effect in worldModel.Item2.Effects)
+            //    {
+            //        effect.View = viewMatrix;
+            //        effect.Projection = projectionMatrix;
+            //        effect.World = worldModel.Item1;
+            //    }
+
+            //    worldModel.Item2.Draw();
+            //}
 
             //// Draw batches
             //foreach(var batch in materialBatches)
@@ -405,7 +441,7 @@ namespace Orbis
             //    }
             //}
 
-            GraphicsDevice.SetRenderTarget(null);
+            GraphicsDevice.Viewport = UI.SimulationWindow.DefaultViewport;
 
             base.Draw(gameTime);
         }

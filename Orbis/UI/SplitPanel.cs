@@ -40,7 +40,7 @@ namespace Orbis.UI
                 if (_split != value)
                 {
                     _split = value;
-                    ResetLayout();
+                    UpdateLayout();
                 }
             }
         }
@@ -65,7 +65,7 @@ namespace Orbis.UI
                 if (_fixedChild != value)
                 {
                     _fixedChild = value;
-                    ResetLayout();
+                    UpdateLayout();
                 }
             }
         }
@@ -85,7 +85,7 @@ namespace Orbis.UI
                 if (_splitDirection != value)
                 {
                     _splitDirection = value;
-                    ResetLayout();
+                    UpdateLayout();
                 }
             }
         }
@@ -127,7 +127,7 @@ namespace Orbis.UI
         /// <summary>
         ///     Reset the layout of the <see cref="SplitPanel"/> and all its children.
         /// </summary>
-        public override void ResetLayout()
+        public override void UpdateLayout()
         {
             // Prevents errors when not all children have been added yet.
             if (_children.Count > 1)
@@ -189,7 +189,7 @@ namespace Orbis.UI
                     }
                 }
             }
-            base.ResetLayout();
+            base.UpdateLayout();
         }
 
         /// <summary>

@@ -76,7 +76,7 @@ namespace Orbis.UI
             var redRect = new Texture2D(GraphicsDevice, 1, 1);
             redRect.SetData(new[] { Color.Red });
 
-            SimulationWindow = new SimulationWindow(Game.GraphicsDevice);
+            SimulationWindow = new SimulationWindow(GraphicsDevice.Viewport);
             rightChild.AddChild(SimulationWindow);
 
             var yellowRect = new Texture2D(GraphicsDevice, 1, 1);
@@ -126,6 +126,7 @@ namespace Orbis.UI
             _spriteBatch.Begin(SpriteSortMode.BackToFront);
             RootElement.Draw(_spriteBatch, gameTime);
             _spriteBatch.End();
+
             base.Draw(gameTime);
         }
     }

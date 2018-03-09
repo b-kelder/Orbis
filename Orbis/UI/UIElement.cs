@@ -47,7 +47,7 @@ namespace Orbis.UI
                 if (_anchorPos != value)
                 {
                     _anchorPos = value;
-                    ResetLayout();
+                    UpdateLayout();
                 }
             }
         }
@@ -90,7 +90,7 @@ namespace Orbis.UI
                     }
 
                     _relativeRect = value;
-                    ResetLayout();
+                    UpdateLayout();
                 }
             }
         }
@@ -126,7 +126,7 @@ namespace Orbis.UI
                     }
                     
                     _relativeRect.Size = value;
-                    ResetLayout();
+                    UpdateLayout();
                 }
             }
         }
@@ -155,7 +155,7 @@ namespace Orbis.UI
                     }
 
                     _relativeRect.Location = value;
-                    ResetLayout();
+                    UpdateLayout();
                 }
             }
         }
@@ -208,13 +208,13 @@ namespace Orbis.UI
         }
 
         /// <summary>
-        ///     Reset the layout of the element and all of its children.
+        ///     Update the layout of the element and all of its children.
         /// </summary>
-        public virtual void ResetLayout()
+        public virtual void UpdateLayout()
         {
             foreach (UIElement child in Children)
             {
-                child.ResetLayout();
+                child.UpdateLayout();
             }
         }
 
@@ -231,7 +231,7 @@ namespace Orbis.UI
         {
             child.Parent = this;
 
-            ResetLayout();
+            UpdateLayout();
 
             CheckElementBoundaries(child.AbsoluteRectangle, this.AbsoluteRectangle);
         }
@@ -252,7 +252,7 @@ namespace Orbis.UI
         {
             newChild.Parent = this;
             
-            ResetLayout();
+            UpdateLayout();
 
             CheckElementBoundaries(newChild.AbsoluteRectangle, this.AbsoluteRectangle);
         }

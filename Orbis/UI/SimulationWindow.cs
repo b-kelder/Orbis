@@ -8,55 +8,60 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Orbis.UI
 {
-    public class SimulationWindow : Panel
+    public class SimulationWindow : UIElement
     {
-        public override Texture2D BackgroundTexture
+        /// <summary>
+        ///     The children of this UI Element.
+        /// </summary>
+        public override UIElement[] Children
         {
             get
             {
-                return _simRenderTarget;
-            }
-            set
-            {
-                throw new NotImplementedException();
+                return _children.ToArray();
             }
         }
+        private List<UIElement> _children;
 
         /// <summary>
-        ///     The render target that the simulation will be rendered to.
+        ///     The viewPort where the Simulation can be drawn.
         /// </summary>
-        public RenderTarget2D SimulationRenderTarget
+        public Viewport SimulationViewport
         {
             get
             {
-                return _simRenderTarget;
-            }
-            set
-            {
-                _simRenderTarget = value;
+                return _simView;
             }
         }
-        private RenderTarget2D _simRenderTarget;
+        private Viewport _simView;
 
         /// <summary>
-        ///     The graphicsDevice used to render the simulation.
+        ///     The default viewport.
         /// </summary>
-        private GraphicsDevice _graphicsDevice;
+        public Viewport DefaultViewport {
+            get
+            {
+                return _defaultViewport;
+            }
+        }
+        private Viewport _defaultViewport;
 
-        public SimulationWindow(GraphicsDevice graphicsDevice)
+        /// <summary>
+        ///     Create a new <see cref="SimulationWindow"/>.
+        /// </summary>
+        public SimulationWindow(Viewport defaultViewport)
         {
-            _graphicsDevice = graphicsDevice;
-            _simRenderTarget = new RenderTarget2D(_graphicsDevice, 1, 1);
+            _defaultViewport = defaultViewport;
+            _children = new List<UIElement>();
+            _simView = defaultViewport;
         }
 
-        public override void ResetLayout()
+        /// <summary>
+        ///     Used when the layout of the UI needs to update.
+        /// </summary>
+        public override void UpdateLayout()
         {
-            if (Size.X > 0 && Size.Y > 0)
-            {
-                _simRenderTarget.Dispose();
-                _simRenderTarget = new RenderTarget2D(_graphicsDevice, Size.X, Size.Y);
-            }
-            base.ResetLayout();
+            _simView.Bounds = AbsoluteRectangle;
+            base.UpdateLayout();
         }
     }
 }
