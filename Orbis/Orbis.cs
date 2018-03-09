@@ -4,6 +4,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Orbis.Engine;
 using Orbis.Rendering;
+using Orbis.Simulation;
+using Orbis.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,7 +21,6 @@ namespace Orbis
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-
         BasicEffect basicShader;
 
         Camera camera;
@@ -31,6 +32,10 @@ namespace Orbis
         private float angle;
         private Rendering.Model hexModel;
         private Rendering.Model houseHexModel;
+
+        Scene scene;
+        Simulator simulator;
+        WorldGenerator worldGenerator;
 
 
         public Orbis()
@@ -48,6 +53,13 @@ namespace Orbis
         /// </summary>
         protected override void Initialize()
         {
+            scene = new Scene();
+            worldGenerator = new WorldGenerator(43675);
+
+            worldGenerator.GenerateWorld(scene, 100, 100);
+            worldGenerator.GenerateCivs(scene, 10);
+
+            //simulator = new Simulator(scene, 500);
 
             // Shaders
             basicShader = new BasicEffect(graphics.GraphicsDevice);
@@ -115,7 +127,7 @@ namespace Orbis
             var hexCombiner = new MeshCombiner();
             var houseHexCombiner = new MeshCombiner();
 
-            Random rand = new Random();
+            Random rand = new Random(73457);
             int range = 100;
             float amplitude = 25;
 
@@ -290,6 +302,8 @@ namespace Orbis
                Matrix.CreateRotationZ(MathHelper.ToRadians(rotation));
 
             camera.Position = Vector3.Transform(Vector3.Zero, camMatrix) + camera.LookTarget;
+
+            //simulator.Update();
 
             base.Update(gameTime);
         }
