@@ -25,6 +25,10 @@ namespace Orbis
 
         List<RenderInstance> renderInstances;
 
+        Dictionary<string, ModelMesh> Meshes;
+
+        List<Tuple<Matrix, ModelMesh>> WorldModels;
+
         private float rotation;
         private float distance;
         private float angle;
@@ -43,9 +47,12 @@ namespace Orbis
             Content.RootDirectory = "Content";
             Window.Title = "Orbis";
 
-            //UI = new UIWindow(this);
-            //Components.Add(UI);
-            //UI.DrawOrder = 1;
+            Meshes = new Dictionary<string, Microsoft.Xna.Framework.Graphics.ModelMesh>();
+            WorldModels = new List<Tuple<Matrix, ModelMesh>>();
+
+            UI = new UIWindow(this);
+            Components.Add(UI);
+            UI.DrawOrder = 1;
         }
 
         /// <summary>
@@ -120,10 +127,16 @@ namespace Orbis
         private void LoadRenderInstances()
         {
             // Hex generation test
-            var hexMesh = hexModel.Mesh;
-            var houseHexMesh = houseHexModel.Mesh;
-            var hexCombiner = new MeshCombiner();
-            var houseHexCombiner = new MeshCombiner();
+            //var hexMesh = hexModel.Mesh;
+            //var houseHexMesh = houseHexModel.Mesh;
+            //var hexCombiner = new MeshCombiner();
+            //var houseHexCombiner = new MeshCombiner();
+
+            var hexMesh = Meshes["hex"];
+            var houseHexMesh = Meshes["houseHex"];
+            List<ModelBone> modelBones = new List<ModelBone>();
+            List<ModelMesh> modelMeshes = new List<ModelMesh>();
+            
 
             Random rand = new Random();
             int range = 100;
@@ -151,50 +164,55 @@ namespace Orbis
 
                     Vector3 position = new Vector3(vector, (float)height * amplitude);
 
-                    if(rand.Next(40) <= 1)
+                    var translationMatrix = Matrix.CreateTranslation(position);
+
+                    if (rand.Next(40) <= 1)
                     {
-                        houseHexCombiner.Add(new MeshInstance
-                        {
-                            mesh = houseHexMesh,
-                            matrix = Matrix.CreateTranslation(position),
-                        });
+                        WorldModels.Add(new Tuple<Matrix, ModelMesh>(translationMatrix, houseHexMesh));
+
+                        //houseHexCombiner.Add(new MeshInstance
+                        //{
+                        //    mesh = houseHexMesh,
+                        //    matrix = Matrix.CreateTranslation(position),
+                        //});
                     }
                     else
                     {
-                        hexCombiner.Add(new MeshInstance
-                        {
-                            mesh = hexMesh,
-                            matrix = Matrix.CreateTranslation(position),
-                        });
+                        WorldModels.Add(new Tuple<Matrix, ModelMesh>(translationMatrix, hexMesh));
+                        //hexCombiner.Add(new MeshInstance
+                        //{
+                        //    mesh = hexMesh,
+                        //    matrix = Matrix.CreateTranslation(position),
+                        //});
                     }
                 }
             }
 
             // Combine meshes
-            var combinedHexes = hexCombiner.GetCombinedMeshes();
-            foreach(var mesh in combinedHexes)
-            {
-                renderInstances.Add(new RenderInstance()
-                {
-                    mesh = new RenderableMesh(graphics.GraphicsDevice, mesh),
-                    material = hexModel.Material,
-                    matrix = Matrix.Identity,
-                });
+            //var combinedHexes = hexCombiner.GetCombinedMeshes();
+            //foreach(var mesh in combinedHexes)
+            //{
+            //    renderInstances.Add(new RenderInstance()
+            //    {
+            //        mesh = new RenderableMesh(graphics.GraphicsDevice, mesh),
+            //        material = hexModel.Material,
+            //        matrix = Matrix.Identity,
+            //    });
 
-                Debug.WriteLine("Adding hex mesh");
-            }
-            var combinedPyramids = houseHexCombiner.GetCombinedMeshes();
-            foreach(var mesh in combinedPyramids)
-            {
-                renderInstances.Add(new RenderInstance()
-                {
-                    mesh = new RenderableMesh(graphics.GraphicsDevice, mesh),
-                    material = houseHexModel.Material,
-                    matrix = Matrix.Identity,
-                });
+            //    Debug.WriteLine("Adding hex mesh");
+            //}
+            //var combinedPyramids = houseHexCombiner.GetCombinedMeshes();
+            //foreach(var mesh in combinedPyramids)
+            //{
+            //    renderInstances.Add(new RenderInstance()
+            //    {
+            //        mesh = new RenderableMesh(graphics.GraphicsDevice, mesh),
+            //        material = houseHexModel.Material,
+            //        matrix = Matrix.Identity,
+            //    });
 
-                Debug.WriteLine("Adding pyramid mesh");
-            }
+            //    Debug.WriteLine("Adding pyramid mesh");
+            //}
         }
 
         /// <summary>
@@ -203,10 +221,26 @@ namespace Orbis
         /// </summary>
         protected override void LoadContent()
         {
-            hexModel = ModelLoader.LoadModel("Content/Meshes/hex.obj", "Content/Textures/hex.png",
-                basicShader, GraphicsDevice);
-            houseHexModel = ModelLoader.LoadModel("Content/Meshes/hex_house.obj", "Content/Textures/hex_house.png",
-                basicShader, GraphicsDevice);
+            //hexModel = ModelLoader.LoadModel("Content/Meshes/hex.obj", "Content/Textures/hex.png",
+            //    basicShader, GraphicsDevice);
+            //houseHexModel = ModelLoader.LoadModel("Content/Meshes/hex_house.obj", "Content/Textures/hex_house.png",
+            //    basicShader, GraphicsDevice);
+
+            var hexModel = Content.Load<Microsoft.Xna.Framework.Graphics.Model>("Meshes/hex");
+            var hexMesh = hexModel.Meshes[0];
+            var hexTexture = Content.Load<Texture2D>("Textures\\hex");
+            var hexEffect = hexMesh.Effects[0] as BasicEffect;
+            hexEffect.Texture = hexTexture;
+            hexEffect.TextureEnabled = true;
+            Meshes.Add("hex", hexMesh);
+
+            var houseHexModel = Content.Load<Microsoft.Xna.Framework.Graphics.Model>("Meshes/hex_house");
+            var houseHexMesh = houseHexModel.Meshes[0];
+            var houseHexTexture = Content.Load<Texture2D>("Textures/hex_house");
+            var houseHexEffect = houseHexMesh.Effects[0] as BasicEffect;
+            houseHexEffect.Texture = houseHexTexture;
+            houseHexEffect.TextureEnabled = true;
+            Meshes.Add("houseHex", houseHexMesh);
 
             LoadRenderInstances();
         }
@@ -307,7 +341,7 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            //GraphicsDevice.SetRenderTarget(UI.SimulationWindow.SimulationRenderTarget);
+            GraphicsDevice.SetRenderTarget(UI.SimulationWindow.SimulationRenderTarget);
             //GraphicsDevice.Clear(Color.DarkGreen);
             GraphicsDevice.Clear(Color.Aqua);
 
@@ -316,51 +350,62 @@ namespace Orbis
             //DrawPiramids();
             //DrawMesh(meshTest, piramidEffect, this.texturePiramid);
 
-            //float aspectRatio = UI.SimulationWindow.Size.X / (float)UI.SimulationWindow.Size.Y;
-            float aspectRatio = graphics.PreferredBackBufferWidth / (float)graphics.PreferredBackBufferHeight;
+            float aspectRatio = UI.SimulationWindow.Size.X / (float)UI.SimulationWindow.Size.Y;
+            //float aspectRatio = graphics.PreferredBackBufferWidth / (float)graphics.PreferredBackBufferHeight;
             Matrix viewMatrix = camera.CreateViewMatrix();
             Matrix projectionMatrix = camera.CreateProjectionMatrix(aspectRatio);
 
-            // Create batches sorted by material?
-            var materialBatches = new Dictionary<Material, List<RenderInstance>>();
-            foreach(var instance in renderInstances)
-            {
-                //DrawInstance(instance);
-                if(!materialBatches.ContainsKey(instance.material))
-                {
-                    materialBatches.Add(instance.material, new List<RenderInstance>());
-                }
-                materialBatches[instance.material].Add(instance);
-            }
+            //// Create batches sorted by material?
+            //var materialBatches = new Dictionary<Material, List<RenderInstance>>();
+            //foreach(var instance in renderInstances)
+            //{
+            //    //DrawInstance(instance);
+            //    if(!materialBatches.ContainsKey(instance.material))
+            //    {
+            //        materialBatches.Add(instance.material, new List<RenderInstance>());
+            //    }
+            //    materialBatches[instance.material].Add(instance);
+            //}
 
-            // Draw batches
-            foreach(var batch in materialBatches)
+            foreach (var worldModel in WorldModels)
             {
-                var effect = batch.Key.Effect;
+                var effect = worldModel.Item2.Effects[0] as BasicEffect;
                 effect.View = viewMatrix;
                 effect.Projection = projectionMatrix;
-                effect.Texture = batch.Key.Texture;
                 effect.TextureEnabled = true;
+                effect.World = worldModel.Item1;
 
-                foreach(var instance in batch.Value)
-                {
-                    effect.World = instance.matrix;
-
-                    graphics.GraphicsDevice.Indices = instance.mesh.IndexBuffer;
-                    graphics.GraphicsDevice.SetVertexBuffer(instance.mesh.VertexBuffer);
-                    foreach(var pass in effect.CurrentTechnique.Passes)
-                    {
-                        pass.Apply();
-
-                        graphics.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList,
-                            0,
-                            0,
-                            instance.mesh.IndexBuffer.IndexCount);
-                    }
-                }
+                worldModel.Item2.Draw();
             }
 
-            //GraphicsDevice.SetRenderTarget(null);
+            //// Draw batches
+            //foreach(var batch in materialBatches)
+            //{
+            //    var effect = batch.Key.Effect;
+            //    effect.View = viewMatrix;
+            //    effect.Projection = projectionMatrix;
+            //    effect.Texture = batch.Key.Texture;
+            //    effect.TextureEnabled = true;
+
+            //    foreach(var instance in batch.Value)
+            //    {
+            //        effect.World = instance.matrix;
+
+            //        graphics.GraphicsDevice.Indices = instance.mesh.IndexBuffer;
+            //        graphics.GraphicsDevice.SetVertexBuffer(instance.mesh.VertexBuffer);
+            //        foreach(var pass in effect.CurrentTechnique.Passes)
+            //        {
+            //            pass.Apply();
+
+            //            graphics.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList,
+            //                0,
+            //                0,
+            //                instance.mesh.IndexBuffer.IndexCount);
+            //        }
+            //    }
+            //}
+
+            GraphicsDevice.SetRenderTarget(null);
 
             base.Draw(gameTime);
         }

@@ -22,11 +22,11 @@ namespace Orbis.Rendering
         {
             Mesh mesh;
             Material material = new Material(shader);
-            using(var stream = TitleContainer.OpenStream(meshFile))
+            using (var stream = TitleContainer.OpenStream(meshFile))
             {
                 mesh = ObjParser.FromStream(stream);
             }
-            using(var stream = TitleContainer.OpenStream(textureFile))
+            using (var stream = TitleContainer.OpenStream(textureFile))
             {
                 material.Texture = Texture2D.FromStream(device, stream);
             }
