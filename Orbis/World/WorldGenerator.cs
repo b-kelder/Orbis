@@ -23,8 +23,8 @@ namespace Orbis.World
         {
             // Create a random object based on a seed
             random = new Random(seed);
-            SeaLevel = 8;
-            MaxElevation = 15;
+            SeaLevel = 18;
+            MaxElevation = 35;
         }
 
         public void GenerateCivs(Scene scene, int count)
@@ -141,6 +141,7 @@ namespace Orbis.World
             var perlinZ = random.NextDouble();
 
             scene.WorldMap = new Map(radius);
+            scene.WorldMap.SeaLevel = SeaLevel;
 
             for(int p = -radius; p <= radius; p++)
             {
@@ -158,7 +159,7 @@ namespace Orbis.World
                     // Set cell height
                     var worldPoint = TopographyHelper.HexToWorld(new Point(p, q));
                     var perlinPoint = (worldPoint + new Vector2(boundsX, boundsY)) * 0.01f;
-                    cell.Elevation = perlin.OctavePerlin(perlinPoint.X, perlinPoint.Y, perlinZ, 10, 0.7) * MaxElevation;
+                    cell.Elevation = perlin.OctavePerlin(perlinPoint.X, perlinPoint.Y, perlinZ,4, 0.7) * MaxElevation;
                     if(cell.Elevation <= SeaLevel)
                     {
                         cell.IsWater = true;
@@ -169,6 +170,33 @@ namespace Orbis.World
 
                     // Calculate cell values
                     cell.CalculateModifiers();
+                }
+            }
+
+            // Loop trough cells
+            // TODO: This can contain NULL cells, this is bad
+            var cells = scene.WorldMap.Cells;
+            foreach(var cell in cells)
+            {
+                if(cell == null) { continue; }
+                // Remove single-cell 'seas' and islands
+                if(cell.IsWater)
+                {
+                    bool canBeWater = false;
+                    foreach(var n in cell.Neighbours)
+                    {
+                        if(n.IsWater) { canBeWater = true; break; }
+                    }
+                    cell.IsWater = canBeWater;
+                }
+                else
+                {
+                    bool canBeLand = false;
+                    foreach(var n in cell.Neighbours)
+                    {
+                        if(!n.IsWater) { canBeLand = true; break; }
+                    }
+                    cell.IsWater = !canBeLand;
                 }
             }
         }
