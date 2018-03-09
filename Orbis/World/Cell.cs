@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Orbis.Engine;
-using Orbis.Simulation;
 
 namespace Orbis.World
 {
@@ -19,22 +18,23 @@ namespace Orbis.World
         /// The current owner of the cell
         /// </summary>
         public Civilization Owner { get; set; }
+
         /// <summary>
-        /// Food modifier for yields
+        /// The biome that this cell is based on
         /// </summary>
-        public double FoodMod { get; set; }
+        public Biome Biome { get; set; }
         /// <summary>
-        /// Resource modifier for yields
+        /// Modifier for the amount of food within the cell
         /// </summary>
-        public double ResourceMod { get; set; }
+        public int FoodValue { get; set; }
         /// <summary>
-        /// Wealth modifier for yields
+        /// Modifier for the amount of recources in the cell
         /// </summary>
-        public double WealthMod { get; set; }
+        public int ResourceValue { get; set; }
         /// <summary>
-        /// Max population that can be housed in this cell
+        /// Modifier for the amount of usable space for the population
         /// </summary>
-        public int Housing { get; set; }
+        public int PopulationValue { get; set; }
         /// <summary>
         /// Terrain elevation level
         /// </summary>
@@ -49,6 +49,25 @@ namespace Orbis.World
         public Cell(Point coordinates)
         {
             Coordinates = coordinates;
+        }
+
+        /// <summary>
+        /// Calculate modifiers based on dice rolls and the biome
+        /// </summary>
+        public void CalculateModifiers()
+        {
+            // Generate basis value off a D20 roll
+            FoodValue = Dice.Roll(6, 1);
+            ResourceValue = Dice.Roll(6, 1);
+            PopulationValue = Dice.Roll(6, 1);
+
+            // Add biome modifiers
+            //FoodValue += Biome.FoodModifier;
+            //ResourceValue += Biome.ResourceModifier;
+            //PopulationValue += Biome.PopulationModifier;
+
+            // Add modifiers based on terrain
+            //TODO: Modifiers based on proximity of water, mountains.
         }
     }
 }
