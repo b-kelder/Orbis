@@ -196,9 +196,14 @@ namespace Orbis
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+
             // Config Test
-            XMLModel.Civilization civData = Content.Load<XMLModel.Civilization>("Config/Main");
-            Debug.WriteLine(civData.name);
+            XMLModel.Civilization[] civData = Content.Load<XMLModel.Civilization[]>("Config/Main");
+            Debug.WriteLine(civData[0].name);
+            Debug.WriteLine(civData[0].foodModifier);
+
+            Debug.WriteLine(civData[1].name);
+            Debug.WriteLine(civData[1].foodModifier);
             // End Config Test
 
             hexModel = ModelLoader.LoadModel("Content/Meshes/hex.obj", "Content/Textures/hex.png",
