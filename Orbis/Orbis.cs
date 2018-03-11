@@ -212,8 +212,6 @@ namespace Orbis
                 basicShader, GraphicsDevice);
 
             LoadRenderInstances();
-
-            //List<string> configTest = Content.Load<List<string>>("Main");
         }
 
         /// <summary>
