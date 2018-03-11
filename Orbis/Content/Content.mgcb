@@ -10,6 +10,12 @@
 
 #-------------------------------- References --------------------------------#
 
+/reference:..\..\XMLModel\bin\x64\Debug\XMLModel.dll
 
 #---------------------------------- Content ---------------------------------#
+
+#begin Config/Main.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Config/Main.xml
 
