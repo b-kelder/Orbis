@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Orbis.Simulation;
 using Orbis.Engine;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,6 @@ namespace Orbis.World
         /// Random object
         /// </summary>
         private Random random;
-
         public float SeaLevel { get; set; }
         public float MaxElevation { get; set; }
 
@@ -45,10 +45,11 @@ namespace Orbis.World
                 // Create a civ with all base values
                 Civilization civ = new Civilization
                 {
+                    Name = "Kees",
                     DefenceModifier = Dice.Roll(6, 1),
                     OffenceModifier = Dice.Roll(6, 1),
                     Population = 1,
-                    TechnologyProgress = 0,
+                    TechnologicalProgress = 0,
                     Wealth = 0,
                 };
 
@@ -67,13 +68,10 @@ namespace Orbis.World
                     if (cell != null)
                     {
                         // No atlantis shenanigans
-                        if (cell.IsWater)
+                        if(!civ.ClaimCell(cell))
                         {
                             continue;
                         }
-                        // Set the owner and break
-                        civ.Territory.Add(cell);
-                        cell.Owner = civ;
 
                         break;
                     }
@@ -90,6 +88,7 @@ namespace Orbis.World
                 }
             }
         }
+
 
         /// <summary>
         /// Generate and place civs on the world map
@@ -149,7 +148,6 @@ namespace Orbis.World
             }
         }
         */
-
         public void GenerateWorld(Scene scene, int radius)
         {
             Perlin perlin = new Perlin(5);
@@ -181,12 +179,13 @@ namespace Orbis.World
                     {
                         cell.IsWater = true;
                     }
-
-                    // Set biome TODO: Set biome
-                    cell.Biome = null;
-
-                    // Calculate cell values
-                    cell.CalculateModifiers();
+                    else
+                    {
+                        // Now all data has been set, calculate the modifiers
+                        cell.FoodMod = random.NextDouble() + random.Next(5);
+                        cell.ResourceMod = random.NextDouble();
+                        cell.Housing = random.Next(1, 5000);
+                    }
                 }
             }
 

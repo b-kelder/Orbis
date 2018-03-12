@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Orbis.Engine;
 using Orbis.Rendering;
+using Orbis.Simulation;
 using Orbis.World;
 using System;
 using System.Collections.Generic;
@@ -35,6 +36,7 @@ namespace Orbis
         private Rendering.Model houseHexModel;
         private Rendering.Model waterHexModel;
         private Scene scene;
+        private Simulator simulator;
 
         private Task<List<RenderInstance>> meshTask;
 
@@ -58,7 +60,6 @@ namespace Orbis
         /// </summary>
         protected override void Initialize()
         {
-
             // Shaders
             basicShader = new BasicEffect(graphics.GraphicsDevice);
 
@@ -71,6 +72,8 @@ namespace Orbis
             //camera.Mode = CameraMode.Orthographic;
 
             renderInstances = new List<RenderInstance>();
+
+            
 
             base.Initialize();
         }
@@ -113,7 +116,8 @@ namespace Orbis
                         waterHexCombiner.Add(new MeshInstance
                         {
                             mesh = waterHexMesh,
-                            matrix = Matrix.CreateTranslation(position)
+                            matrix = Matrix.CreateTranslation(position),
+                            pos = new Point(p, q)
                         });
                     }
                     else
@@ -123,7 +127,8 @@ namespace Orbis
                             houseHexCombiner.Add(new MeshInstance
                             {
                                 mesh = houseHexMesh,
-                                matrix = Matrix.CreateTranslation(position)
+                                matrix = Matrix.CreateTranslation(position),
+                                pos = new Point(p, q)
                             });
                         }
                         else
@@ -131,7 +136,8 @@ namespace Orbis
                             hexCombiner.Add(new MeshInstance
                             {
                                 mesh = hexMesh,
-                                matrix = Matrix.CreateTranslation(position)
+                                matrix = Matrix.CreateTranslation(position),
+                                pos = new Point(p, q)
                             });
                         }
                     }
@@ -234,6 +240,7 @@ namespace Orbis
                 basicShader, GraphicsDevice);
             waterHexModel = ModelLoader.LoadModel("Content/Meshes/hex.obj", "Content/Textures/hex_water.png",
                 basicShader, GraphicsDevice);
+
 
             fontDebug = Content.Load<SpriteFont>("DebugFont");
 
@@ -361,6 +368,9 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
+            GraphicsDevice.BlendState = BlendState.Opaque;
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
             GraphicsDevice.Clear(Color.Aqua);
 
             // Required when using SpriteBatch as well
@@ -383,7 +393,7 @@ namespace Orbis
             }
 
             // Draw batches
-            foreach(var batch in materialBatches)
+            foreach (var batch in materialBatches)
             {
                 var effect = batch.Key.Effect;
                 effect.View = viewMatrix;
@@ -393,7 +403,6 @@ namespace Orbis
 
                 foreach(var instance in batch.Value)
                 {
-                    effect.World = instance.matrix;
 
                     graphics.GraphicsDevice.Indices = instance.mesh.IndexBuffer;
                     graphics.GraphicsDevice.SetVertexBuffer(instance.mesh.VertexBuffer);
@@ -412,6 +421,20 @@ namespace Orbis
             spriteBatch.Begin();
             spriteBatch.DrawString(fontDebug, "STRING DRAWING TEST", new Vector2(10, 10), Color.Red);
             spriteBatch.End();
+
+            
+
+            //spriteBatch.Begin();
+
+            //spriteBatch.DrawString(fontDebug, "Civs:   Tick:" + simulator.Tick, new Vector2(10,25), Color.Red);
+            //for (int i = 0; i < scene.Civilizations.Count; i++)
+            //{
+            //    spriteBatch.DrawString(fontDebug, scene.Civilizations[i].Name + ": ", new Vector2(10, (i + 1) * 25 + 25), Color.IndianRed);
+            //    spriteBatch.DrawString(fontDebug, "Population= " + scene.Civilizations[i].Population, new Vector2(500, (i + 1) * 25 + 25), Color.Red);
+            //    spriteBatch.DrawString(fontDebug, "Size= " + scene.Civilizations[i].Territory.Count, new Vector2(850, (i + 1) * 25 + 25), Color.Red);
+            //}
+
+            //spriteBatch.End();
 
             base.Draw(gameTime);
         }
