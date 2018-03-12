@@ -108,7 +108,7 @@ namespace Orbis.Simulation
         /// <returns>True if succesfull</returns>
         public bool ClaimCell(Cell cell)
         {
-            if (cell.Owner != null)
+            if (cell.Owner != null || cell.IsWater)
             {
                 return false;
             }

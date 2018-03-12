@@ -93,17 +93,17 @@ namespace Orbis.Simulation
                 // Go through each cell and claim resources for this tick
                 foreach (Cell cell in civ.Territory)
                 {
-                    civ.Food += Dice.Roll(10, 10) * cell.FoodMod;
-                    civ.Wealth += Dice.Roll(10, 10) * cell.WealthMod;
-                    civ.Resources += Dice.Roll(10, 10) * cell.ResourceMod;
+                    civ.Food += Dice.Roll(5, 5) * cell.FoodMod;
+                    civ.Wealth += Dice.Roll(5, 5) * cell.WealthMod;
+                    civ.Resources += Dice.Roll(5, 5) * cell.ResourceMod;
                 }
 
                 // Calculate birth
-                int births = Dice.Roll(6, civ.Population / 5);
+                int births = Dice.Roll(3, civ.Population / 5);
 
                 // Calculate deaths
                 int PeopleWithNoFood = (int)Math.Ceiling(civ.Population - civ.Food);
-                int deaths = Dice.Roll(6, civ.Population / 5) + PeopleWithNoFood;
+                int deaths = Dice.Roll(10, civ.Population / 5) + PeopleWithNoFood;
 
                 // Grow population based on birth and deaths
                 civ.Population += births - deaths;
