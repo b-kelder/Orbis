@@ -14,8 +14,8 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin Config/Main.xml
+#begin Config/Civilization.xml
 /importer:XmlImporter
 /processor:PassThroughProcessor
-/build:Config/Main.xml
+/build:Config/Civilization.xml
 

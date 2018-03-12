@@ -198,12 +198,9 @@ namespace Orbis
 
 
             // Config Test
-            XMLModel.Civilization[] civData = Content.Load<XMLModel.Civilization[]>("Config/Main");
+            XMLModel.Civilization[] civData = Content.Load<XMLModel.Civilization[]>("Config/Civilization");
             Debug.WriteLine(civData[0].name);
-            Debug.WriteLine(civData[0].foodModifier);
-
             Debug.WriteLine(civData[1].name);
-            Debug.WriteLine(civData[1].foodModifier);
             // End Config Test
 
             hexModel = ModelLoader.LoadModel("Content/Meshes/hex.obj", "Content/Textures/hex.png",

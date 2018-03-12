@@ -9,6 +9,5 @@ namespace XMLModel
     public class Civilization
     {
         public string name = "unknown";
-        public int foodModifier = 0;
     }
 }
