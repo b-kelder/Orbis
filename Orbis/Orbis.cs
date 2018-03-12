@@ -197,13 +197,21 @@ namespace Orbis
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
 
+            // Config Test
+            XMLModel.Civilization[] civData = Content.Load<XMLModel.Civilization[]>("Config/Main");
+            Debug.WriteLine(civData[0].name);
+            Debug.WriteLine(civData[0].foodModifier);
+
+            Debug.WriteLine(civData[1].name);
+            Debug.WriteLine(civData[1].foodModifier);
+            // End Config Test
+
             hexModel = ModelLoader.LoadModel("Content/Meshes/hex.obj", "Content/Textures/hex.png",
                 basicShader, GraphicsDevice);
             houseHexModel = ModelLoader.LoadModel("Content/Meshes/hex_house.obj", "Content/Textures/hex_house.png",
                 basicShader, GraphicsDevice);
 
             LoadRenderInstances();
-
         }
 
         /// <summary>
