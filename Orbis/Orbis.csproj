@@ -12,7 +12,7 @@
     <AssemblyName>Orbis</AssemblyName>
     <DefaultLanguage>en</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion>10.0.14393.0</TargetPlatformVersion>
+    <TargetPlatformVersion>10.0.16299.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.10240.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <EnableDotNetNativeCompatibleProfile>true</EnableDotNetNativeCompatibleProfile>
@@ -21,6 +21,7 @@
     <PackageCertificateKeyFile>Orbis_TemporaryKey.pfx</PackageCertificateKeyFile>
     <MonoGamePlatform>WindowsStoreApp</MonoGamePlatform>
     <PackageCertificateThumbprint>EAE2AD6A8939A593D258F8921DAC686C7B884D70</PackageCertificateThumbprint>
+    <RuntimeIdentifiers>win10-arm;win10-arm-aot;win10-x86;win10-x86-aot;win10-x64;win10-x64-aot</RuntimeIdentifiers>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
@@ -102,6 +103,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Engine\Dice.cs" />
+    <Compile Include="Engine\InputHandler.cs" />
     <Compile Include="Engine\Perlin.cs" />
     <Compile Include="GamePage.xaml.cs">
       <DependentUpon>GamePage.xaml</DependentUpon>
@@ -121,8 +123,8 @@
     <Compile Include="TopographyHelper.cs" />
     <Compile Include="World\Biome.cs" />
     <Compile Include="World\Cell.cs" />
+    <Compile Include="World\Civilization.cs" />
     <Compile Include="World\Map.cs" />
-    <Compile Include="Simulation\Civilization.cs" />
     <Compile Include="World\Scene.cs" />
     <Compile Include="World\WorldGenerator.cs" />
   </ItemGroup>
@@ -131,7 +133,6 @@
     <Content Include="Content\Textures\hex_house.png" />
     <Content Include="Content\Meshes\hex.obj" />
     <Content Include="Content\Meshes\hex_house.obj" />
-    <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -163,7 +164,17 @@
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
+      <Version>6.0.8</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\XMLModel\XMLModel.csproj">
+      <Project>{01f76ee9-4a52-4cfd-957e-795b8e332e5b}</Project>
+      <Name>XMLModel</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
