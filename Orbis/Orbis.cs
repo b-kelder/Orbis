@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Orbis.Engine;
 using Orbis.Rendering;
+using Orbis.Simulation;
 using Orbis.World;
 using System;
 using System.Collections.Generic;
@@ -28,9 +29,6 @@ namespace Orbis
 
         List<RenderInstance> renderInstances;
 
-        Scene scene;
-        Simulator simulator;
-
         private float rotation;
         private float distance;
         private float angle;
@@ -38,6 +36,7 @@ namespace Orbis
         private Rendering.Model houseHexModel;
         private Rendering.Model waterHexModel;
         private Scene scene;
+        private Simulator simulator;
 
         private Task<List<RenderInstance>> meshTask;
 
@@ -360,8 +359,6 @@ namespace Orbis
 
             camera.Position = Vector3.Transform(Vector3.Zero, camMatrix) + camera.LookTarget;
 
-            simulator.Update();
-
             base.Update(gameTime);
         }
 
@@ -427,17 +424,17 @@ namespace Orbis
 
             
 
-            spriteBatch.Begin();
+            //spriteBatch.Begin();
 
-            spriteBatch.DrawString(fontDebug, "Civs:   Tick:" + simulator.Tick, new Vector2(10,25), Color.Red);
-            for (int i = 0; i < scene.Civilizations.Count; i++)
-            {
-                spriteBatch.DrawString(fontDebug, scene.Civilizations[i].Name + ": ", new Vector2(10, (i + 1) * 25 + 25), Color.IndianRed);
-                spriteBatch.DrawString(fontDebug, "Population= " + scene.Civilizations[i].Population, new Vector2(500, (i + 1) * 25 + 25), Color.Red);
-                spriteBatch.DrawString(fontDebug, "Size= " + scene.Civilizations[i].Territory.Count, new Vector2(850, (i + 1) * 25 + 25), Color.Red);
-            }
+            //spriteBatch.DrawString(fontDebug, "Civs:   Tick:" + simulator.Tick, new Vector2(10,25), Color.Red);
+            //for (int i = 0; i < scene.Civilizations.Count; i++)
+            //{
+            //    spriteBatch.DrawString(fontDebug, scene.Civilizations[i].Name + ": ", new Vector2(10, (i + 1) * 25 + 25), Color.IndianRed);
+            //    spriteBatch.DrawString(fontDebug, "Population= " + scene.Civilizations[i].Population, new Vector2(500, (i + 1) * 25 + 25), Color.Red);
+            //    spriteBatch.DrawString(fontDebug, "Size= " + scene.Civilizations[i].Territory.Count, new Vector2(850, (i + 1) * 25 + 25), Color.Red);
+            //}
 
-            spriteBatch.End();
+            //spriteBatch.End();
 
             base.Draw(gameTime);
         }

@@ -45,7 +45,7 @@ namespace Orbis.World
                 // Create a civ with all base values
                 Civilization civ = new Civilization
                 {
-                    Name = names[random.Next(names.Length)],
+                    Name = "Kees",
                     DefenceModifier = Dice.Roll(6, 1),
                     OffenceModifier = Dice.Roll(6, 1),
                     Population = 1,
