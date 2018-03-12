@@ -39,8 +39,7 @@ namespace Orbis.Engine
         /// <returns>Returns true if key is held down.</returns>
         public bool IsKeyHeld(Keys key)
         {
-            if (pressedKeys.Contains(key)) return true;
-            return false;
+            return pressedKeys.Contains(key);
         }
 
         /// <summary>
@@ -114,7 +113,7 @@ namespace Orbis.Engine
         /// <returns>Returns true if the modiefier keys are being held down and the key is down once.</returns>
         public bool IsKeyDown(Keys key, Keys[] modifiers)
         {
-            foreach(Keys modifier in modifiers)
+            foreach (Keys modifier in modifiers) 
             {
                 if (!pressedKeys.Contains(modifier)) return false;
             }
@@ -157,19 +156,19 @@ namespace Orbis.Engine
                 }
             }
 
-            foreach(Keys key in removeListP)
+            foreach (Keys key in removeListP)
             {
                 if (pressedKeys.Contains(key)) pressedKeys.Remove(key);
             }
 
-            foreach(Keys key in removeListT)
+            foreach (Keys key in removeListT)
             {
                 if (triggerOnce.Contains(key)) triggerOnce.Remove(key);
             }
 
-            foreach(Keys key in state.GetPressedKeys())
+            foreach (Keys key in state.GetPressedKeys())
             {
-                if(pressedKeys.Contains(key) && !triggerOnce.Contains(key))
+                if (pressedKeys.Contains(key) && !triggerOnce.Contains(key))
                 {
                     triggerOnce.Add(key);
                 }
@@ -180,17 +179,19 @@ namespace Orbis.Engine
             }    
         }
 
+        /// <summary>
+        /// Prints a line when a key is pressed or released.
+        /// </summary>
         public void PrintKeyLists()
         {
             foreach (Keys key in pressedKeys)
             {
-                if(!triggerOnce.Contains(key)) System.Diagnostics.Debug.WriteLine(key);
+                if (!triggerOnce.Contains(key)) System.Diagnostics.Debug.WriteLine(key + " down");
             }
-
-            //foreach (Keys key in pressedKeys)
-            //{
-            //    System.Diagnostics.Debug.WriteLine(key);
-            //}
+            foreach (Keys key in triggerOnce)
+            {
+                if (!pressedKeys.Contains(key)) System.Diagnostics.Debug.WriteLine(key + " up");
+            }
         }
     }
 }
