@@ -19,3 +19,8 @@
 /processor:PassThroughProcessor
 /build:Config/Civilization.xml
 
+#begin Config/Biome.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Config/Biome.xml
+

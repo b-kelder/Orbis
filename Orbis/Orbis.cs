@@ -201,6 +201,10 @@ namespace Orbis
             XMLModel.Civilization[] civData = Content.Load<XMLModel.Civilization[]>("Config/Civilization");
             Debug.WriteLine(civData[0].name);
             Debug.WriteLine(civData[1].name);
+
+            XMLModel.Biome[] biomeData = Content.Load<XMLModel.Biome[]>("Config/Biome");
+            Debug.WriteLine(biomeData[0].name);
+            Debug.WriteLine(biomeData[0].populationModifier);
             // End Config Test
 
             hexModel = ModelLoader.LoadModel("Content/Meshes/hex.obj", "Content/Textures/hex.png",
