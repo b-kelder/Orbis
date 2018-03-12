@@ -10,6 +10,24 @@
 
 #-------------------------------- References --------------------------------#
 
+/reference:..\..\XMLModel\bin\x64\Debug\XMLModel.dll
 
 #---------------------------------- Content ---------------------------------#
+
+#begin Config/Civilization.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Config/Civilization.xml
+
+#begin DebugFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:DebugFont.spritefont
+
+#begin Config/Biome.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Config/Biome.xml
 
