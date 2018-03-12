@@ -235,7 +235,6 @@ namespace Orbis
             fontDebug = Content.Load<SpriteFont>("DebugFont");
 
             GenerateWorld(1499806334);
-            LoadRenderInstances();
         }
 
         /// <summary>
