@@ -44,7 +44,7 @@ namespace Orbis.World
         "Central African Republic",
         "Congo",
         "Switzerland",
-        "Côte d'Ivoire",
+        "Cote d'Ivoire",
         "Chile",
         "Cameroon",
         "China",
@@ -256,13 +256,10 @@ namespace Orbis.World
                     if(cell != null && cell.Owner == null)
                     {
                         // No atlantis shenanigans
-                        if(cell.IsWater)
+                        if(!civ.ClaimCell(cell))
                         {
                             continue;
                         }
-                        // Set the owner and break
-                        civ.Territory.Add(cell);
-                        cell.Owner = civ;
 
                         break;
                     }
@@ -308,7 +305,7 @@ namespace Orbis.World
                         // Now all data has been set, calculate the modifiers
                         cell.FoodMod = random.NextDouble() + random.Next(5);
                         cell.ResourceMod = random.NextDouble();
-                        cell.Housing = random.Next(1, 100);
+                        cell.Housing = random.Next(1, 5000);
                     }
                 }
             }

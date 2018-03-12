@@ -37,6 +37,8 @@ namespace Orbis
         private Rendering.Model houseHexModel;
         private Rendering.Model waterHexModel;
 
+        SpriteFont font;
+
         public Orbis()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -86,7 +88,7 @@ namespace Orbis
             var generator = new WorldGenerator(new Random().Next());
             generator.GenerateWorld(scene, 100);
             generator.GenerateCivs(scene, 25);
-            simulator = new Simulator(scene, 100);
+            simulator = new Simulator(scene, 1000);
 
             // Create world meshes
             int range = scene.WorldMap.Radius;
@@ -112,7 +114,8 @@ namespace Orbis
                         waterHexCombiner.Add(new MeshInstance
                         {
                             mesh = waterHexMesh,
-                            matrix = Matrix.CreateTranslation(position)
+                            matrix = Matrix.CreateTranslation(position),
+                            pos = new Point(p, q)
                         });
                     }
                     else
@@ -122,7 +125,8 @@ namespace Orbis
                             houseHexCombiner.Add(new MeshInstance
                             {
                                 mesh = houseHexMesh,
-                                matrix = Matrix.CreateTranslation(position)
+                                matrix = Matrix.CreateTranslation(position),
+                                pos = new Point(p, q)
                             });
                         }
                         else
@@ -130,7 +134,8 @@ namespace Orbis
                             hexCombiner.Add(new MeshInstance
                             {
                                 mesh = hexMesh,
-                                matrix = Matrix.CreateTranslation(position)
+                                matrix = Matrix.CreateTranslation(position),
+                                pos = new Point(p, q)
                             });
                         }
                     }
@@ -195,6 +200,8 @@ namespace Orbis
                 basicShader, GraphicsDevice);
             waterHexModel = ModelLoader.LoadModel("Content/Meshes/hex.obj", "Content/Textures/hex_water.png",
                 basicShader, GraphicsDevice);
+
+            font = Content.Load<SpriteFont>("Fonts/font");
 
             LoadRenderInstances();
 
@@ -296,6 +303,9 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
+            GraphicsDevice.BlendState = BlendState.Opaque;
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
             GraphicsDevice.Clear(Color.Aqua);
 
             // TODO: Add your drawing code here
@@ -320,7 +330,7 @@ namespace Orbis
             }
 
             // Draw batches
-            foreach(var batch in materialBatches)
+            foreach (var batch in materialBatches)
             {
                 var effect = batch.Key.Effect;
                 effect.View = viewMatrix;
@@ -330,7 +340,6 @@ namespace Orbis
 
                 foreach(var instance in batch.Value)
                 {
-                    effect.World = instance.matrix;
 
                     graphics.GraphicsDevice.Indices = instance.mesh.IndexBuffer;
                     graphics.GraphicsDevice.SetVertexBuffer(instance.mesh.VertexBuffer);
@@ -345,6 +354,20 @@ namespace Orbis
                     }
                 }
             }
+
+            
+
+            spriteBatch.Begin();
+
+            spriteBatch.DrawString(font, "Civs:   Tick:" + simulator.Tick, new Vector2(10,25), Color.Red);
+            for (int i = 0; i < scene.Civilizations.Count; i++)
+            {
+                spriteBatch.DrawString(font, scene.Civilizations[i].Name + ": ", new Vector2(10, (i + 1) * 25 + 25), Color.IndianRed);
+                spriteBatch.DrawString(font, "Population= " + scene.Civilizations[i].Population, new Vector2(500, (i + 1) * 25 + 25), Color.Red);
+                spriteBatch.DrawString(font, "Size= " + scene.Civilizations[i].Territory.Count, new Vector2(850, (i + 1) * 25 + 25), Color.Red);
+            }
+
+            spriteBatch.End();
 
             base.Draw(gameTime);
 

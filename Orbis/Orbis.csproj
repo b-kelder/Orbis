@@ -117,9 +117,6 @@
     <Compile Include="Rendering\ObjParser.cs" />
     <Compile Include="Rendering\RenderableMesh.cs" />
     <Compile Include="Rendering\RenderInstance.cs" />
-    <Compile Include="Simulation\SimulationActions\ISimuationAction.cs" />
-    <Compile Include="Simulation\SimulationActions\SimulationActionDoNothing.cs" />
-    <Compile Include="Simulation\SimulationActions\SimulationActionExpand.cs" />
     <Compile Include="Simulation\Simulator.cs" />
     <Compile Include="TopographyHelper.cs" />
     <Compile Include="World\Biome.cs" />

@@ -18,6 +18,11 @@ namespace Orbis.Simulation
         public Scene Scene { get; set; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        private Task task;
+
+        /// <summary>
         /// The current tick in the simulation
         /// </summary>
         public int Tick { get; set; }
@@ -27,14 +32,14 @@ namespace Orbis.Simulation
         /// <summary>
         /// Queue of all by civs chosen actions.
         /// </summary>
-        private Queue<ISimuationAction> actionQueue;
+        private Queue<Action> actionQueue;
 
         /// <summary>
         /// Create a simulator object
         /// </summary>
         public Simulator()
         {
-            actionQueue = new Queue<ISimuationAction>();
+            actionQueue = new Queue<Action>();
         }
 
         /// <summary>
@@ -52,7 +57,7 @@ namespace Orbis.Simulation
             Scene = scene;
             SimLength = length;
 
-            actionQueue = new Queue<ISimuationAction>();
+            actionQueue = new Queue<Action>();
 
             Tick = 0;
         }
@@ -62,36 +67,33 @@ namespace Orbis.Simulation
         /// </summary>
         public void Update()
         {
+            if (Tick >= SimLength)
+            {
+                return;
+            }
+            if (task == null || task.IsCompleted)
+            {
+                task = Task.Run(()=> StartTick());
+            }
+        }
+
+        private void StartTick()
+        {
             Tick++;
 
-            if (Tick > SimLength)
-            {
-                return;
-            }
-            if (Tick == SimLength)
-            {
-                Debug.WriteLine("Tick: " + Tick);
-                Debug.WriteLine("========================");
-                
-                foreach (Civilization civ in Scene.Civilizations)
-                {
-                    Debug.WriteLine(civ.Name + " Population: " + civ.Population + " Size: " + civ.Territory.Count + " FOOD: " + civ.Food);
-                }
-
-                return;
-            }
             foreach (Civilization civ in Scene.Civilizations)
             {
-                actionQueue.Enqueue(civ.DetermineAction());
-
                 // Check if the civ is still alive.
                 if (civ.Dead)
                 {
                     continue;
                 }
 
+                // Let the civ decide an action
+                actionQueue.Enqueue(civ.DetermineAction());
+
                 // Go through each cell and claim resources for this tick
-                foreach (Cell cell in civ.Territory)
+                foreach (Cell cell in civ.Territory.AsParallel())
                 {
                     civ.Food += Dice.Roll(5, 5) * cell.FoodMod;
                     civ.Wealth += Dice.Roll(5, 5) * cell.WealthMod;
@@ -107,20 +109,15 @@ namespace Orbis.Simulation
 
                 // Grow population based on birth and deaths
                 civ.Population += births - deaths;
-
-                if (civ.Population <= 0)
-                {
-                    civ.Dead = true;
-                    Debug.WriteLine(civ.Name + " died in tick: " + Tick);
-                }
-
-                //Debug.WriteLine(civ.Name + " Population: " + civ.Population + " Size: " + civ.Territory.Count);
-            }
+            }  
 
             while (actionQueue.Count > 0)
             {
-                ISimuationAction simuationAction = actionQueue.Dequeue();
-                simuationAction.PerformAction();
+                Action simuationAction = actionQueue.Dequeue();
+                if (simuationAction != null)
+                {
+                    simuationAction.Invoke();
+                }
             }
         }
     }

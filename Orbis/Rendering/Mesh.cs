@@ -153,5 +153,6 @@ namespace Orbis.Rendering
     {
         public Mesh mesh;
         public Matrix matrix;
+        public Point pos;
     }
 }

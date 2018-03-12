@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Orbis.Simulation.SimulationActions;
 using Orbis.World;
 
 namespace Orbis.Simulation
@@ -22,6 +21,8 @@ namespace Orbis.Simulation
         /// The cells owned by this civ
         /// </summary>
         public List<Cell> Territory { get; set; }
+
+        public List<Cell> neighbours { get; set; }
 
         /// <summary>
         /// The devensive strength of this civ
@@ -53,52 +54,44 @@ namespace Orbis.Simulation
         /// </summary>
         public double Resources { get; set; }
 
+        private int totalHousing;
+
         //TODO: Add personalisations
 
         public Civilization()
         {
             Territory = new List<Cell>();
+            neighbours = new List<Cell>();
         }
 
         /// <summary>
         /// Determane what action to perform next
         /// </summary>
         /// <returns></returns>
-        public ISimuationAction DetermineAction()
+        public Action DetermineAction()
         {
-            int totalHousing = 0;
-            foreach (Cell cell in Territory)
-            {
-                totalHousing += cell.Housing;
-            }
-
             if (Population > totalHousing)
             {
-                return new SimulationActionExpand(this);
+                return ExpandTerritory;
             }
 
             // Return the do nothing action
-            return new SimulationActionDoNothing();
+            return null;
         }
 
         /// <summary>
         /// Expand territory to the best neighbor cell
         /// </summary>
         /// <returns></returns>
-        public Cell ExpandTerritory()
+        public void ExpandTerritory()
         {
-            foreach (Cell cell in Territory)
+            foreach (Cell neighbour in neighbours.AsParallel())
             {
-                foreach (Cell neighbour in cell.Neighbours)
+                if (ClaimCell(neighbour))
                 {
-                    if (ClaimCell(neighbour))
-                    {
-                        return neighbour;
-                    }
+                    return;
                 }
             }
-
-            return null;
         }
 
         /// <summary>
@@ -114,6 +107,18 @@ namespace Orbis.Simulation
             }
             cell.Owner = this;
             Territory.Add(cell);
+
+            foreach (Cell c in cell.Neighbours)
+            {
+                if (c.Owner != this)
+                {
+                    neighbours.Add(c);
+                }
+            }
+
+            neighbours.Remove(cell);
+
+            totalHousing += cell.Housing;
 
             return true;
         }
