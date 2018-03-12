@@ -1,12 +1,15 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Orbis.UI;
+
 using Microsoft.Xna.Framework.Input;
 using Orbis.Engine;
 using Orbis.Rendering;
+using Orbis.Simulation;
+using Orbis.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Orbis
 {
@@ -16,7 +19,9 @@ namespace Orbis
     public class Orbis : Game
     {
         GraphicsDeviceManager graphics;
-        UIWindow UI;
+        SpriteBatch spriteBatch;
+
+        InputHandler input;
 
         BasicEffect basicShader;
 
@@ -24,34 +29,27 @@ namespace Orbis
 
         List<RenderInstance> renderInstances;
 
-        Dictionary<string, ModelMesh> Meshes;
-
-        BasicEffect[] Effects;
-        Tuple<Matrix, ModelMesh>[] WorldModels;
-
         private float rotation;
         private float distance;
         private float angle;
         private Rendering.Model hexModel;
         private Rendering.Model houseHexModel;
+        private Rendering.Model waterHexModel;
+        private Scene scene;
+        private Simulator simulator;
+
+        private Task<List<RenderInstance>> meshTask;
+
+        private SpriteFont fontDebug;
+
+        float worldUpdateTimer;
 
         public Orbis()
         {
-            graphics = new GraphicsDeviceManager(this)
-            {
-                PreferredBackBufferWidth = 1600,
-                PreferredBackBufferHeight = 900
-            };
-
+            graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            Window.Title = "Orbis";
 
-            Meshes = new Dictionary<string, Microsoft.Xna.Framework.Graphics.ModelMesh>();
-
-
-            UI = new UIWindow(this);
-            Components.Add(UI);
-            UI.DrawOrder = 1;
+            input = new InputHandler();
         }
 
         /// <summary>
@@ -62,10 +60,6 @@ namespace Orbis
         /// </summary>
         protected override void Initialize()
         {
-            this.IsMouseVisible = true;
-            Window.AllowUserResizing = false;
-            // TODO: Add your initialization logic here
-
             // Shaders
             basicShader = new BasicEffect(graphics.GraphicsDevice);
 
@@ -78,144 +72,146 @@ namespace Orbis
             //camera.Mode = CameraMode.Orthographic;
 
             renderInstances = new List<RenderInstance>();
+
+            
+
             base.Initialize();
         }
 
-        private Mesh CreatePyramidMesh()
-        {
-            var vertices = new Vector3[5];
-            var uvs = new Vector2[5];
-            var triangles = new ushort[12];
-
-            vertices[0] = new Vector3(-0.5f, 0.5f, 0);
-            vertices[1] = new Vector3(0.5f, 0.5f, 0);
-            vertices[2] = new Vector3(0.5f, -0.5f, 0);
-            vertices[3] = new Vector3(-0.5f, -0.5f, 0);
-            vertices[4] = new Vector3(0, 0, 0.65f);
-
-            uvs[0] = new Vector2(1, 1);
-            uvs[1] = new Vector2(0, 1);
-            uvs[2] = new Vector2(1, 1);
-            uvs[3] = new Vector2(0, 1);
-            uvs[4] = new Vector2(0.5f, 0);
-
-            triangles[0] = 0;
-            triangles[1] = 1;
-            triangles[2] = 4;
-
-            triangles[3] = 1;
-            triangles[4] = 2;
-            triangles[5] = 4;
-
-            triangles[6] = 2;
-            triangles[7] = 3;
-            triangles[8] = 4;
-
-            triangles[9] = 3;
-            triangles[10] = 0;
-            triangles[11] = 4;
-
-            return new Mesh
-            {
-                Vertices = vertices,
-                UVs = uvs,
-                Triangles = triangles,
-            };
-        }
-
-        private void LoadRenderInstances()
+        private List<RenderInstance> GenerateMeshesFromScene(Scene scene)
         {
             // Hex generation test
-            //var hexMesh = hexModel.Mesh;
-            //var houseHexMesh = houseHexModel.Mesh;
-            //var hexCombiner = new MeshCombiner();
-            //var houseHexCombiner = new MeshCombiner();
+            var renderInstances = new List<RenderInstance>();
+            var hexMesh = hexModel.Mesh;
+            var houseHexMesh = houseHexModel.Mesh;
+            var waterHexMesh = waterHexModel.Mesh;
+            // Use mesh combiners to get a bit more performant mesh for now
+            var hexCombiner = new MeshCombiner();
+            var houseHexCombiner = new MeshCombiner();
+            var waterHexCombiner = new MeshCombiner();
 
-            var hexMesh = Meshes["hex"];
-            var houseHexMesh = Meshes["houseHex"];
-
-            var worldModels = new List<Tuple<Matrix, ModelMesh>>();
-
-            Random rand = new Random();
-            int range = 100;
-            float amplitude = 25;
-
-            var perlin = new Perlin(range);
-
-            float boundsX = TopographyHelper.HexToWorld(new Point(range, 0)).X;
-            float boundsY = TopographyHelper.HexToWorld(new Point(0, range)).Y;
-
-            //Debug.WriteLine("HalfBounds: " + boundsX + " - " + boundsY);
+            // Create world meshes
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            int range = scene.WorldMap.Radius;
 
             for(int p = -range; p <= range; p++)
             {
                 for(int q = -range; q <= range; q++)
                 {
-                    if(Math.Abs(q + p) > range)
+                    var cell = scene.WorldMap.GetCell(p, q);
+                    if(cell == null)
                     {
                         continue;
                     }
 
-                    var vector = TopographyHelper.HexToWorld(new Point(p, q));
-                    var perlinPoint = (vector + new Vector2(boundsX, boundsY))/ range;
-                    var height = perlin.OctavePerlin(perlinPoint.X, perlinPoint.Y, 0, 4, 0.9);
-
-                    Vector3 position = new Vector3(vector, (float)height * amplitude);
-
-                    var translationMatrix = Matrix.CreateTranslation(position);
-
-                    if (rand.Next(40) <= 1)
+                    var worldPoint = TopographyHelper.HexToWorld(new Point(p, q));
+                    var position = new Vector3(
+                        worldPoint,
+                        (float)cell.Elevation);
+                    // Temporary way to make sea actually level
+                    if(cell.IsWater)
                     {
-                        
-                        worldModels.Add(new Tuple<Matrix, ModelMesh>(translationMatrix, houseHexMesh));
-
-                        //houseHexCombiner.Add(new MeshInstance
-                        //{
-                        //    mesh = houseHexMesh,
-                        //    matrix = Matrix.CreateTranslation(position),
-                        //});
+                        position.Z = scene.WorldMap.SeaLevel;
+                        waterHexCombiner.Add(new MeshInstance
+                        {
+                            mesh = waterHexMesh,
+                            matrix = Matrix.CreateTranslation(position),
+                            pos = new Point(p, q)
+                        });
                     }
                     else
                     {
-                        worldModels.Add(new Tuple<Matrix, ModelMesh>(translationMatrix, hexMesh));
-                        //hexCombiner.Add(new MeshInstance
-                        //{
-                        //    mesh = hexMesh,
-                        //    matrix = Matrix.CreateTranslation(position),
-                        //});
+                        if(cell.Owner != null)
+                        {
+                            houseHexCombiner.Add(new MeshInstance
+                            {
+                                mesh = houseHexMesh,
+                                matrix = Matrix.CreateTranslation(position),
+                                pos = new Point(p, q)
+                            });
+                        }
+                        else
+                        {
+                            hexCombiner.Add(new MeshInstance
+                            {
+                                mesh = hexMesh,
+                                matrix = Matrix.CreateTranslation(position),
+                                pos = new Point(p, q)
+                            });
+                        }
                     }
                 }
             }
 
-            WorldModels = worldModels.ToArray();
-
             // Combine meshes
-            //var combinedHexes = hexCombiner.GetCombinedMeshes();
-            //foreach(var mesh in combinedHexes)
-            //{
-            //    renderInstances.Add(new RenderInstance()
-            //    {
-            //        mesh = new RenderableMesh(graphics.GraphicsDevice, mesh),
-            //        material = hexModel.Material,
-            //        matrix = Matrix.Identity,
-            //    });
+            var combinedHexes = hexCombiner.GetCombinedMeshes();
+            foreach(var mesh in combinedHexes)
+            {
+                renderInstances.Add(new RenderInstance()
+                {
+                    mesh = new RenderableMesh(graphics.GraphicsDevice, mesh),
+                    material = hexModel.Material,
+                    matrix = Matrix.Identity,
+                });
 
-            //    Debug.WriteLine("Adding hex mesh");
-            //}
-            //var combinedPyramids = houseHexCombiner.GetCombinedMeshes();
-            //foreach(var mesh in combinedPyramids)
-            //{
-            //    renderInstances.Add(new RenderInstance()
-            //    {
-            //        mesh = new RenderableMesh(graphics.GraphicsDevice, mesh),
-            //        material = houseHexModel.Material,
-            //        matrix = Matrix.Identity,
-            //    });
+                Debug.WriteLine("Adding hex mesh");
+            }
+            var combinedPyramids = houseHexCombiner.GetCombinedMeshes();
+            foreach(var mesh in combinedPyramids)
+            {
+                renderInstances.Add(new RenderInstance()
+                {
+                    mesh = new RenderableMesh(graphics.GraphicsDevice, mesh),
+                    material = houseHexModel.Material,
+                    matrix = Matrix.Identity,
+                });
 
-            //    Debug.WriteLine("Adding pyramid mesh");
-            //}
-            
-            //var model = new Microsoft.Xna.Framework.Graphics.Model(GraphicsDevice, modelBones, modelMeshes);
+                Debug.WriteLine("Adding civ home base mesh");
+            }
+            combinedPyramids = waterHexCombiner.GetCombinedMeshes();
+            foreach(var mesh in combinedPyramids)
+            {
+                renderInstances.Add(new RenderInstance()
+                {
+                    mesh = new RenderableMesh(graphics.GraphicsDevice, mesh),
+                    material = waterHexModel.Material,
+                    matrix = Matrix.Identity,
+                });
+
+                Debug.WriteLine("Adding water mesh");
+            }
+
+            stopwatch.Stop();
+            Debug.WriteLine("Generated meshes in " + stopwatch.ElapsedMilliseconds + " ms");
+            return renderInstances;
+        }
+
+        private async void GenerateWorld(int seed)
+        {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            // Generate world
+            Debug.WriteLine("Generating world for seed " + seed);
+            scene = new Scene();
+            var generator = new WorldGenerator(seed);
+            generator.GenerateWorld(scene, 100);
+            generator.GenerateCivs(scene, 500);
+
+            stopwatch.Stop();
+            Debug.WriteLine("Generated world in " + stopwatch.ElapsedMilliseconds + " ms");
+
+            // Await for a previous mesh generation to finish if it hasn't yet
+            if(meshTask != null)
+            {
+                await meshTask;
+            }
+            meshTask = Task<List<RenderInstance>>.Run(() => {
+                return GenerateMeshesFromScene(scene);
+            });
+
+            // Set cam to sea level
+            camera.LookTarget = new Vector3(camera.LookTarget.X, camera.LookTarget.Y, generator.SeaLevel);
         }
 
         /// <summary>
@@ -224,35 +220,31 @@ namespace Orbis
         /// </summary>
         protected override void LoadContent()
         {
-            //hexModel = ModelLoader.LoadModel("Content/Meshes/hex.obj", "Content/Textures/hex.png",
-            //    basicShader, GraphicsDevice);
-            //houseHexModel = ModelLoader.LoadModel("Content/Meshes/hex_house.obj", "Content/Textures/hex_house.png",
-            //    basicShader, GraphicsDevice);
+            // Create a new SpriteBatch, which can be used to draw textures.
+            spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            List<BasicEffect> effects = new List<BasicEffect>();
 
-            var hexModel = Content.Load<Microsoft.Xna.Framework.Graphics.Model>("Meshes/hex");
-            var hexMesh = hexModel.Meshes[0];
-            var hexTexture = Content.Load<Texture2D>("Textures\\hex");
-            var hexEffect = hexMesh.Effects[0] as BasicEffect;
-            hexEffect.Texture = hexTexture;
-            hexEffect.TextureEnabled = true;
-            Meshes.Add("hex", hexMesh);
+            // Config Test
+            XMLModel.Civilization[] civData = Content.Load<XMLModel.Civilization[]>("Config/Civilization");
+            Debug.WriteLine(civData[0].name);
+            Debug.WriteLine(civData[1].name);
 
-            var houseHexModel = Content.Load<Microsoft.Xna.Framework.Graphics.Model>("Meshes/hex_house");
-            var houseHexMesh = houseHexModel.Meshes[0];
-            var houseHexTexture = Content.Load<Texture2D>("Textures/hex_house");
-            var houseHexEffect = houseHexMesh.Effects[0] as BasicEffect;
-            houseHexEffect.Texture = houseHexTexture;
-            houseHexEffect.TextureEnabled = true;
-            Meshes.Add("houseHex", houseHexMesh);
+            XMLModel.Biome[] biomeData = Content.Load<XMLModel.Biome[]>("Config/Biome");
+            Debug.WriteLine(biomeData[0].name);
+            Debug.WriteLine(biomeData[0].populationModifier);
+            // End Config Test
 
-            effects.Add(houseHexEffect);
-            effects.Add(hexEffect);
+            hexModel = ModelLoader.LoadModel("Content/Meshes/hex.obj", "Content/Textures/hex.png",
+                basicShader, GraphicsDevice);
+            houseHexModel = ModelLoader.LoadModel("Content/Meshes/hex_house.obj", "Content/Textures/hex_house.png",
+                basicShader, GraphicsDevice);
+            waterHexModel = ModelLoader.LoadModel("Content/Meshes/hex.obj", "Content/Textures/hex_water.png",
+                basicShader, GraphicsDevice);
 
-            Effects = effects.ToArray();
 
-            LoadRenderInstances();
+            fontDebug = Content.Load<SpriteFont>("DebugFont");
+
+            GenerateWorld(1499806334);
         }
 
         /// <summary>
@@ -261,8 +253,6 @@ namespace Orbis
         /// </summary>
         protected override void UnloadContent()
         {
-            Content.Unload();
-            // TODO: Unload any non ContentManager content here
         }
 
         /// <summary>
@@ -272,61 +262,88 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            // Update user input
+            input.UpdateInput();
 
-            var state = Keyboard.GetState();
+            // Check if new meshes have been generated by task
+            if (meshTask != null && meshTask.Status == TaskStatus.RanToCompletion)
+            {
+                // ALWAYS dispose of RenderMesh objects that won't be used anymore to reclaim
+                // the VertexBuffer and IndexBuffer memory they use
+                // Currently none of them will be reused so we dispose all of them
+                foreach(var instance in this.renderInstances)
+                {
+                    instance.mesh.Dispose();
+                }
+                this.renderInstances = meshTask.Result;
+                meshTask = null;
+            }
+
+            // See if world must be regenerated (TEST)
+            if(worldUpdateTimer > 5.0f)
+            {
+                // TODO: Actual threading inside WorldGenerator?
+                Task.Run(() => GenerateWorld(new Random().Next()));
+                worldUpdateTimer = 0;
+            }
+            worldUpdateTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+
             var camMoveDelta = Vector3.Zero;
 
             float speed = 100 * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             float scale = camera.OrthographicScale;
 
-            if(state.IsKeyDown(Keys.LeftShift))
+            if(input.IsKeyHeld(Keys.LeftShift))
             {
                 speed /= 5;
             }
-
-            if(state.IsKeyDown(Keys.Up))
+            if(input.IsKeyHeld(Keys.Up))
             {
                 angle -= speed;
             }
-            if(state.IsKeyDown(Keys.Down))
+            if(input.IsKeyHeld(Keys.Down))
             {
                 angle += speed;
             }
-            if(state.IsKeyDown(Keys.Left))
+            if(input.IsKeyHeld(Keys.Left))
             {
                 rotation -= speed;
             }
-            if(state.IsKeyDown(Keys.Right))
+            if(input.IsKeyHeld(Keys.Right))
             {
                 rotation += speed;
             }
-            if(state.IsKeyDown(Keys.OemPlus))
+            if(input.IsKeyHeld(Keys.OemPlus))
             {
                 distance -= speed;
                 //scale -= speed;
             }
-            if(state.IsKeyDown(Keys.OemMinus))
+            if(input.IsKeyHeld(Keys.OemMinus))
             {
                 distance += speed;
                 //scale += speed;
             }
-
-            if(state.IsKeyDown(Keys.W))
+            if(input.IsKeyHeld(Keys.W))
             {
                 camMoveDelta.Y += speed * 0.07f;
             }
-            if(state.IsKeyDown(Keys.A))
+            if(input.IsKeyHeld(Keys.A))
             {
                 camMoveDelta.X -= speed * 0.07f;
             }
-            if(state.IsKeyDown(Keys.S))
+            if(input.IsKeyHeld(Keys.S))
             {
                 camMoveDelta.Y -= speed * 0.07f;
             }
-            if(state.IsKeyDown(Keys.D))
+            if(input.IsKeyHeld(Keys.D))
             {
                 camMoveDelta.X += speed * 0.07f;
+            }
+            if(input.IsKeyDown(Keys.S, new Keys[] { Keys.LeftShift, Keys.K, Keys.Y}))
+            {
+                Exit();
             }
 
             angle = MathHelper.Clamp(angle, -80, -5);
@@ -351,97 +368,73 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Viewport = UI.SimulationWindow.SimulationViewport;
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
-
-            //GraphicsDevice.Clear(Color.DarkGreen);
+            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
             GraphicsDevice.Clear(Color.Aqua);
 
-            // TODO: Add your drawing code here
-            //DrawHex();
-            //DrawPiramids();
-            //DrawMesh(meshTest, piramidEffect, this.texturePiramid);
+            // Required when using SpriteBatch as well
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.BlendState = BlendState.Opaque;
 
-            float aspectRatio = UI.SimulationWindow.Size.X / (float)UI.SimulationWindow.Size.Y;
-            //float aspectRatio = graphics.PreferredBackBufferWidth / (float)graphics.PreferredBackBufferHeight;
+            float aspectRatio = graphics.PreferredBackBufferWidth / (float)graphics.PreferredBackBufferHeight;
             Matrix viewMatrix = camera.CreateViewMatrix();
             Matrix projectionMatrix = camera.CreateProjectionMatrix(aspectRatio);
 
-            //// Create batches sorted by material?
-            //var materialBatches = new Dictionary<Material, List<RenderInstance>>();
-            //foreach(var instance in renderInstances)
-            //{
-            //    //DrawInstance(instance);
-            //    if(!materialBatches.ContainsKey(instance.material))
-            //    {
-            //        materialBatches.Add(instance.material, new List<RenderInstance>());
-            //    }
-            //    materialBatches[instance.material].Add(instance);
-            //}
-
-            var effectCount = Effects.Length;
-            for (int effectIndex = 0; effectIndex < effectCount; effectIndex++)
+            // Create batches sorted by material?
+            var materialBatches = new Dictionary<Material, List<RenderInstance>>();
+            foreach(var instance in renderInstances)
             {
-                BasicEffect effect = Effects[effectIndex];
+                if(!materialBatches.ContainsKey(instance.material))
+                {
+                    materialBatches.Add(instance.material, new List<RenderInstance>());
+                }
+                materialBatches[instance.material].Add(instance);
+            }
+
+            // Draw batches
+            foreach (var batch in materialBatches)
+            {
+                var effect = batch.Key.Effect;
                 effect.View = viewMatrix;
                 effect.Projection = projectionMatrix;
-            }
+                effect.Texture = batch.Key.Texture;
+                effect.TextureEnabled = true;
 
-            var modelCount = WorldModels.Length;
-            for (int modelIndex = 0; modelIndex < modelCount; modelIndex++)
-            {
-                var worldModel = WorldModels[modelIndex];
-                var modelEffectCount = worldModel.Item2.Effects.Count;
-                for (int effectIndex = 0; effectIndex < modelEffectCount; effectIndex++)
+                foreach(var instance in batch.Value)
                 {
-                    BasicEffect effect = worldModel.Item2.Effects[effectIndex] as BasicEffect;
-                    effect.World = worldModel.Item1;
+
+                    graphics.GraphicsDevice.Indices = instance.mesh.IndexBuffer;
+                    graphics.GraphicsDevice.SetVertexBuffer(instance.mesh.VertexBuffer);
+                    foreach(var pass in effect.CurrentTechnique.Passes)
+                    {
+                        pass.Apply();
+
+                        graphics.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList,
+                            0,
+                            0,
+                            instance.mesh.IndexBuffer.IndexCount);
+                    }
                 }
-                worldModel.Item2.Draw();
             }
+            
+            spriteBatch.Begin();
+            spriteBatch.DrawString(fontDebug, "STRING DRAWING TEST", new Vector2(10, 10), Color.Red);
+            spriteBatch.End();
 
-            //foreach (var worldModel in WorldModels)
+            
+
+            //spriteBatch.Begin();
+
+            //spriteBatch.DrawString(fontDebug, "Civs:   Tick:" + simulator.Tick, new Vector2(10,25), Color.Red);
+            //for (int i = 0; i < scene.Civilizations.Count; i++)
             //{
-            //    foreach (BasicEffect effect in worldModel.Item2.Effects)
-            //    {
-            //        effect.View = viewMatrix;
-            //        effect.Projection = projectionMatrix;
-            //        effect.World = worldModel.Item1;
-            //    }
-
-            //    worldModel.Item2.Draw();
+            //    spriteBatch.DrawString(fontDebug, scene.Civilizations[i].Name + ": ", new Vector2(10, (i + 1) * 25 + 25), Color.IndianRed);
+            //    spriteBatch.DrawString(fontDebug, "Population= " + scene.Civilizations[i].Population, new Vector2(500, (i + 1) * 25 + 25), Color.Red);
+            //    spriteBatch.DrawString(fontDebug, "Size= " + scene.Civilizations[i].Territory.Count, new Vector2(850, (i + 1) * 25 + 25), Color.Red);
             //}
 
-            //// Draw batches
-            //foreach(var batch in materialBatches)
-            //{
-            //    var effect = batch.Key.Effect;
-            //    effect.View = viewMatrix;
-            //    effect.Projection = projectionMatrix;
-            //    effect.Texture = batch.Key.Texture;
-            //    effect.TextureEnabled = true;
-
-            //    foreach(var instance in batch.Value)
-            //    {
-            //        effect.World = instance.matrix;
-
-            //        graphics.GraphicsDevice.Indices = instance.mesh.IndexBuffer;
-            //        graphics.GraphicsDevice.SetVertexBuffer(instance.mesh.VertexBuffer);
-            //        foreach(var pass in effect.CurrentTechnique.Passes)
-            //        {
-            //            pass.Apply();
-
-            //            graphics.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList,
-            //                0,
-            //                0,
-            //                instance.mesh.IndexBuffer.IndexCount);
-            //        }
-            //    }
-            //}
-
-            GraphicsDevice.Viewport = UI.SimulationWindow.DefaultViewport;
+            //spriteBatch.End();
 
             base.Draw(gameTime);
         }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Orbis.Engine;
+using Orbis.Simulation;
 
 namespace Orbis.World
 {
@@ -18,50 +19,36 @@ namespace Orbis.World
         /// The current owner of the cell
         /// </summary>
         public Civilization Owner { get; set; }
+        /// <summary>
+        /// Food modifier for yields
+        /// </summary>
+        public double FoodMod { get; set; }
+        /// <summary>
+        /// Resource modifier for yields
+        /// </summary>
+        public double ResourceMod { get; set; }
+        /// <summary>
+        /// Wealth modifier for yields
+        /// </summary>
+        public double WealthMod { get; set; }
+        /// <summary>
+        /// Max population that can be housed in this cell
+        /// </summary>
+        public int Housing { get; set; }
+        /// <summary>
+        /// Terrain elevation level
+        /// </summary>
+        public double Elevation { get; set; }
+        /// <summary>
+        /// Indicates if this entire cell is water
+        /// </summary>
+        public bool IsWater { get; set; }
 
-        /// <summary>
-        /// The biome that this cell is based on
-        /// </summary>
-        public Biome Biome { get; set; }
-        /// <summary>
-        /// Modifier for the amount of food within the cell
-        /// </summary>
-        public int FoodValue { get; set; }
-        /// <summary>
-        /// Modifier for the amount of recources in the cell
-        /// </summary>
-        public int ResourceValue { get; set; }
-        /// <summary>
-        /// Modifier for the amount of usable space for the population
-        /// </summary>
-        public int PopulationValue { get; set; }
-        /// <summary>
-        /// The noise value based on the heightmap
-        /// </summary>
-        public double NoiseValue { get; set; }
+        public Point Coordinates { get; set; }
 
-        public Cell(double noise)
+        public Cell(Point coordinates)
         {
-            NoiseValue = noise;
-        }
-
-        /// <summary>
-        /// Calculate modifiers based on dice rolls and the biome
-        /// </summary>
-        public void CalculateModifiers()
-        {
-            // Generate basis value off a D20 roll
-            FoodValue = Dice.Roll(6, 1);
-            ResourceValue = Dice.Roll(6, 1);
-            PopulationValue = Dice.Roll(6, 1);
-
-            // Add biome modifiers
-            //FoodValue += Biome.FoodModifier;
-            //ResourceValue += Biome.ResourceModifier;
-            //PopulationValue += Biome.PopulationModifier;
-
-            // Add modifiers based on terrain
-            //TODO: Modifiers based on proximity of water, mountains.
+            Coordinates = coordinates;
         }
     }
 }
