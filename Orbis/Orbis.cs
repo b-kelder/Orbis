@@ -223,60 +223,64 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            // Update user input
             input.UpdateInput();
-            
+
             var camMoveDelta = Vector3.Zero;
 
             float speed = 100 * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             float scale = camera.OrthographicScale;
 
-            if(input.IsKeyDown(Keys.LeftShift))
+            if(input.IsKeyHeld(Keys.LeftShift))
             {
                 speed /= 5;
             }
-            if(input.IsKeyDown(Keys.Up))
+            if(input.IsKeyHeld(Keys.Up))
             {
                 angle -= speed;
             }
-            if(input.IsKeyDown(Keys.Down))
+            if(input.IsKeyHeld(Keys.Down))
             {
                 angle += speed;
             }
-            if(input.IsKeyDown(Keys.Left))
+            if(input.IsKeyHeld(Keys.Left))
             {
                 rotation -= speed;
             }
-            if(input.IsKeyDown(Keys.Right))
+            if(input.IsKeyHeld(Keys.Right))
             {
                 rotation += speed;
             }
-            if (input.IsKeyDown(Keys.OemPlus))
+            if(input.IsKeyHeld(Keys.OemPlus))
             {
                 distance -= speed;
                 //scale -= speed;
             }
-            if (input.IsKeyDown(Keys.OemMinus))
+            if(input.IsKeyHeld(Keys.OemMinus))
             {
                 distance += speed;
                 //scale += speed;
             }
-
-            if(input.IsKeyDown(Keys.W))
+            if(input.IsKeyHeld(Keys.W))
             {
                 camMoveDelta.Y += speed * 0.07f;
             }
-            if(input.IsKeyDown(Keys.A))
+            if(input.IsKeyHeld(Keys.A))
             {
                 camMoveDelta.X -= speed * 0.07f;
             }
-            if(input.IsKeyDown(Keys.S))
+            if(input.IsKeyHeld(Keys.S))
             {
                 camMoveDelta.Y -= speed * 0.07f;
             }
-            if(input.IsKeyDown(Keys.D))
+            if(input.IsKeyHeld(Keys.D))
             {
                 camMoveDelta.X += speed * 0.07f;
+            }
+            if(input.IsKeyDown(Keys.S, new Keys[] { Keys.LeftShift, Keys.K, Keys.Y}))
+            {
+                Exit();
             }
 
             angle = MathHelper.Clamp(angle, -80, -5);

@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Input;
 namespace Orbis.Engine
 {
     /// <summary>
-    /// Stores all currently pressed keys. Suppors keypresses.
+    /// Stores all currently pressed keys and enables more checks than the default keyboard state model.
     /// </summary>
     /// <Author>Jannick Zeegers</Author>
     public class InputHandler
@@ -16,12 +16,12 @@ namespace Orbis.Engine
         /// <summary>
         /// Currently pressed keys.
         /// </summary>
-        public List<Keys> pressedKeys;
+        private List<Keys> pressedKeys;
 
         /// <summary>
         /// Keys marked as already triggered.
         /// </summary>
-        public List<Keys> triggerOnce;
+        private List<Keys> triggerOnce;
 
         /// <summary>
         /// Constructor for Input Handler.
@@ -32,13 +32,23 @@ namespace Orbis.Engine
             triggerOnce = new List<Keys>();
         }
 
-        public bool IsKeyDown(Keys key)
+        /// <summary>
+        /// Checks if a given key is currently held down.
+        /// </summary>
+        /// <param name="key">The key to check.</param>
+        /// <returns>Returns true if key is held down.</returns>
+        public bool IsKeyHeld(Keys key)
         {
             if (pressedKeys.Contains(key)) return true;
             return false;
         }
 
-        public bool IsKeyDown(Keys[] keys)
+        /// <summary>
+        /// Checks if multiple given keys are currently held down.
+        /// </summary>
+        /// <param name="keys">An array of keys to check.</param>
+        /// <returns>Returns true if all keys are held down.</returns>
+        public bool IsKeyHeld(Keys[] keys)
         {
             foreach (Keys key in keys)
             {
@@ -47,12 +57,22 @@ namespace Orbis.Engine
             return true;
         }
 
+        /// <summary>
+        /// Checks if a given key is currently not held down.
+        /// </summary>
+        /// <param name="key">The key to check.</param>
+        /// <returns>Returns true if key is not held down.</returns>
         public bool IsKeyUp(Keys key)
         {
             KeyboardState state = Keyboard.GetState();
             return state.IsKeyUp(key);
         }
 
+        /// <summary>
+        /// Checks if multiple given keys are currently not held down.
+        /// </summary>
+        /// <param name="keys">An array of keys to check.</param>
+        /// <returns>Returns true if all keys are not held down.</returns>
         public bool IsKeyUp(Keys[] keys)
         {
             KeyboardState state = Keyboard.GetState();
@@ -63,31 +83,62 @@ namespace Orbis.Engine
             return true;
         }
 
-        public bool IsKeyPressed(Keys key)
+        /// <summary>
+        /// Checks if a given key is down once.
+        /// </summary>
+        /// <param name="key">The key to check.</param>
+        /// <returns>Returns true if the key is down once.</returns>
+        public bool IsKeyDown(Keys key)
         {
             if (pressedKeys.Contains(key) && !triggerOnce.Contains(key)) return true;
             return false;
         }
 
-        public bool IsKeyPressed(Keys[] keys)
+        /// <summary>
+        /// Checks if a given key is down once while a modifier is being held down simultaneously.
+        /// </summary>
+        /// <param name="key">The key to check.</param>
+        /// <param name="modifier">The modifier key to check.</param>
+        /// <returns>Returns true if the modifier is held down and the key is down once.</returns>
+        public bool IsKeyDown(Keys key, Keys modifier)
         {
-            foreach(Keys key in keys)
-            {
-                if (!pressedKeys.Contains(key) || triggerOnce.Contains(key)) return false;
-            }
-            return true;
+            if (pressedKeys.Contains(modifier) && (pressedKeys.Contains(key) && !triggerOnce.Contains(key))) return true;
+            return false;
         }
 
+        /// <summary>
+        /// Checks if a given key is down once while multiple modifiers are being held down simultaneously.
+        /// </summary>
+        /// <param name="key">The key to check.</param>
+        /// <param name="modifiers">An array of modifier keys to check.</param>
+        /// <returns>Returns true if the modiefier keys are being held down and the key is down once.</returns>
+        public bool IsKeyDown(Keys key, Keys[] modifiers)
+        {
+            foreach(Keys modifier in modifiers)
+            {
+                if (!pressedKeys.Contains(modifier)) return false;
+            }
+            if (pressedKeys.Contains(key) && !triggerOnce.Contains(key)) return true;
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if a given key is released from being held down.
+        /// </summary>
+        /// <param name="key">The key to check.</param>
+        /// <returns>Returns true if the key is released from being held down.</returns>
         public bool IsKeyReleased(Keys key)
         {
             if (!pressedKeys.Contains(key) && triggerOnce.Contains(key)) return true;
             return false;
         }
 
+        /// <summary>
+        /// Updates the current keyboard keys states.
+        /// </summary>
         public void UpdateInput()
         {
             KeyboardState state = Keyboard.GetState();
-
             List<Keys> removeListP = new List<Keys>();
             foreach (Keys key in pressedKeys)
             {
@@ -127,6 +178,19 @@ namespace Orbis.Engine
                     pressedKeys.Add(key);
                 }
             }    
+        }
+
+        public void PrintKeyLists()
+        {
+            foreach (Keys key in pressedKeys)
+            {
+                if(!triggerOnce.Contains(key)) System.Diagnostics.Debug.WriteLine(key);
+            }
+
+            //foreach (Keys key in pressedKeys)
+            //{
+            //    System.Diagnostics.Debug.WriteLine(key);
+            //}
         }
     }
 }
