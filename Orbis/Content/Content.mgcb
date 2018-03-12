@@ -10,6 +10,7 @@
 
 #-------------------------------- References --------------------------------#
 
+/reference:..\..\XMLModel\bin\x64\Debug\XMLModel.dll
 
 #---------------------------------- Content ---------------------------------#
 
@@ -19,4 +20,8 @@
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:DebugFont.spritefont
+#begin Config/Main.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Config/Main.xml
 
