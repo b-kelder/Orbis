@@ -36,16 +36,16 @@ namespace Orbis.Rendering
                     {
                         // Vertex
                         objVerts.Add(new Vector3(
-                            float.Parse(splits[1]),
-                            float.Parse(splits[2]),
-                            float.Parse(splits[3])));
+                            float.Parse(splits[1], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture),
+                            float.Parse(splits[2], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture),
+                            float.Parse(splits[3], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture)));
                     }
                     else if(line.StartsWith("vt "))
                     {
                         // UV
                         objUvs.Add(new Vector2(
-                            float.Parse(splits[1]),
-                            1.0f - float.Parse(splits[2])));
+                            float.Parse(splits[1], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture),
+                            1.0f - float.Parse(splits[2], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture)));
                     }
                     else if(line.StartsWith("f "))
                     {
@@ -76,6 +76,7 @@ namespace Orbis.Rendering
             var vertices = new List<Vector3>();
             var uvs = new List<Vector2>();
             var triangles = new List<ushort>();
+            var colors = new List<Color>();
             foreach(var face in objFaces)
             {
                 if(faceDict.ContainsKey(face))
@@ -90,6 +91,8 @@ namespace Orbis.Rendering
                     triangles.Add(index);
                     vertices.Add(objVerts[face.vertIndex]);
                     uvs.Add(objUvs[face.uvIndex]);
+                    //TODO: Load actual vertex color
+                    colors.Add(Color.Black);
                     faceDict.Add(face, index);
                 }
             }
@@ -98,7 +101,9 @@ namespace Orbis.Rendering
             {
                 Vertices = vertices.ToArray(),
                 UVs = uvs.ToArray(),
+                UVs2 = uvs.ToArray(),
                 Triangles = triangles.ToArray(),
+                Colors = colors.ToArray(),
             };
         }
     }

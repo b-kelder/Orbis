@@ -10,9 +10,10 @@ namespace Orbis.Rendering
     class Material
     {
         public Texture2D Texture { get; set; }
-        public BasicEffect Effect { get; set; }
+        public Texture2D ColorMap { get; set; }
+        public Effect Effect { get; set; }
 
-        public Material(BasicEffect effect)
+        public Material(Effect effect)
         {
             Effect = effect;
         }

@@ -119,12 +119,14 @@
     <Compile Include="UI\UIElement.cs" />
     <Compile Include="UI\Panel.cs" />
     <Compile Include="UI\UIWindow.cs" />
+    <Compile Include="Rendering\AtlasModelLoader.cs" />
+    <Compile Include="Rendering\AutoAtlas.cs" />
     <Compile Include="Rendering\Camera.cs" />
+    <Compile Include="Rendering\CustomVertexData.cs" />
     <Compile Include="Rendering\Material.cs" />
     <Compile Include="Rendering\Mesh.cs" />
     <Compile Include="Rendering\MeshCombiner.cs" />
     <Compile Include="Rendering\Model.cs" />
-    <Compile Include="Rendering\ModelLoader.cs" />
     <Compile Include="Rendering\ObjParser.cs" />
     <Compile Include="Rendering\RenderableMesh.cs" />
     <Compile Include="Rendering\RenderInstance.cs" />
@@ -138,19 +140,17 @@
     <Compile Include="World\WorldGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\Textures\hex.png" />
-    <Content Include="Content\Textures\hex_house.png" />
     <Content Include="Content\Meshes\hex.obj" />
-    <Content Include="Content\Meshes\hex_house.obj" />
+    <Content Include="Content\Meshes\house.obj" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <Content Include="Content\Meshes\quad_up.obj" />
     <None Include="Orbis_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\Textures\hex_water.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
