@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Input;
 
@@ -63,8 +64,7 @@ namespace Orbis.Engine
         /// <returns>Returns true if key is not held down.</returns>
         public bool IsKeyUp(Keys key)
         {
-            KeyboardState state = Keyboard.GetState();
-            return state.IsKeyUp(key);
+            return Keyboard.GetState().IsKeyUp(key);
         }
 
         /// <summary>
@@ -89,8 +89,7 @@ namespace Orbis.Engine
         /// <returns>Returns true if the key is down once.</returns>
         public bool IsKeyDown(Keys key)
         {
-            if (pressedKeys.Contains(key) && !triggerOnce.Contains(key)) return true;
-            return false;
+            return pressedKeys.Contains(key) && !triggerOnce.Contains(key);
         }
 
         /// <summary>
@@ -101,8 +100,7 @@ namespace Orbis.Engine
         /// <returns>Returns true if the modifier is held down and the key is down once.</returns>
         public bool IsKeyDown(Keys key, Keys modifier)
         {
-            if (pressedKeys.Contains(modifier) && (pressedKeys.Contains(key) && !triggerOnce.Contains(key))) return true;
-            return false;
+            return pressedKeys.Contains(modifier) && pressedKeys.Contains(key) && !triggerOnce.Contains(key);
         }
 
         /// <summary>
@@ -113,12 +111,11 @@ namespace Orbis.Engine
         /// <returns>Returns true if the modiefier keys are being held down and the key is down once.</returns>
         public bool IsKeyDown(Keys key, Keys[] modifiers)
         {
-            foreach (Keys modifier in modifiers) 
+            foreach (Keys modifier in modifiers)
             {
                 if (!pressedKeys.Contains(modifier)) return false;
             }
-            if (pressedKeys.Contains(key) && !triggerOnce.Contains(key)) return true;
-            return false;
+            return pressedKeys.Contains(key) && !triggerOnce.Contains(key);
         }
 
         /// <summary>
@@ -128,8 +125,7 @@ namespace Orbis.Engine
         /// <returns>Returns true if the key is released from being held down.</returns>
         public bool IsKeyReleased(Keys key)
         {
-            if (!pressedKeys.Contains(key) && triggerOnce.Contains(key)) return true;
-            return false;
+            return !pressedKeys.Contains(key) && triggerOnce.Contains(key);
         }
 
         /// <summary>
@@ -158,12 +154,12 @@ namespace Orbis.Engine
 
             foreach (Keys key in removeListP)
             {
-                if (pressedKeys.Contains(key)) pressedKeys.Remove(key);
+                pressedKeys.Remove(key);
             }
 
             foreach (Keys key in removeListT)
             {
-                if (triggerOnce.Contains(key)) triggerOnce.Remove(key);
+                triggerOnce.Remove(key);
             }
 
             foreach (Keys key in state.GetPressedKeys())
@@ -186,11 +182,11 @@ namespace Orbis.Engine
         {
             foreach (Keys key in pressedKeys)
             {
-                if (!triggerOnce.Contains(key)) System.Diagnostics.Debug.WriteLine(key + " down");
+                if (!triggerOnce.Contains(key)) Debug.WriteLine(key + " down");
             }
             foreach (Keys key in triggerOnce)
             {
-                if (!pressedKeys.Contains(key)) System.Diagnostics.Debug.WriteLine(key + " up");
+                if (!pressedKeys.Contains(key)) Debug.WriteLine(key + " up");
             }
         }
     }
