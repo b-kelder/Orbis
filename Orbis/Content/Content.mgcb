@@ -14,7 +14,6 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin Fonts/font.spritefont
 #begin Config/Civilization.xml
 /importer:XmlImporter
 /processor:PassThroughProcessor
@@ -25,11 +24,40 @@
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
-
 /build:DebugFont.spritefont
 
 #begin Config/Biome.xml
 /importer:XmlImporter
 /processor:PassThroughProcessor
 /build:Config/Biome.xml
+
+#begin Shaders/BasicColorMapped.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/BasicColorMapped.fx
+
+#begin white.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:white.png
+
+#begin black.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:black.png
 

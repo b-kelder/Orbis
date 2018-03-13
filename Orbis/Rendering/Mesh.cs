@@ -17,6 +17,7 @@ namespace Orbis.Rendering
         private Vector3[] vertices;
         private Vector2[] uvs;
         private ushort[] triangles;
+        private Color[] colors;
 
         public Vector3[] Vertices {
             get
@@ -62,6 +63,22 @@ namespace Orbis.Rendering
                 }
             }
         }
+
+        public Color[] Colors
+        {
+            get
+            {
+                return colors;
+            }
+            set
+            {
+                if(colors != value)
+                {
+                    colors = value;
+                    dirtyFlag = true;
+                }
+            }
+        }
         public int VertexCount { get { return Vertices.Length; } }
         public int TriangleCount { get { return Triangles.Length / 3; } }
         public bool Dirty { get { return dirtyFlag; } }
@@ -72,6 +89,7 @@ namespace Orbis.Rendering
             Vertices = new Vector3[0];
             UVs = new Vector2[0];
             Triangles = new ushort[0];
+            Colors = new Color[0];
         }
 
         public Mesh(IEnumerable<MeshInstance> meshes)
@@ -81,17 +99,18 @@ namespace Orbis.Rendering
 
         public VertexBuffer CreateVertexBuffer(GraphicsDevice device)
         {
-            if(UVs.Length != Vertices.Length)
+            if(UVs.Length != Vertices.Length || Vertices.Length != Colors.Length)
             {
                 throw new InvalidOperationException("Vertices and UV must be of the same length");
             }
-            VertexPositionTexture[] vertexData = new VertexPositionTexture[Vertices.Length];
+            var vertexData = new VertexPositionColorTexture[Vertices.Length];
             for(int i = 0; i < vertexData.Length; i++)
             {
                 vertexData[i].Position = Vertices[i];
                 vertexData[i].TextureCoordinate = UVs[i];
+                vertexData[i].Color = Colors[i];
             }
-            var vb = new VertexBuffer(device, typeof(VertexPositionTexture), vertexData.Length, BufferUsage.WriteOnly);
+            var vb = new VertexBuffer(device, typeof(VertexPositionColorTexture), vertexData.Length, BufferUsage.WriteOnly);
             vb.SetData(vertexData);
             return vb;
         }
@@ -123,6 +142,7 @@ namespace Orbis.Rendering
             var vertexList = new List<Vector3>();
             var uvList = new List<Vector2>();
             var triangleList = new List<ushort>();
+            var colorList = new List<Color>();
 
             foreach(var mesh in meshes)
             {
@@ -141,11 +161,65 @@ namespace Orbis.Rendering
                 {
                     triangleList.Add((ushort)(index + vertOffset));
                 }
+                if(mesh.useColor)
+                {
+                    for(int i = 0; i < mesh.mesh.VertexCount; i++)
+                    {
+                        colorList.Add(mesh.color);
+                    }
+                }
+                else
+                {
+                    colorList.AddRange(mesh.mesh.Colors);
+                }
             }
 
             this.Vertices = vertexList.ToArray();
             this.UVs = uvList.ToArray();
             this.Triangles = triangleList.ToArray();
+            this.Colors = colorList.ToArray();
+        }
+
+        public void AddToSelf(MeshInstance meshInstance)
+        {
+            if(VertexCount + meshInstance.mesh.VertexCount > ushort.MaxValue)
+            {
+                throw new IndexOutOfRangeException("Combined vertex count exceeds max of 65535");
+            }
+            var newVerts = new Vector3[vertices.Length + meshInstance.mesh.vertices.Length];
+            var newUvs = new Vector2[uvs.Length + meshInstance.mesh.uvs.Length];
+            var newTris = new ushort[triangles.Length + meshInstance.mesh.triangles.Length];
+            var newColors = new Color[colors.Length + meshInstance.mesh.colors.Length];
+
+            Array.Copy(vertices, newVerts, vertices.Length);
+            Array.Copy(uvs, newUvs, uvs.Length);
+            Array.Copy(triangles, newTris, triangles.Length);
+            Array.Copy(colors, newColors, colors.Length);
+
+            Array.Copy(meshInstance.mesh.uvs, 0, newUvs, uvs.Length, meshInstance.mesh.uvs.Length);
+            Array.Copy(meshInstance.mesh.colors, 0, newColors, colors.Length, meshInstance.mesh.colors.Length);
+
+            for(int i = 0; i < meshInstance.mesh.vertices.Length; i++)
+            {
+                newVerts[i + vertices.Length] = Vector3.Transform(meshInstance.mesh.vertices[i], meshInstance.matrix);
+            }
+            for(int i = 0; i < meshInstance.mesh.triangles.Length; i++)
+            {
+                newTris[i + triangles.Length] = (ushort)(meshInstance.mesh.triangles[i] + (ushort)vertices.Length);
+            }
+
+            vertices = newVerts;
+            uvs = newUvs;
+            triangles = newTris;
+            colors = newColors;
+        }
+
+        public void SetColor(Color color)
+        {
+            for(int i = 0; i < colors.Length; i++)
+            {
+                colors[i] = color;
+            }
         }
     }
 
@@ -154,5 +228,7 @@ namespace Orbis.Rendering
         public Mesh mesh;
         public Matrix matrix;
         public Point pos;
+        public bool useColor;
+        public Color color;
     }
 }

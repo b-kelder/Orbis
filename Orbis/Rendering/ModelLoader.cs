@@ -18,7 +18,7 @@ namespace Orbis.Rendering
         /// <param name="shader">Effect to use for material</param>
         /// <param name="device">GraphicsDevice used to render</param>
         /// <returns></returns>
-        public static Model LoadModel(string meshFile, string textureFile, BasicEffect shader, GraphicsDevice device)
+        public static Model LoadModel(string meshFile, string textureFile, string colorTextureFile, Effect shader, GraphicsDevice device)
         {
             Mesh mesh;
             Material material = new Material(shader);
@@ -30,7 +30,13 @@ namespace Orbis.Rendering
             {
                 material.Texture = Texture2D.FromStream(device, stream);
             }
-            mesh.MakeRenderable(device);
+            if(colorTextureFile != null)
+            {
+                using (var stream = TitleContainer.OpenStream(colorTextureFile))
+                {
+                    material.ColorMap = Texture2D.FromStream(device, stream);
+                }
+            }
             return new Model(mesh, material);
         }
     }

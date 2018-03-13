@@ -76,6 +76,7 @@ namespace Orbis.Rendering
             var vertices = new List<Vector3>();
             var uvs = new List<Vector2>();
             var triangles = new List<ushort>();
+            var colors = new List<Color>();
             foreach(var face in objFaces)
             {
                 if(faceDict.ContainsKey(face))
@@ -90,6 +91,8 @@ namespace Orbis.Rendering
                     triangles.Add(index);
                     vertices.Add(objVerts[face.vertIndex]);
                     uvs.Add(objUvs[face.uvIndex]);
+                    //TODO: Load actual vertex color
+                    colors.Add(Color.Black);
                     faceDict.Add(face, index);
                 }
             }
@@ -99,6 +102,7 @@ namespace Orbis.Rendering
                 Vertices = vertices.ToArray(),
                 UVs = uvs.ToArray(),
                 Triangles = triangles.ToArray(),
+                Colors = colors.ToArray(),
             };
         }
     }
