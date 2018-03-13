@@ -111,7 +111,7 @@ namespace Orbis
                     // Temporary way to make sea actually level
                     if (cell.IsWater)
                     {
-                        color = Color.Red;
+                        color = Color.Aquamarine;
                         position.Z = scene.WorldMap.SeaLevel;
                     }
 
