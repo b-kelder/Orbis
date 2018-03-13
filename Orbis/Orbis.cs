@@ -26,8 +26,6 @@ namespace Orbis
         private Effect basicShader;
         private Texture2D black;
         private Dictionary<Civilization, Color> civColors;
-        private Texture2D atlasTexture;
-        private RenderInstance atlasDebugRenderInstance;
         Camera camera;
 
         List<RenderInstance> renderInstances;
@@ -85,8 +83,6 @@ namespace Orbis
             var waterHexMesh = waterHexModel.Mesh;
             // Use mesh combiners to get a bit more performant mesh for now
             var hexCombiner = new MeshCombiner();
-            var houseHexCombiner = new MeshCombiner();
-            var waterHexCombiner = new MeshCombiner();
 
             // Create world meshes
             Stopwatch stopwatch = new Stopwatch();
@@ -110,31 +106,23 @@ namespace Orbis
                     // Cell color
                     // TODO: This doesn't work because the combiner doesn't combine immediately. Ensure that it does or add color to MeshInstance?
                     var color = cell.Owner != null ? civColors[cell.Owner] : Color.Black;
+                    var mesh = cell.IsWater ? waterHexMesh : hexMesh;
 
                     // Temporary way to make sea actually level
                     if (cell.IsWater)
                     {
+                        color = Color.Red;
                         position.Z = scene.WorldMap.SeaLevel;
-                        waterHexCombiner.Add(new MeshInstance
-                        {
-                            mesh = waterHexMesh,
-                            matrix = Matrix.CreateTranslation(position),
-                            pos = new Point(p, q),
-                            color = color,
-                            useColor = true,
-                        });
                     }
-                    else
+
+                    hexCombiner.Add(new MeshInstance
                     {
-                        hexCombiner.Add(new MeshInstance
-                        {
-                            mesh = hexMesh,
-                            matrix = Matrix.CreateTranslation(position),
-                            pos = new Point(p, q),
-                            color = color,
-                            useColor = true,
-                        });
-                    }
+                        mesh = mesh,
+                        matrix = Matrix.CreateTranslation(position),
+                        pos = new Point(p, q),
+                        color = color,
+                        useColor = true,
+                    });
                 }
             }
 
@@ -151,31 +139,6 @@ namespace Orbis
 
                 Debug.WriteLine("Adding hex mesh");
             }
-            var combinedPyramids = houseHexCombiner.GetCombinedMeshes();
-            foreach(var mesh in combinedPyramids)
-            {
-                renderInstances.Add(new RenderInstance()
-                {
-                    mesh = new RenderableMesh(graphics.GraphicsDevice, mesh),
-                    material = houseHexModel.Material,
-                    matrix = Matrix.Identity,
-                });
-
-                Debug.WriteLine("Adding civ home base mesh");
-            }
-            combinedPyramids = waterHexCombiner.GetCombinedMeshes();
-            foreach(var mesh in combinedPyramids)
-            {
-                renderInstances.Add(new RenderInstance()
-                {
-                    mesh = new RenderableMesh(graphics.GraphicsDevice, mesh),
-                    material = waterHexModel.Material,
-                    matrix = Matrix.Identity,
-                });
-
-                Debug.WriteLine("Adding water mesh");
-            }
-
             stopwatch.Stop();
             Debug.WriteLine("Generated meshes in " + stopwatch.ElapsedMilliseconds + " ms");
 
@@ -243,41 +206,13 @@ namespace Orbis
             Debug.WriteLine(biomeData[0].populationModifier);
             // End Config Test
 
-            hexModel = ModelLoader.LoadModel("Content/Meshes/hex.obj", "Content/Textures/hex.png", "Content/Textures/hex_color.png",
-                basicShader, GraphicsDevice);
-            houseHexModel = ModelLoader.LoadModel("Content/Meshes/hex_house.obj", "Content/Textures/hex_house.png", null,
-                basicShader, GraphicsDevice);
-            waterHexModel = ModelLoader.LoadModel("Content/Meshes/hex.obj", "Content/Textures/hex_water.png", "Content/Textures/hex_color.png",
-                basicShader, GraphicsDevice);
-
+            var loader = new AtlasModelLoader(2048, 2048, basicShader, Content);
+            hexModel = loader.LoadModel("hex", "hex");
+            houseHexModel = loader.LoadModel("house", "house");
+            waterHexModel = loader.LoadModel("hex", "hex_water");
+            loader.FinializeLoading(GraphicsDevice);
 
             fontDebug = Content.Load<SpriteFont>("DebugFont");
-
-            // Atlas test
-            var atlas = new AutoAtlas(1024, 1024);
-            atlas.AddTexture(hexModel.Material.Texture);
-            atlas.AddTexture(houseHexModel.Material.Texture);
-            atlas.AddTexture(waterHexModel.Material.Texture);
-            atlas.Create(GraphicsDevice);
-            atlasTexture = atlas.Texture;
-
-            var quadModel = ModelLoader.LoadModel("Content/Meshes/quad_up.obj", null, null, basicShader, GraphicsDevice);
-            quadModel.Mesh.MakeRenderable(GraphicsDevice);
-            atlasDebugRenderInstance = quadModel.CreateRenderInstance(Matrix.CreateScale(10) * Matrix.CreateTranslation(0, 0, 18));
-            atlasDebugRenderInstance.material.Texture = atlasTexture;
-            atlasDebugRenderInstance.material.ColorMap = black;
-
-            // Modify models
-            atlas.UpdateMeshUVs(hexModel.Mesh, hexModel.Material.Texture);
-            atlas.UpdateMeshUVs(houseHexModel.Mesh, houseHexModel.Material.Texture);
-            atlas.UpdateMeshUVs(waterHexModel.Mesh, waterHexModel.Material.Texture);
-
-            hexModel.Material.Texture = atlasTexture;
-            houseHexModel.Material.Texture = atlasTexture;
-            waterHexModel.Material.Texture = atlasTexture;
-            hexModel.Material.ColorMap = null;
-            houseHexModel.Material.ColorMap = null;
-            waterHexModel.Material.ColorMap = null;
 
             GenerateWorld(1499806334);
         }
@@ -426,8 +361,6 @@ namespace Orbis
                 }
                 materialBatches[instance.material].Add(instance);
             }
-
-            materialBatches.Add(atlasDebugRenderInstance.material, new List<RenderInstance>() { atlasDebugRenderInstance });
 
             // Draw batches
             foreach (var batch in materialBatches)
