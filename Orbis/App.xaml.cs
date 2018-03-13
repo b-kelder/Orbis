@@ -103,9 +103,9 @@ namespace Orbis
         Window.Current.Activate();
 
 
-        ApplicationView.PreferredLaunchViewSize = new Size(800.00, 600.00);
+        ApplicationView.PreferredLaunchViewSize = new Size(1600.00, 900.00);
         ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
-        ApplicationView.GetForCurrentView().SetPreferredMinSize(new Size(800.00, 600.00));
+        ApplicationView.GetForCurrentView().SetPreferredMinSize(new Size(1600.00, 900.00));
     }
 
     /// <summary>
