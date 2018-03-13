@@ -17,15 +17,5 @@ namespace Orbis.Rendering
             Mesh = mesh;
             Material = material;
         }
-
-        public RenderInstance CreateRenderInstance(Matrix matrix)
-        {
-            return new RenderInstance
-            {
-                material = Material,
-                mesh = Mesh.RenderableMesh,
-                matrix = matrix,
-            };
-        }
     }
 }
