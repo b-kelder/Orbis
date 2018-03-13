@@ -15,6 +15,7 @@ struct VertexShaderInput
 {
 	float4 Position : POSITION0;
 	float4 UV : TEXCOORD0;
+	float4 UV2: TEXCOORD1;
 	float4 Color : COLOR0;
 };
 
@@ -22,6 +23,7 @@ struct VertexShaderOutput
 {
 	float4 Position : SV_POSITION;
 	float4 UV : TEXCOORD0;
+	float4 UV2: TEXCOORD1;
 	float4 Color : COLOR0;
 };
 
@@ -44,6 +46,7 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 	output.Position = mul(input.Position, WorldViewProjection);
 	output.Color = input.Color;
 	output.UV = input.UV;
+	output.UV2 = input.UV2;
 
 	return output;
 }
@@ -51,7 +54,7 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
 	float4 diffuse = tex2D(DiffuseSampler, input.UV).rgba;
-	float4 color = float4(tex2D(ColorSampler, input.UV).rgb, 0);
+	float4 color = float4(tex2D(ColorSampler, input.UV2).rgb, 0);
 	return lerp(diffuse, input.Color, color);
 }
 

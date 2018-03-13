@@ -207,9 +207,9 @@ namespace Orbis
             // End Config Test
 
             var loader = new AtlasModelLoader(2048, 2048, basicShader, Content);
-            hexModel = loader.LoadModel("hex", "hex");
+            hexModel = loader.LoadModel("hex", "hex_grass", "hex_c");
             houseHexModel = loader.LoadModel("house", "house");
-            waterHexModel = loader.LoadModel("hex", "hex_water");
+            waterHexModel = loader.LoadModel("hex", "hex_water", "hex_c");
             loader.FinializeLoading(GraphicsDevice);
 
             fontDebug = Content.Load<SpriteFont>("DebugFont");

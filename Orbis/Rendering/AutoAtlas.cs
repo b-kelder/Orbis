@@ -104,7 +104,7 @@ namespace Orbis.Rendering
             return result;
         }
 
-        public void UpdateMeshUVs(Mesh mesh, Texture2D texture)
+        public void UpdateMeshUVs(Mesh mesh, Texture2D texture, int uvMapIndex)
         {
             var matrix = GetOffset(texture);
             if(matrix == Matrix.Identity)
@@ -112,11 +112,23 @@ namespace Orbis.Rendering
                 return;
             }
 
-            for(int i = 0; i < mesh.UVs.Length; i++)
+            if(uvMapIndex == 0)
             {
-                var newUv = Vector2.Transform(mesh.UVs[i], matrix);
-                newUv.Y = 1 - newUv.Y;
-                mesh.UVs[i] = newUv;
+                for (int i = 0; i < mesh.UVs.Length; i++)
+                {
+                    var newUv = Vector2.Transform(mesh.UVs[i], matrix);
+                    newUv.Y = 1 - newUv.Y;
+                    mesh.UVs[i] = newUv;
+                }
+            }
+            else if(uvMapIndex == 1)
+            {
+                for (int i = 0; i < mesh.UVs2.Length; i++)
+                {
+                    var newUv = Vector2.Transform(mesh.UVs2[i], matrix);
+                    newUv.Y = 1 - newUv.Y;
+                    mesh.UVs2[i] = newUv;
+                }
             }
         }
 
@@ -195,6 +207,14 @@ namespace Orbis.Rendering
             //
             //shader.Dispose();
             atlas = renderTarget;
+        }
+
+        public void UnloadNonAtlasTextures()
+        {
+            foreach (var tex in textureUVOffset.Keys)
+            {
+                tex.Dispose();
+            }
         }
     }
 }

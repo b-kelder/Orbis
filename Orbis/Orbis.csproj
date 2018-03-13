@@ -113,6 +113,7 @@
     <Compile Include="Rendering\AtlasModelLoader.cs" />
     <Compile Include="Rendering\AutoAtlas.cs" />
     <Compile Include="Rendering\Camera.cs" />
+    <Compile Include="Rendering\CustomVertexData.cs" />
     <Compile Include="Rendering\Material.cs" />
     <Compile Include="Rendering\Mesh.cs" />
     <Compile Include="Rendering\MeshCombiner.cs" />

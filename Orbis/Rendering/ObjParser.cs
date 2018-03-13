@@ -101,6 +101,7 @@ namespace Orbis.Rendering
             {
                 Vertices = vertices.ToArray(),
                 UVs = uvs.ToArray(),
+                UVs2 = uvs.ToArray(),
                 Triangles = triangles.ToArray(),
                 Colors = colors.ToArray(),
             };
