@@ -265,53 +265,53 @@ namespace Orbis
 
             float scale = camera.OrthographicScale;
 
-            if(input.IsKeyHeld(Keys.LeftShift))
+            if (input.IsKeyHeld(Keys.LeftShift))
             {
                 speed /= 5;
             }
-            if(input.IsKeyHeld(Keys.Up))
+            if (input.IsKeyHeld(Keys.Up))
             {
                 angle -= speed;
             }
-            if(input.IsKeyHeld(Keys.Down))
+            if (input.IsKeyHeld(Keys.Down))
             {
                 angle += speed;
             }
-            if(input.IsKeyHeld(Keys.Left))
+            if (input.IsKeyHeld(Keys.Left))
             {
                 rotation -= speed;
             }
-            if(input.IsKeyHeld(Keys.Right))
+            if (input.IsKeyHeld(Keys.Right))
             {
                 rotation += speed;
             }
-            if(input.IsKeyHeld(Keys.OemPlus))
+            if (input.IsKeyHeld(Keys.OemPlus))
             {
                 distance -= speed;
                 //scale -= speed;
             }
-            if(input.IsKeyHeld(Keys.OemMinus))
+            if (input.IsKeyHeld(Keys.OemMinus))
             {
                 distance += speed;
                 //scale += speed;
             }
-            if(input.IsKeyHeld(Keys.W))
+            if (input.IsKeyHeld(Keys.W))
             {
                 camMoveDelta.Y += speed * 0.07f;
             }
-            if(input.IsKeyHeld(Keys.A))
+            if (input.IsKeyHeld(Keys.A))
             {
                 camMoveDelta.X -= speed * 0.07f;
             }
-            if(input.IsKeyHeld(Keys.S))
+            if (input.IsKeyHeld(Keys.S))
             {
                 camMoveDelta.Y -= speed * 0.07f;
             }
-            if(input.IsKeyHeld(Keys.D))
+            if (input.IsKeyHeld(Keys.D))
             {
                 camMoveDelta.X += speed * 0.07f;
             }
-            if(input.IsKeyDown(Keys.S, new Keys[] { Keys.LeftShift, Keys.K, Keys.Y}))
+            if (input.IsKeyDown(Keys.S, new Keys[] { Keys.LeftShift, Keys.K, Keys.Y}))
             {
                 Exit();
             }
