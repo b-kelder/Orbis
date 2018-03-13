@@ -21,26 +21,27 @@ namespace Orbis.Rendering
         public static Model LoadModel(string meshFile, string textureFile, string colorTextureFile, Effect shader, GraphicsDevice device)
         {
             Mesh mesh;
-            if(shader != null)
-            {
-                Material material = new Material(shader);
-            }
+            Material material = null;
             using(var stream = TitleContainer.OpenStream(meshFile))
             {
                 mesh = ObjParser.FromStream(stream);
             }
-            if(textureFile != null)
+            if (shader != null)
             {
-                using (var stream = TitleContainer.OpenStream(textureFile))
+                material = new Material(shader);
+                if (textureFile != null)
                 {
-                    material.Texture = Texture2D.FromStream(device, stream);
+                    using (var stream = TitleContainer.OpenStream(textureFile))
+                    {
+                        material.Texture = Texture2D.FromStream(device, stream);
+                    }
                 }
-            }
-            if(colorTextureFile != null)
-            {
-                using (var stream = TitleContainer.OpenStream(colorTextureFile))
+                if (colorTextureFile != null)
                 {
-                    material.ColorMap = Texture2D.FromStream(device, stream);
+                    using (var stream = TitleContainer.OpenStream(colorTextureFile))
+                    {
+                        material.ColorMap = Texture2D.FromStream(device, stream);
+                    }
                 }
             }
             return new Model(mesh, material);
