@@ -339,6 +339,11 @@ namespace Orbis
                 Exit();
             }
 
+            if (input.IsMouseDown(MouseButton.Left, new MouseButton[] { MouseButton.Right}))
+            {
+                distance += speed;
+            }
+
             angle = MathHelper.Clamp(angle, -80, -5);
             distance = MathHelper.Clamp(distance, 1, 4000);
 

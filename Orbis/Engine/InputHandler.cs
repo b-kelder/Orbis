@@ -4,43 +4,76 @@ using System.Linq;
 using System.Text;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace Orbis.Engine
 {
     /// <summary>
-    /// Stores all currently pressed keys and enables more checks than the default keyboard state model.
+    /// An enumerator to mirror mousebuttons.
+    /// </summary>
+    public enum MouseButton
+    {
+        Left,
+        Right,
+        Middle
+    };
+
+    /// <summary>
+    /// Adds functionality to the default Keyboard, Mouse and GamePad state models respectively.
     /// </summary>
     /// <Author>Jannick Zeegers</Author>
     public class InputHandler
     {
         /// <summary>
-        /// Currently pressed keys.
+        /// The state of the keyboard.
         /// </summary>
-        private List<Keys> pressedKeys;
+        private KeyboardState kState;
 
         /// <summary>
-        /// Keys marked as already triggered.
+        /// The previous state of the keyboard.
         /// </summary>
-        private List<Keys> triggerOnce;
+        private KeyboardState kStatePrevious;
 
         /// <summary>
-        /// Constructor for Input Handler.
+        /// The state of the mouse.
+        /// </summary>
+        private MouseState mState;
+
+        /// <summary>
+        /// The previous state of the mouse.
+        /// </summary>
+        private MouseState mStatePrevious;
+
+        /// <summary>
+        /// The state of the gamepad.
+        /// </summary>
+        private GamePadState gState;
+
+        /// <summary>
+        /// The previous state of the gamepad.
+        /// </summary>
+        private GamePadState gStatePrevious;
+
+        /// <summary>
+        /// Constructor for InputHandler.
         /// </summary>
         public InputHandler()
         {
-            pressedKeys = new List<Keys>();
-            triggerOnce = new List<Keys>();
         }
 
+        #region KeyboardInput
+        /**************************************************************
+         *                    Public functions                          
+         *************************************************************/
         /// <summary>
         /// Checks if a given key is currently held down.
         /// </summary>
         /// <param name="key">The key to check.</param>
-        /// <returns>Returns true if key is held down.</returns>
+        /// <returns>Returns true if the key is held down.</returns>
         public bool IsKeyHeld(Keys key)
         {
-            return pressedKeys.Contains(key);
+            return kState.IsKeyDown(key);
         }
 
         /// <summary>
@@ -52,32 +85,7 @@ namespace Orbis.Engine
         {
             foreach (Keys key in keys)
             {
-                if (!pressedKeys.Contains(key)) return false;
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Checks if a given key is currently not held down.
-        /// </summary>
-        /// <param name="key">The key to check.</param>
-        /// <returns>Returns true if key is not held down.</returns>
-        public bool IsKeyUp(Keys key)
-        {
-            return Keyboard.GetState().IsKeyUp(key);
-        }
-
-        /// <summary>
-        /// Checks if multiple given keys are currently not held down.
-        /// </summary>
-        /// <param name="keys">An array of keys to check.</param>
-        /// <returns>Returns true if all keys are not held down.</returns>
-        public bool IsKeyUp(Keys[] keys)
-        {
-            KeyboardState state = Keyboard.GetState();
-            foreach (Keys key in keys)
-            {
-                if (!state.IsKeyUp(key)) return false;
+                if (kState.IsKeyUp(key)) return false;
             }
             return true;
         }
@@ -89,7 +97,7 @@ namespace Orbis.Engine
         /// <returns>Returns true if the key is down once.</returns>
         public bool IsKeyDown(Keys key)
         {
-            return pressedKeys.Contains(key) && !triggerOnce.Contains(key);
+            return kState.IsKeyDown(key) && kStatePrevious.IsKeyUp(key);
         }
 
         /// <summary>
@@ -100,7 +108,11 @@ namespace Orbis.Engine
         /// <returns>Returns true if the modifier is held down and the key is down once.</returns>
         public bool IsKeyDown(Keys key, Keys modifier)
         {
-            return pressedKeys.Contains(modifier) && pressedKeys.Contains(key) && !triggerOnce.Contains(key);
+            if(kState.IsKeyDown(modifier))
+            {
+                return kState.IsKeyDown(key) && kStatePrevious.IsKeyUp(key);
+            }
+            return false;
         }
 
         /// <summary>
@@ -113,9 +125,33 @@ namespace Orbis.Engine
         {
             foreach (Keys modifier in modifiers)
             {
-                if (!pressedKeys.Contains(modifier)) return false;
+                if (kState.IsKeyUp(modifier)) return false;
             }
-            return pressedKeys.Contains(key) && !triggerOnce.Contains(key);
+            return kState.IsKeyDown(key) && kStatePrevious.IsKeyUp(key);
+        }
+
+        /// <summary>
+        /// Checks if a given key is currently not held down.
+        /// </summary>
+        /// <param name="key">The key to check.</param>
+        /// <returns>Returns true if the key is not held down.</returns>
+        public bool IsKeyUp(Keys key)
+        {
+            return kState.IsKeyUp(key);
+        }
+
+        /// <summary>
+        /// Checks if multiple given keys are currently not held down.
+        /// </summary>
+        /// <param name="keys">An array of keys to check.</param>
+        /// <returns>Returns true if all keys are not held down.</returns>
+        public bool IsKeyUp(Keys[] keys)
+        {
+            foreach (Keys key in keys)
+            {
+                if (kState.IsKeyDown(key)) return false;
+            }
+            return true;
         }
 
         /// <summary>
@@ -125,69 +161,308 @@ namespace Orbis.Engine
         /// <returns>Returns true if the key is released from being held down.</returns>
         public bool IsKeyReleased(Keys key)
         {
-            return !pressedKeys.Contains(key) && triggerOnce.Contains(key);
+            return kState.IsKeyUp(key) && kStatePrevious.IsKeyDown(key);
         }
 
+        /**************************************************************
+         *                    Private functions                          
+         *************************************************************/
         /// <summary>
         /// Updates the current keyboard keys states.
         /// </summary>
-        public void UpdateInput()
+        private void UpdateKeyboardInput()
         {
-            KeyboardState state = Keyboard.GetState();
-            List<Keys> removeListP = new List<Keys>();
-            foreach (Keys key in pressedKeys)
-            {
-                if (state.IsKeyUp(key))
-                {
-                    removeListP.Add(key);
-                }
-            }
+            KeyboardState newKState = Keyboard.GetState();
+            kStatePrevious = kState;
+            kState = newKState;
+        }
+        #endregion
 
-            List<Keys> removeListT = new List<Keys>();
-            foreach (Keys key in triggerOnce)
-            {
-                if (state.IsKeyUp(key) && !pressedKeys.Contains(key))
-                {
-                    removeListT.Add(key);
-                }
-            }
-
-            foreach (Keys key in removeListP)
-            {
-                pressedKeys.Remove(key);
-            }
-
-            foreach (Keys key in removeListT)
-            {
-                triggerOnce.Remove(key);
-            }
-
-            foreach (Keys key in state.GetPressedKeys())
-            {
-                if (pressedKeys.Contains(key) && !triggerOnce.Contains(key))
-                {
-                    triggerOnce.Add(key);
-                }
-                else
-                {
-                    pressedKeys.Add(key);
-                }
-            }    
+        #region MouseInput
+        /**************************************************************
+         *                    Public functions                          
+         *************************************************************/
+        /// <summary>
+        /// Checks if a given mousebutton is currently held down.
+        /// </summary>
+        /// <param name="mButton">The mousebutton to check.</param>
+        /// <returns>Returns true if the mousebutton is held down.</returns>
+        public bool IsMouseHold(MouseButton mButton)
+        {
+            return GetButtonState(mButton) == ButtonState.Pressed;
         }
 
         /// <summary>
-        /// Prints a line when a key is pressed or released.
+        /// Checks if multiple given mousebuttons are currently held down.
         /// </summary>
-        public void PrintKeyLists()
+        /// <param name="mButtons">An array of mousebuttons to check.</param>
+        /// <returns>Returns true if all mousebuttons are held down.</returns>
+        public bool IsMouseHold(MouseButton[] mButtons)
         {
-            foreach (Keys key in pressedKeys)
+            foreach(MouseButton mButton in mButtons)
             {
-                if (!triggerOnce.Contains(key)) Debug.WriteLine(key + " down");
+                if (GetButtonState(mButton) == ButtonState.Released) return false;
             }
-            foreach (Keys key in triggerOnce)
+            return true;
+        }
+
+        /// <summary>
+        /// Checks if a given mousebutton is down once.
+        /// </summary>
+        /// <param name="mButton">The mousebutton to check.</param>
+        /// <returns>Returns true if the mousebutton is down once.</returns>
+        public bool IsMouseDown(MouseButton mButton)
+        {
+            return GetButtonStatePrevious(mButton) == ButtonState.Released && 
+                   GetButtonState(mButton)         == ButtonState.Pressed;
+        }
+
+        /// <summary>
+        /// Checks if a given mousebutton is down once while a modifier is being held down simultaneously.
+        /// </summary>
+        /// <param name="mButton">The mousebutton to check.</param>
+        /// <param name="modifier">The modifier mousebutton to check.</param>
+        /// <returns>Returns true if the modifier is held down and the mousebutton is down once.</returns>
+        public bool IsMouseDown(MouseButton mButton, MouseButton modifier)
+        {
+            if (GetButtonState(modifier) == ButtonState.Pressed)
             {
-                if (!pressedKeys.Contains(key)) Debug.WriteLine(key + " up");
+                return GetButtonStatePrevious(mButton) == ButtonState.Released &&
+                       GetButtonState(mButton)         == ButtonState.Pressed;
             }
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if a given mousebutton is down once while multiple modifiers are being held down simultaneously.
+        /// </summary>
+        /// <param name="mButton">The mousebutton to check.</param>
+        /// <param name="modifiers">An array of modifier mousebuttons to check.</param>
+        /// <returns>Returns true if the modiefier mousebuttons are being held down and the mousebutton is down once.</returns>
+        public bool IsMouseDown(MouseButton mButton, MouseButton[] modifiers)
+        {
+            foreach (MouseButton modifier in modifiers)
+            {
+                if (GetButtonState(modifier) == ButtonState.Released) return false;
+            }
+            return GetButtonStatePrevious(mButton) == ButtonState.Released &&
+                   GetButtonState(mButton)         == ButtonState.Pressed;
+        }
+
+        /// <summary>
+        /// Checks if a given mousebutton is currently not held down.
+        /// </summary>
+        /// <param name="mButton">The mousebutton to check.</param>
+        /// <returns>Returns true if the mousebutton is not held down.</returns>
+        public bool IsMouseUp(MouseButton mButton)
+        {
+            return GetButtonState(mButton) == ButtonState.Released;
+        }
+
+        /// <summary>
+        /// Checks if multiple given mousebuttons are currently not held down.
+        /// </summary>
+        /// <param name="mButtons">An array of mousebuttons to check.</param>
+        /// <returns>Returns true if all mousebuttons are not held down.</returns>
+        public bool IsMouseUp(MouseButton[] mButtons)
+        {
+            foreach(MouseButton mButton in mButtons)
+            {
+                if (GetButtonState(mButton) == ButtonState.Pressed) return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Checks if a given mousebutton is released from being held down.
+        /// </summary>
+        /// <param name="mButton">The mousebutton to check.</param>
+        /// <returns>Returns true if the mousebutton is released from being held down.</returns>
+        public bool IsMouseReleased(MouseButton mButton)
+        {
+            return GetButtonStatePrevious(mButton) == ButtonState.Pressed &&
+                   GetButtonState(mButton)         == ButtonState.Released;
+        }
+
+        /**************************************************************
+         *                    Private functions                          
+         *************************************************************/
+        /// <summary>
+        /// Returns the state of the given MouseButton.
+        /// </summary>
+        /// <param name="button">The mousebutton to check.</param>
+        /// <returns>Returns the ButtonState of the given Mousebutton</returns>
+        private ButtonState GetButtonState(MouseButton button)
+        {
+            ButtonState bState = mState.LeftButton;
+            if (button == MouseButton.Middle)
+            {
+                bState = mState.MiddleButton;
+            }
+            else if (button == MouseButton.Right)
+            {
+                bState = mState.RightButton;
+            }
+            return bState;
+        }
+
+        /// <summary>
+        /// Returns the previous state of the given MouseButton.
+        /// </summary>
+        /// <param name="button">The mousebutton to check.</param>
+        /// <returns>Returns the ButtonState of the given Mousebutton</returns>
+        private ButtonState GetButtonStatePrevious(MouseButton button)
+        {
+            ButtonState bState = mStatePrevious.LeftButton;
+            if (button == MouseButton.Middle)
+            {
+                bState = mStatePrevious.MiddleButton;
+            }
+            else if (button == MouseButton.Right)
+            {
+                bState = mStatePrevious.RightButton;
+            }
+            return bState;
+        }
+
+        /// <summary>
+        /// Updates the current mousebutton states.
+        /// </summary>
+        private void UpdateMouseInput()
+        {
+            MouseState newMState = Mouse.GetState();
+            mStatePrevious = mState;
+            mState = newMState;
+        }
+        #endregion
+
+        #region GamePadInput
+        /**************************************************************
+         *                    Public functions                          
+         *************************************************************/
+        /// <summary>
+        /// Checks if a given button is currently held down.
+        /// </summary>
+        /// <param name="button">The button to check.</param>
+        /// <returns>Returns true if the button is held down.</returns>
+        public bool IsGamePadHold(Buttons button)
+        {
+            return gState.IsButtonDown(button);
+        }
+
+        /// <summary>
+        /// Checks if multiple given buttons are currently held down.
+        /// </summary>
+        /// <param name="buttons">An array of buttons to check.</param>
+        /// <returns>Returns true if all buttons are held down.</returns>
+        public bool IsGamePadHold(Buttons[] buttons)
+        {
+            foreach(Buttons button in buttons)
+            {
+                if (gState.IsButtonUp(button)) return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Checks if a given button is down once.
+        /// </summary>
+        /// <param name="button">The button to check.</param>
+        /// <returns>Returns true if the button is down once.</returns>
+        public bool IsGamePadDown(Buttons button)
+        {
+            return gState.IsButtonDown(button) && gStatePrevious.IsButtonUp(button);
+        }
+
+        /// <summary>
+        /// Checks if a given button is down once while a modifier is being held down simultaneously.
+        /// </summary>
+        /// <param name="button">The button to check.</param>
+        /// <param name="modifier">The modifier button to check.</param>
+        /// <returns>Returns true if the modifier is held down and the button is down once.</returns>
+        public bool IsGamePadDown(Buttons button, Buttons modifier)
+        {
+            if (gState.IsButtonDown(modifier))
+            {
+                return gState.IsButtonDown(button) && gStatePrevious.IsButtonUp(button);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if a given button is down once while multiple modifiers are being held down simultaneously.
+        /// </summary>
+        /// <param name="button">The button to check.</param>
+        /// <param name="modifiers">An array of modifier buttons to check.</param>
+        /// <returns>Returns true if the modiefier buttons are being held down and the button is down once.</returns>
+        public bool IsGamePadDown(Buttons button, Buttons[] modifiers)
+        {
+            foreach (Buttons modifier in modifiers)
+            {
+                if (gState.IsButtonUp(modifier)) return false;
+            }
+            return gState.IsButtonDown(button) && gStatePrevious.IsButtonUp(button);
+        }
+
+        /// <summary>
+        /// Checks if a given button is currently not held down.
+        /// </summary>
+        /// <param name="button">The button to check.</param>
+        /// <returns>Returns true if the button is not held down.</returns>
+        public bool IsGamePadUp(Buttons button)
+        {
+            return gState.IsButtonUp(button);
+        }
+
+        /// <summary>
+        /// Checks if multiple given buttons are currently not held down.
+        /// </summary>
+        /// <param name="buttons">An array of buttons to check.</param>
+        /// <returns>Returns true if all buttons are not held down.</returns>
+        public bool IsGamePadUp(Buttons[] buttons)
+        {
+            foreach (Buttons button in buttons)
+            {
+                if (gState.IsButtonDown(button)) return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Checks if a given button is released from being held down.
+        /// </summary>
+        /// <param name="button">The button to check.</param>
+        /// <returns>Returns true if the button is released from being held down.</returns>
+        public bool IsGamePadReleased(Buttons button)
+        {
+            return gState.IsButtonUp(button) && gStatePrevious.IsButtonDown(button);
+        }
+
+        /**************************************************************
+         *                    Private functions                          
+         *************************************************************/
+        /// <summary>
+        /// Updates the current gamepad button states.
+        /// </summary>
+        private void UpdateGamePadInput()
+        {
+            GamePadState newGState = GamePad.GetState(0);
+            gStatePrevious = gState;
+            gState = newGState;
+        }
+        #endregion
+
+        /**************************************************************
+         *                    Public functions                          
+         *************************************************************/
+        /// <summary>
+        /// Updates the states of all the input devices.
+        /// </summary>
+        public void UpdateInput()
+        {
+            UpdateKeyboardInput();
+            UpdateMouseInput();
+            UpdateGamePadInput();
         }
     }
 }
