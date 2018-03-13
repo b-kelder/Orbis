@@ -26,9 +26,12 @@ namespace Orbis.Rendering
             {
                 mesh = ObjParser.FromStream(stream);
             }
-            using(var stream = TitleContainer.OpenStream(textureFile))
+            if(textureFile != null)
             {
-                material.Texture = Texture2D.FromStream(device, stream);
+                using (var stream = TitleContainer.OpenStream(textureFile))
+                {
+                    material.Texture = Texture2D.FromStream(device, stream);
+                }
             }
             if(colorTextureFile != null)
             {
