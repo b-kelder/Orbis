@@ -140,16 +140,13 @@ namespace Orbis.Rendering
             floorVerts[4].TextureCoordinate = new Vector2(1, 1);
             floorVerts[5].TextureCoordinate = floorVerts[2].TextureCoordinate;
 
-            for(int i = 0; i < floorVerts.Length; i++)
-            {
-                floorVerts[i].Color = Color.Blue;
-            }
-
             return floorVerts;
         }
 
         public void Create(GraphicsDevice device)
         {
+            // Since GPUs are very good at doing parallel operations we will use it to create our texture atlas
+            // Like multithreading, but better
             // Save device state
             var oldBlendState = device.BlendState;
             var oldBlendFactor = device.BlendFactor;
@@ -163,9 +160,8 @@ namespace Orbis.Rendering
             var shader = new BasicEffect(device)
             {
                 TextureEnabled = false,
-                VertexColorEnabled = true,
-                View = uvToRender,//Matrix.Identity,//Matrix.CreateLookAt(Vector3.UnitZ * 2, Vector3.Zero, Vector3.UnitZ),
-                Projection = Matrix.Identity,//Matrix.CreateOrthographic(2, 2, 0.1f, 100),
+                View = uvToRender,
+                Projection = Matrix.Identity,
             };
 
             // Set up render target
@@ -180,7 +176,7 @@ namespace Orbis.Rendering
             { 
                 shader.Texture = data.Key;
                 shader.TextureEnabled = true;
-                shader.World = data.Value;//Matrix.CreateScale(data.Key.Width, data.Key.Height, 1);
+                shader.World = data.Value;
 
                 foreach (var pass in shader.CurrentTechnique.Passes)
                 {

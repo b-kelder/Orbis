@@ -130,7 +130,6 @@
     <Compile Include="World\WorldGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\debugout.png" />
     <Content Include="Content\Textures\hex.png" />
     <Content Include="Content\Textures\hex_color.png" />
     <Content Include="Content\Textures\hex_house.png" />
