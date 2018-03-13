@@ -36,16 +36,16 @@ namespace Orbis.Rendering
                     {
                         // Vertex
                         objVerts.Add(new Vector3(
-                            float.Parse(splits[1]),
-                            float.Parse(splits[2]),
-                            float.Parse(splits[3])));
+                            float.Parse(splits[1], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture),
+                            float.Parse(splits[2], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture),
+                            float.Parse(splits[3], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture)));
                     }
                     else if(line.StartsWith("vt "))
                     {
                         // UV
                         objUvs.Add(new Vector2(
-                            float.Parse(splits[1]),
-                            1.0f - float.Parse(splits[2])));
+                            float.Parse(splits[1], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture),
+                            1.0f - float.Parse(splits[2], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture)));
                     }
                     else if(line.StartsWith("f "))
                     {
