@@ -132,7 +132,7 @@ namespace Orbis.Rendering
 
             // TODO: Camera movement overhaul
             var camMoveDelta = Vector3.Zero;
-            float movementSpeed = 300 * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            float movementSpeed = 100 * (float)gameTime.ElapsedGameTime.TotalSeconds * (distance / 10);
             float rotationSpeed = 100 * (float)gameTime.ElapsedGameTime.TotalSeconds;
             float zoomSpeed = 100 * (float)gameTime.ElapsedGameTime.TotalSeconds;
             float scale = camera.OrthographicScale;
