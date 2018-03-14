@@ -391,12 +391,6 @@ namespace Orbis.Rendering
         /// <param name="scene">Scene to update to</param>
         public void UpdateScene(Cell[] cells)
         {
-            if(!ReadyForUpdate)
-            {
-                throw new Exception("Not ready for update yet!");
-            }
-
-            meshUpdateQueue.Clear();
             int updatedCells = 0;
             //var stopwatch = new Stopwatch();
             //stopwatch.Start();
