@@ -40,9 +40,12 @@ namespace Orbis.Simulation
             _defender = defender;
             Duration = 1;
 
+            _attacker.Wars.Add(this);
+            _defender.Wars.Add(this);
+
             System.Diagnostics.Debug.WriteLine("{0} has declared war on {1}."
-                , _attacker
-                , _defender);
+                , _attacker.Name
+                , _defender.Name);
         }
 
         /// <summary>
@@ -53,14 +56,14 @@ namespace Orbis.Simulation
         {
             bool warEnded = false;
 
-            // TODO: Add amount of wars and other modifiers to this calculation
+            // TODO: Add other modifiers to this calculation
             int battleResult = (int)Math.Floor(_random.Next(1, 21)
-                + (0.4 * _attacker.Population + 10 * 1)
-                - (0.4 * _defender.Population + 10 * 1));
+                + (0.4 * _attacker.Population + 10 * _attacker.Wars.Count)
+                - (0.4 * _defender.Population + 10 * _defender.Wars.Count));
 
             System.Diagnostics.Debug.WriteLine("Battle result for war between {0} and {1}: {2}.",
-                _attacker,
-                _defender,
+                _attacker.Name,
+                _defender.Name,
                 battleResult);
 
             _attacker.Population -= (int)Math.Floor((double)battleResult * (5 * Duration));
@@ -78,8 +81,8 @@ namespace Orbis.Simulation
                 }
 
                 System.Diagnostics.Debug.WriteLine("The war between {0} and {1} has been won by {0}.",
-                    _attacker,
-                    _defender);
+                    _attacker.Name,
+                    _defender.Name);
             }
             else if(battleResult < _lowerBound + 5 * Duration)
             {
@@ -93,8 +96,14 @@ namespace Orbis.Simulation
                 }
 
                 System.Diagnostics.Debug.WriteLine("The war between {0} and {1} has been won by {1}.",
-                    _attacker,
-                    _defender);
+                    _attacker.Name,
+                    _defender.Name);
+            }
+
+            if (warEnded)
+            {
+                _attacker.Wars.Remove(this);
+                _defender.Wars.Remove(this);
             }
 
             Duration++;

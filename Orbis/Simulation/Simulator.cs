@@ -158,11 +158,30 @@ namespace Orbis.Simulation
                     }
                     else if (action.Action == Simulation4XAction.EXTERMINATE)
                     {
-                        Civilization civ = (Civilization)action.Params[0];
-
-
+                        Civilization defender = (Civilization)action.Params[0];
+                        War war = new War(Scene, action.Civilization, defender);
+                        ongoingWars.Add(war);
                     }
                 }
+            }
+
+            int warCount = ongoingWars.Count;
+            HashSet<War> finishedWars = new HashSet<War>();
+            // Get the result of the current battle in each ongoing war.
+            for (int warIndex = 0; warIndex < warCount; warIndex++)
+            {
+                War war = ongoingWars[warIndex];
+                bool warResult = war.Battle();
+                if (warResult)
+                {
+                    finishedWars.Add(war);
+                }
+            }
+
+            // Wars that have come to an end are removed from the ongoing wars list.
+            foreach (War war in finishedWars)
+            {
+                ongoingWars.Remove(war);
             }
 
             cellsChanged.Enqueue(changed.ToArray());

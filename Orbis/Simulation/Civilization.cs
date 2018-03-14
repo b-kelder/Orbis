@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Orbis.World;
 
 /// <summary>
-/// Author: Bram Kelder, Wouter Brookhuis
+/// Author: Bram Kelder, Wouter Brookhuis, Kaj van der Veen
 /// </summary>
 namespace Orbis.Simulation
 {
@@ -23,7 +23,18 @@ namespace Orbis.Simulation
         /// <summary>
         /// Is currently at war
         /// </summary>
-        public bool AtWar { get; set; }
+        public bool AtWar
+        {
+            get
+            {
+                return (Wars.Count != 0);
+            }
+        }
+
+        /// <summary>
+        /// The current wars for this Civ.
+        /// </summary>
+        public List<War> Wars;
         /// <summary>
         /// The cells owned by this civ
         /// </summary>
@@ -32,6 +43,14 @@ namespace Orbis.Simulation
         /// All neighbour cells of the civs territory
         /// </summary>
         public HashSet<Cell> Neighbours { get; set; }
+        /// <summary>
+        ///     All civs this civ borders.
+        /// </summary>
+        public HashSet<Civilization> BorderCivs { get; set; }
+        /// <summary>
+        ///     The opinion this civ has of neighbouring civs.
+        /// </summary>
+        public Dictionary<Civilization, int> CivOpinions { get; set; }
         /// <summary>
         /// The total population of the civ
         /// </summary>
@@ -56,6 +75,9 @@ namespace Orbis.Simulation
             IsAlive = true;
             Territory = new HashSet<Cell>();
             Neighbours = new HashSet<Cell>();
+            Wars = new List<War>();
+            BorderCivs = new HashSet<Civilization>();
+            CivOpinions = new Dictionary<Civilization, int>();
         }
 
         /// <summary>
@@ -76,7 +98,8 @@ namespace Orbis.Simulation
             expand *= BaseExpand + (Population > 0 ? ((Population - (double)TotalHousing) / Population) : 0);
             exploit *= BaseExploit;
             explore *= BaseExplore;
-            exterminate *= BaseExterminate;
+            // Debug value: always declare war on all neighbours.
+            exterminate *= BaseExterminate + (CivOpinions.Count * 10000);
 
             if (expand > exploit && expand > explore && expand > exterminate)
             {
@@ -106,10 +129,14 @@ namespace Orbis.Simulation
             }
             else if (exterminate > expand && exterminate > exploit && exterminate > explore)
             {
-                Civilization civilization = null;
+                // TODO: make picking targets use logic instead of "The first one I hate (which is the first guy I border) will do".
+                Civilization civilization = BorderCivs.FirstOrDefault(c => CivOpinions[c] <= -20);
 
-                action.Action = Simulation4XAction.EXTERMINATE;
-                action.Params = new object[] { civilization };
+                if (civilization != null)
+                {
+                    action.Action = Simulation4XAction.EXTERMINATE;
+                    action.Params = new object[] { civilization };
+                }
             }
 
             return action;
@@ -191,6 +218,18 @@ namespace Orbis.Simulation
                 if (c.Owner != this)
                 {
                     Neighbours.Add(c);
+
+                    if (c.Owner != null)
+                    {
+                        if (BorderCivs.Add(c.Owner))
+                        {
+                            CivOpinions.Add(c.Owner, 0);
+                        }
+                        else
+                        {
+                            CivOpinions[c.Owner] -= 20;
+                        }
+                    }
                 }
             }
 
