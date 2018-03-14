@@ -16,8 +16,8 @@ namespace Orbis.Simulation
         public int CurrentTick { get; set; }
         public Scene Scene { get; set; }
 
+        private ConcurrentQueue<Cell[]> cellsChanged;
         private ConcurrentQueue<SimulationAction> actionQueue;
-        private List<Cell> cellsChanged;
         private int maxTick;
         private int civCount;
 
@@ -36,12 +36,14 @@ namespace Orbis.Simulation
 
             actionQueue = new ConcurrentQueue<SimulationAction>();
             taskList = new List<Task>();
-            cellsChanged = new List<Cell>();
+            cellsChanged = new ConcurrentQueue<Cell[]>();
         }
 
         public Cell[] GetChangedCells()
         {
-            return cellsChanged.ToArray();
+            Cell[] cells;
+            cellsChanged.TryDequeue(out cells);
+            return cells;
         }
 
         public void Update()
@@ -78,11 +80,8 @@ namespace Orbis.Simulation
 
                 taskList.Add(Task.Run(() =>
                 {
-                    int cellCount = civ.Territory.Count;
-                    for (int j = 0; j < cellCount; j++)
+                    foreach(var cell in civ.Territory)
                     {
-                        Cell cell = civ.Territory[j];
-
                         if (cell.population <= 0)
                         {
                             continue;
@@ -135,7 +134,7 @@ namespace Orbis.Simulation
                 }
             }
 
-            cellsChanged = changed;
+            cellsChanged.Enqueue(changed.ToArray());
         }
     }
 }

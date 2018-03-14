@@ -54,6 +54,10 @@ namespace Orbis
         /// </summary>
         protected override void Initialize()
         {
+            this.IsFixedTimeStep = false;
+            graphics.SynchronizeWithVerticalRetrace = false;
+            graphics.ApplyChanges();
+
             base.Initialize();
         }
 
@@ -66,7 +70,9 @@ namespace Orbis
             scene = new Scene(seed);
             var generator = new WorldGenerator(scene);
             generator.GenerateWorld(100);
-            generator.GenerateCivs(5);
+            generator.GenerateCivs(20);
+
+            simulator = new Simulator(scene, 10000);
 
             stopwatch.Stop();
             Debug.WriteLine("Generated world in " + stopwatch.ElapsedMilliseconds + " ms");
@@ -119,16 +125,23 @@ namespace Orbis
             input.UpdateInput();
 
             // See if world must be regenerated (TEST)
-            if(Input.IsKeyDown(Keys.B) && !sceneRenderer.IsUpdatingMesh)
+
+            simulator.Update();
+
+            // Update renderer if we can
+            if(sceneRenderer.ReadyForUpdate)
             {
-                // TODO: Actual threading inside WorldGenerator?
-                Task.Run(() => GenerateWorld(new Random().Next()));
-                worldUpdateTimer = 0;
+                Cell[] updatedCells = null;
+                do
+                {
+                    updatedCells = simulator.GetChangedCells();
+                    if (updatedCells != null && updatedCells.Length > 0)
+                    {
+                        sceneRenderer.UpdateScene(updatedCells);
+                    }
+                } while (updatedCells != null);
             }
-            worldUpdateTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-
-            
             if (input.IsKeyDown(Keys.S, new Keys[] { Keys.LeftShift, Keys.K, Keys.Y}))
             {
                 Exit();
@@ -143,23 +156,19 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            
-
-            
-
-            //spriteBatch.Begin();
-
-            //spriteBatch.DrawString(fontDebug, "Civs:   Tick:" + simulator.Tick, new Vector2(10,25), Color.Red);
-            //for (int i = 0; i < scene.Civilizations.Count; i++)
-            //{
-            //    spriteBatch.DrawString(fontDebug, scene.Civilizations[i].Name + ": ", new Vector2(10, (i + 1) * 25 + 25), Color.IndianRed);
-            //    spriteBatch.DrawString(fontDebug, "Population= " + scene.Civilizations[i].Population, new Vector2(500, (i + 1) * 25 + 25), Color.Red);
-            //    spriteBatch.DrawString(fontDebug, "Size= " + scene.Civilizations[i].Territory.Count, new Vector2(850, (i + 1) * 25 + 25), Color.Red);
-            //}
-
-            //spriteBatch.End();
-
             base.Draw(gameTime);
+
+            spriteBatch.Begin();
+
+            spriteBatch.DrawString(fontDebug, "Tick: " + simulator.CurrentTick, new Vector2(10, 30), Color.Red);
+            float y = 50;
+            foreach(var civ in scene.Civilizations)
+            {
+                spriteBatch.DrawString(fontDebug, civ.Name + " - " + civ.Territory.Count + " - Alive: " + civ.IsAlive, new Vector2(10, y), Color.Red);
+                y += 15;
+            }
+
+            spriteBatch.End();
         }
     }
 }

@@ -120,8 +120,8 @@
     <Compile Include="Rendering\ObjParser.cs" />
     <Compile Include="Rendering\RenderableMesh.cs" />
     <Compile Include="Rendering\RenderInstance.cs" />
-    <Compile Include="Rendering\SceneRendererComponent.cs" />
     <Compile Include="Simulation\SimulationAction.cs" />
+    <Compile Include="Rendering\SceneRendererComponent.cs" />
     <Compile Include="Simulation\Simulator.cs" />
     <Compile Include="Simulation\Civilization.cs" />
     <Compile Include="TopographyHelper.cs" />
