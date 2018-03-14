@@ -70,7 +70,7 @@ namespace Orbis
             scene = new Scene(seed);
             var generator = new WorldGenerator(scene);
             generator.GenerateWorld(100);
-            generator.GenerateCivs(20);
+            generator.GenerateCivs(500);
 
             simulator = new Simulator(scene, 10000);
 
@@ -124,13 +124,11 @@ namespace Orbis
             // Update user input
             input.UpdateInput();
 
-            // See if world must be regenerated (TEST)
-
-            simulator.Update();
-
             // Update renderer if we can
             if(sceneRenderer.ReadyForUpdate)
             {
+                int updateListsThisFrame = 0;
+                //simulator.Update();
                 Cell[] updatedCells = null;
                 do
                 {
@@ -138,8 +136,13 @@ namespace Orbis
                     if (updatedCells != null && updatedCells.Length > 0)
                     {
                         sceneRenderer.UpdateScene(updatedCells);
+                        updateListsThisFrame++;
                     }
                 } while (updatedCells != null);
+                if(updateListsThisFrame > 1)
+                {
+                    Debug.WriteLine("Update " + updateListsThisFrame + " cell lists this frame");
+                }
             }
 
             if (input.IsKeyDown(Keys.S, new Keys[] { Keys.LeftShift, Keys.K, Keys.Y}))
@@ -160,13 +163,15 @@ namespace Orbis
 
             spriteBatch.Begin();
 
-            spriteBatch.DrawString(fontDebug, "Tick: " + simulator.CurrentTick, new Vector2(10, 30), Color.Red);
-            float y = 50;
+            spriteBatch.DrawString(fontDebug, "Tick: " + simulator.CurrentTick, new Vector2(10, 50), Color.Red);
+            float y = 80;
             foreach(var civ in scene.Civilizations)
             {
                 spriteBatch.DrawString(fontDebug, civ.Name + " - " + civ.Territory.Count + " - Alive: " + civ.IsAlive, new Vector2(10, y), Color.Red);
                 y += 15;
             }
+
+            spriteBatch.DrawString(fontDebug, "FPS: " + (1 / gameTime.ElapsedGameTime.TotalSeconds).ToString("##.##"), new Vector2(10, 30), Color.Red);
 
             spriteBatch.End();
         }
