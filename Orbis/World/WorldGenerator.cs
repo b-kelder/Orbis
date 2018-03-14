@@ -84,6 +84,7 @@ namespace Orbis.World
                         }
 
                         cell.population = 1;
+                        civ.TotalHousing += cell.MaxHousing;
 
                         break;
                     }
@@ -190,15 +191,15 @@ namespace Orbis.World
                     if (cell.Elevation <= SeaLevel)
                     {
                         cell.IsWater = true;
-                        cell.FoodMod = 0;
-                        cell.ResourceMod = 0;
+                        cell.FoodMod = random.NextDouble() + random.Next(5);
+                        cell.ResourceMod = random.NextDouble() + random.Next(5);
                         cell.MaxHousing = 0;
                     }
                     else
                     {
                         // Now all data has been set, calculate the modifiers
                         cell.FoodMod = random.NextDouble() + random.Next(5);
-                        cell.ResourceMod = random.NextDouble();
+                        cell.ResourceMod = random.NextDouble() + random.Next(5);
                         cell.MaxHousing = random.Next(0, 1250) + random.Next(0, 1250) + random.Next(0, 1250) + random.Next(0, 1250);
                     }
                 }

@@ -18,6 +18,11 @@ namespace Orbis
     /// </summary>
     public class Orbis : Game
     {
+        public static readonly int TEST_SEED = 19450513;
+        public static readonly int TEST_CIVS = 22;
+        public static readonly int TEST_RADIUS = 128;
+        public static readonly int TEST_TICKS = 10000;
+
         public InputHandler Input { get { return input; } }
         public GraphicsDeviceManager Graphics { get { return graphics; } }
 
@@ -69,10 +74,10 @@ namespace Orbis
             Debug.WriteLine("Generating world for seed " + seed);
             scene = new Scene(seed);
             var generator = new WorldGenerator(scene);
-            generator.GenerateWorld(100);
-            generator.GenerateCivs(20);
+            generator.GenerateWorld(TEST_RADIUS);
+            generator.GenerateCivs(TEST_CIVS);
 
-            simulator = new Simulator(scene, 10000);
+            simulator = new Simulator(scene, TEST_TICKS);
 
             stopwatch.Stop();
             Debug.WriteLine("Generated world in " + stopwatch.ElapsedMilliseconds + " ms");
@@ -103,7 +108,7 @@ namespace Orbis
 
             fontDebug = Content.Load<SpriteFont>("DebugFont");
 
-            GenerateWorld(1499806334);
+            GenerateWorld(TEST_SEED);
         }
 
         /// <summary>
@@ -124,13 +129,10 @@ namespace Orbis
             // Update user input
             input.UpdateInput();
 
-            // See if world must be regenerated (TEST)
-
-            simulator.Update();
-
             // Update renderer if we can
             if(sceneRenderer.ReadyForUpdate)
             {
+                simulator.Update(gameTime);
                 Cell[] updatedCells = null;
                 do
                 {
@@ -160,13 +162,15 @@ namespace Orbis
 
             spriteBatch.Begin();
 
-            spriteBatch.DrawString(fontDebug, "Tick: " + simulator.CurrentTick, new Vector2(10, 30), Color.Red);
-            float y = 50;
+            spriteBatch.DrawString(fontDebug, "Tick: " + simulator.CurrentTick, new Vector2(10, 50), Color.Red);
+            float y = 80;
             foreach(var civ in scene.Civilizations)
             {
-                spriteBatch.DrawString(fontDebug, civ.Name + " - " + civ.Territory.Count + " - Alive: " + civ.IsAlive, new Vector2(10, y), Color.Red);
+                spriteBatch.DrawString(fontDebug, civ.Name + " - " + civ.Territory.Count + " - Population: " + civ.Population + " - Is Alive: " + civ.IsAlive, new Vector2(10, y), Color.Red);
                 y += 15;
             }
+
+            spriteBatch.DrawString(fontDebug, "FPS: " + (1 / gameTime.ElapsedGameTime.TotalSeconds).ToString("##.##"), new Vector2(10, 30), Color.Red);
 
             spriteBatch.End();
         }

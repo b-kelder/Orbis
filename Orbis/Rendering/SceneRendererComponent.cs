@@ -6,8 +6,6 @@ using Orbis.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Orbis.Rendering
@@ -50,17 +48,21 @@ namespace Orbis.Rendering
         private Model houseHexModel;
         private Model waterHexModel;
 
+        private Queue<RenderableMesh> meshUpdateQueue;
         private Task<MeshGenerationResult> meshTask;
-
         private Scene renderedScene;
 
         public bool IsUpdatingMesh { get { return meshTask != null && meshTask.Status != TaskStatus.RanToCompletion; } }
         public bool ReadyForUpdate { get {
-                return renderedScene != null && cellMappedData != null && cellMeshes != null;
+                return renderedScene != null && cellMappedData != null && cellMeshes != null && meshUpdateQueue.Count == 0;
             } }
+
+        public float MaxUpdateTime { get; set; }
 
         public SceneRendererComponent(Orbis game) : base(game)
         {
+            this.meshUpdateQueue = new Queue<RenderableMesh>();
+            MaxUpdateTime = 3;
             this.orbis = game;
         }
 
@@ -193,7 +195,20 @@ namespace Orbis.Rendering
 
             camera.Position = Vector3.Transform(Vector3.Zero, camMatrix) + camera.LookTarget;
 
+            // Update some vertex buffers if we have to without impact framerate too much
+            if(meshUpdateQueue.Count > 0)
+            {
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+                do
+                {
+                    var mesh = meshUpdateQueue.Dequeue();
+                    mesh.UpdateVertexBuffer(orbis.GraphicsDevice);
+                } while (meshUpdateQueue.Count > 0 && stopwatch.Elapsed.TotalMilliseconds <= this.MaxUpdateTime);
 
+                stopwatch.Stop();
+                //Debug.WriteLine("Took " + stopwatch.Elapsed.TotalMilliseconds + " ms to update vertex buffers");
+            }
             base.Update(gameTime);
         }
 
@@ -360,7 +375,7 @@ namespace Orbis.Rendering
             }
 
             stopwatch.Stop();
-            Debug.WriteLine("Generated meshes in " + stopwatch.ElapsedMilliseconds + " ms");
+            Debug.WriteLine("Generated " + renderableMeshes.Count + " meshes in " + stopwatch.ElapsedMilliseconds + " ms");
 
             return new MeshGenerationResult {
                 cellData = cellData,
@@ -377,9 +392,10 @@ namespace Orbis.Rendering
         public void UpdateScene(Cell[] cells)
         {
             int updatedCells = 0;
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
+            //var stopwatch = new Stopwatch();
+            //stopwatch.Start();
 
+            var updatedMeshes = new HashSet<RenderableMesh>();
             foreach(var cell in cells)
             {
                 if(cell == null) { continue; }
@@ -389,18 +405,16 @@ namespace Orbis.Rendering
                 {
                     mesh.VertexData[i].Color = GetCellColor(cell);
                 }
+                updatedMeshes.Add(mesh);
                 updatedCells++;
             }
 
-            stopwatch.Stop();
-            Debug.WriteLine("Took " + stopwatch.ElapsedMilliseconds + " ms to update vertexdata for " + updatedCells + " cells");
-            stopwatch.Restart();
-            foreach(var mesh in cellMeshes)
+            //stopwatch.Stop();
+            //Debug.WriteLine("Took " + stopwatch.ElapsedMilliseconds + " ms to update vertexdata for " + updatedCells + " cells");
+            foreach(var mesh in updatedMeshes)
             {
-                mesh.UpdateVertexBuffer(orbis.GraphicsDevice);
+                meshUpdateQueue.Enqueue(mesh);
             }
-            stopwatch.Stop();
-            Debug.WriteLine("Took " + stopwatch.ElapsedMilliseconds + " ms to update vertex buffers");
         }
 
         private Color GetCellColor(Cell cell)
