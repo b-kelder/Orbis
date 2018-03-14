@@ -111,7 +111,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\Button.cs" />
     <Compile Include="UI\Exceptions\OrbisUIException.cs" />
-    <Compile Include="UI\SimulationWindow.cs" />
     <Compile Include="UI\SplitDirection.cs" />
     <Compile Include="UI\SplitPanel.cs" />
     <Compile Include="UI\AnchorPosition.cs" />

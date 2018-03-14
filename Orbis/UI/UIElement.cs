@@ -84,7 +84,7 @@ namespace Orbis.UI
                     if (Parent != null)
                     {
                         // The rectangle is relative to the parent, so it should be calculated based on the parent.
-                        var newAbsoluteRect = GetNewAbsoluteRect(value);
+                        Rectangle newAbsoluteRect = GetNewAbsoluteRect(value);
 
                         CheckElementBoundaries(newAbsoluteRect, Parent.AbsoluteRectangle);
                     }
@@ -119,8 +119,8 @@ namespace Orbis.UI
                     // To prevent issues, elements are not allowed exceed the boundaries of their parent.
                     if (Parent != null)
                     {
-                        var parentRect = Parent.AbsoluteRectangle;
-                        var newAbsoluteRect = GetNewAbsoluteRect(new Rectangle(_relativeRect.Location, value));
+                        Rectangle parentRect = Parent.AbsoluteRectangle;
+                        Rectangle newAbsoluteRect = GetNewAbsoluteRect(new Rectangle(_relativeRect.Location, value));
 
                         CheckElementBoundaries(newAbsoluteRect, parentRect);
                     }
@@ -148,8 +148,8 @@ namespace Orbis.UI
                 {
                     if (Parent != null)
                     {
-                        var parentRect = Parent.AbsoluteRectangle;
-                        var newAbsoluteRect = GetNewAbsoluteRect(new Rectangle(value, Size));
+                        Rectangle parentRect = Parent.AbsoluteRectangle;
+                        Rectangle newAbsoluteRect = GetNewAbsoluteRect(new Rectangle(value, Size));
 
                         CheckElementBoundaries(newAbsoluteRect, parentRect);
                     }
@@ -183,7 +183,7 @@ namespace Orbis.UI
         /// </param>
         public virtual void Update(GameTime gameTime)
         {
-            foreach (var child in Children)
+            foreach (UIElement child in Children)
             {
                 child.Update(gameTime);
             }
@@ -305,7 +305,7 @@ namespace Orbis.UI
             // If the element has a parent, the absolute position needs to e converted to a relative one.
             if (Parent != null)
             {
-                var parentRect = Parent.AbsoluteRectangle;
+                Rectangle parentRect = Parent.AbsoluteRectangle;
 
                 // Anchor positions decide what point of the parent the element is relative to.
                 if (_anchorPos == AnchorPosition.TopLeft)
@@ -314,7 +314,7 @@ namespace Orbis.UI
                 }
                 else if (_anchorPos == AnchorPosition.TopRight)
                 {
-                    var parentTopRight = new Point(parentRect.Right, parentRect.Top);
+                    Point parentTopRight = new Point(parentRect.Right, parentRect.Top);
                     absoluteRect.Location = absoluteRect.Location + parentTopRight;
                 }
                 else if (_anchorPos == AnchorPosition.Center)
