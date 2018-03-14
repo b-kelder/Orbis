@@ -118,7 +118,6 @@ namespace Orbis
             // Update user input
             input.UpdateInput();
 
-            simulator.Update();
             // See if world must be regenerated (TEST)
             if(Input.IsKeyDown(Keys.B) && !sceneRenderer.IsUpdatingMesh)
             {
