@@ -65,16 +65,18 @@ namespace Orbis.Engine
         {
             try
             {
+                // Fetch files from directory
                 FileInfo[] files = new DirectoryInfo(content.RootDirectory + "/" + FILE_DIR_SONGS).GetFiles(FILE_EXTENSION);
 
                 for (int i = 0; i < files.Length; i++)
                 {
-                    string fileName     = Path.GetFileNameWithoutExtension(files[i].Name);
-                    songLib[fileName]   = content.Load<Song>(FILE_DIR_SONGS + "/" + fileName);
+                    string fileName     = Path.GetFileNameWithoutExtension(files[i].Name);      // Fetch name without extension
+                    songLib[fileName]   = content.Load<Song>(FILE_DIR_SONGS + "/" + fileName);  // Load from pipeline and push to lib
                 }
             }
             catch(Exception ex)
             {
+                
                 Debug.WriteLine(ex);
             }
         }
@@ -87,13 +89,15 @@ namespace Orbis.Engine
         {
             try
             {
+                // Fetch files from directory
                 FileInfo[] files = new DirectoryInfo(content.RootDirectory + "/" + FILE_DIR_EFFECT).GetFiles(FILE_EXTENSION);
 
                 for (int i = 0; i < files.Length; i++)
                 {
-                    string fileName         = Path.GetFileNameWithoutExtension(files[i].Name);
-                    SoundEffect soundEffect = content.Load<SoundEffect>(FILE_DIR_EFFECT + "/" + fileName);
+                    string fileName         = Path.GetFileNameWithoutExtension(files[i].Name);              // Fetch file without extension
+                    SoundEffect soundEffect = content.Load<SoundEffect>(FILE_DIR_EFFECT + "/" + fileName);  // Load from pipeline
 
+                    // Push to lib so it can be used
                     soundEffect.Name        = fileName;
                     effectLib[fileName]     = soundEffect.CreateInstance();
                 }
@@ -103,7 +107,6 @@ namespace Orbis.Engine
                 Debug.WriteLine(ex);
             }
         }
-
 
         /// <summary>
         /// Play a song
