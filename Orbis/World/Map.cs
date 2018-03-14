@@ -17,7 +17,6 @@ namespace Orbis.World
         public int Radius { get; private set; }
         public int CellCount { get { return cellCount; } }
         public IEnumerable<Cell> Cells { get { return cellData; } }
-        public float SeaLevel { get; set; }
 
         public Map(int radius)
         {

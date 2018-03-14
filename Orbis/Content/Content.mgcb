@@ -14,41 +14,6 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin Config/Civilization.xml
-/importer:XmlImporter
-/processor:PassThroughProcessor
-/build:Config/Civilization.xml
-
-#begin DebugFont.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:DebugFont.spritefont
-
-#begin Config/Biome.xml
-/importer:XmlImporter
-/processor:PassThroughProcessor
-/build:Config/Biome.xml
-
-#begin Shaders/BasicColorMapped.fx
-/importer:EffectImporter
-/processor:EffectProcessor
-/processorParam:DebugMode=Auto
-/build:Shaders/BasicColorMapped.fx
-
-#begin white.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:white.png
-
 #begin black.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -60,6 +25,34 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:black.png
+
+#begin Config/Biome.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Config/Biome.xml
+
+#begin Config/Civilization.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Config/Civilization.xml
+
+#begin Config/WorldSettings.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Config/WorldSettings.xml
+
+#begin DebugFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:DebugFont.spritefont
+
+#begin Shaders/BasicColorMapped.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/BasicColorMapped.fx
 
 #begin Textures/hex.png
 /importer:TextureImporter
@@ -85,6 +78,18 @@
 /processorParam:TextureFormat=Color
 /build:Textures/hex_c.png
 
+#begin Textures/hex_grass.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/hex_grass.png
+
 #begin Textures/hex_water.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -96,6 +101,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/hex_water.png
+
+#begin Textures/hex_water_c.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/hex_water_c.png
 
 #begin Textures/house.png
 /importer:TextureImporter
@@ -121,7 +138,7 @@
 /processorParam:TextureFormat=Color
 /build:Textures/house_c.png
 
-#begin Textures/hex_water_c.png
+#begin white.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -131,17 +148,5 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Textures/hex_water_c.png
-
-#begin Textures/hex_grass.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Textures/hex_grass.png
+/build:white.png
 

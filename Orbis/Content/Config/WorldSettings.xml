@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:ns="Microsoft.Xna.Framework">
+  <Asset Type="XMLModel.WorldSettings">
+	<SeaLevel>7</SeaLevel>
+	<RainMultiplier>2500</RainMultiplier>
+	<RiverWetness>25000</RiverWetness>
+	<LakeWetness>400000</LakeWetness>
+	<ElevationMultiplier>50</ElevationMultiplier>
+	<EdgeDistancePower>0.48</EdgeDistancePower>
+	<ElevationPower>2.76</ElevationPower>
+	<PoleTemperature>-20</PoleTemperature>
+	<EquatorTemperature>40</EquatorTemperature>
+	<TemperatureCurvePower>0.6</TemperatureCurvePower>
+	<ElevationTemperatureMultiplier>-3.9</ElevationTemperatureMultiplier>
+  </Asset>
+</XnaContent>

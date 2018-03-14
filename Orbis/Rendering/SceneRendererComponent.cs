@@ -12,6 +12,14 @@ namespace Orbis.Rendering
 {
     class SceneRendererComponent : DrawableGameComponent
     {
+        enum CellColorMode
+        {
+            OwnerColor,
+            Elevation,
+            Wetness,
+            Temperature
+        }
+
         /// <summary>
         /// Internal render data mapped to a cell
         /// </summary>
@@ -28,6 +36,7 @@ namespace Orbis.Rendering
             public Dictionary<Cell, CellMappedData> cellData;
         }
 
+        private CellColorMode cellColorMode;
 
         private Dictionary<Cell, CellMappedData> cellMappedData;
         private Orbis orbis;
@@ -64,6 +73,7 @@ namespace Orbis.Rendering
             this.meshUpdateQueue = new Queue<RenderableMesh>();
             MaxUpdateTime = 3;
             this.orbis = game;
+            cellColorMode = CellColorMode.Temperature;
         }
 
         public override void Initialize()
@@ -295,7 +305,7 @@ namespace Orbis.Rendering
             });
 
             // Set cam to sea level
-            camera.LookTarget = new Vector3(camera.LookTarget.X, camera.LookTarget.Y, scene.WorldMap.SeaLevel);
+            camera.LookTarget = new Vector3(camera.LookTarget.X, camera.LookTarget.Y, scene.Settings.SeaLevel);
         }
 
         private MeshGenerationResult GenerateMeshesFromScene(Scene scene)
@@ -333,12 +343,12 @@ namespace Orbis.Rendering
                     // Cell color
                     // TODO: This doesn't work because the combiner doesn't combine immediately. Ensure that it does or add color to MeshInstance?
                     var color = GetCellColor(cell);
-                    var mesh = cell.IsWater ? waterHexMesh : hexMesh;
+                    var mesh = cell.IsWater | cell.Wetness >= scene.Settings.RiverWetness ? waterHexMesh : hexMesh;
 
                     // Temporary way to make sea actually level
-                    if (cell.IsWater)
+                    if (cell.IsWater && cell.Elevation < scene.Settings.SeaLevel)
                     {
-                        position.Z = scene.WorldMap.SeaLevel;
+                        position.Z = scene.Settings.SeaLevel;
                     }
 
                     int meshIndex = hexCombiner.Add(new MeshInstance
@@ -419,7 +429,30 @@ namespace Orbis.Rendering
 
         private Color GetCellColor(Cell cell)
         {
-            var color = cell.Owner != null ? civColors[cell.Owner] : cell.IsWater ? Color.Aquamarine : Color.Black;
+            Color color;
+            switch(cellColorMode)
+            {
+                case CellColorMode.Elevation:
+                    color = Color.Lerp(Color.Black, Color.White,
+                        (float)cell.Elevation / renderedScene.Settings.ElevationMultiplier);
+                    break;
+                case CellColorMode.Wetness:
+                    color = Color.Lerp(Color.Black, Color.White, 
+                        MathHelper.Clamp((float)cell.Wetness / renderedScene.Settings.RainMultiplier, 0, 1));
+                    break;
+                case CellColorMode.Temperature:
+                    if(cell.Temperature < -20) { color = Color.White; }
+                    else if (cell.Temperature < 0) { color = Color.LightBlue; }
+                    else if (cell.Temperature < 10) { color = Color.Blue; }
+                    else if (cell.Temperature < 20) { color = Color.Green; }
+                    else if (cell.Temperature < 30) { color = Color.Yellow; }
+                    else if (cell.Temperature < 40) { color = Color.OrangeRed; }
+                    else { color = Color.Red; }
+                    break;
+                default:
+                    color = cell.Owner != null ? civColors[cell.Owner] : Color.DarkSlateGray;
+                    break;
+            }
             return color;
         }
     }

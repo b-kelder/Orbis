@@ -3,6 +3,8 @@ using Orbis.Simulation;
 using Orbis.Engine;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Diagnostics;
 
 namespace Orbis.World
 {
@@ -12,8 +14,6 @@ namespace Orbis.World
         /// Random object
         /// </summary>
         private Random random;
-        public float SeaLevel { get; set; }
-        public float MaxElevation { get; set; }
 
         private Scene scene;
 
@@ -27,8 +27,6 @@ namespace Orbis.World
 
             // Create a random object based on a seed
             random = new Random(scene.Seed);
-            SeaLevel = 18;
-            MaxElevation = 35;
         }
 
         public void GenerateCivs(int count)
@@ -102,115 +100,79 @@ namespace Orbis.World
             }
         }
 
-
-        /// <summary>
-        /// Generate and place civs on the world map
-        /// A world map needs to be generated before this function can be called
-        /// </summary>
-        /// <param name="scene">The scene to generate for</param>
-        /// <param name="amount">The amount of civs to generate</param>
-        /*public void GenerateCivs(Scene scene, int amount)
-        {
-            if (scene.WorldMap.Length <= 0)
-            {
-                throw new Exception("Worldmap not generated exception");
-            }
-
-            // Create a list of civs
-            scene.Civilizations = new List<Civilization>();
-
-            // Go through generation for all civs
-            for (int i = 0; i < amount; i++)
-            {
-                // Create a civ with all base values
-                Civilization civ = new Civilization
-                {
-                    DefenceModifier = Dice.Roll(6, 1),
-                    OffenceModifier = Dice.Roll(6, 1),
-                    Population = 1,
-                    TechnologyProgress = 0,
-                    Wealth = 0,
-                };
-
-                // Select a random starting cell for the civ
-                int x, y;
-                // Loop until no cell is available or until break
-                while (scene.Civilizations.Count < scene.WorldMap.Length)
-                {
-                    // Get random X and Y coordinates
-                    x = random.Next(scene.WorldMap.GetLength(0));
-                    y = random.Next(scene.WorldMap.GetLength(1));
-
-                    // Check if the cell has an owner
-                    if (scene.WorldMap[x, y].Owner == null)
-                    {
-                        if (scene.WorldMap[x,y].NoiseValue < 0.45 || scene.WorldMap[x, y].NoiseValue > 0.52)
-                        {
-                            continue;
-                        }
-                        // Set the owner and break
-                        civ.Territory.Add(scene.WorldMap[x, y]);
-                        scene.WorldMap[x, y].Owner = civ;
-
-                        break;
-                    }
-                }
-
-                // Add the civ to the world
-                scene.Civilizations.Add(civ);
-            }
-        }
-        */
         public void GenerateWorld(int radius)
         {
+            double statLowestPoint = double.MaxValue;
+            double statHighestMountain = double.MinValue;
+            int statSeaTiles = 0;
+
             Perlin perlin = new Perlin(5);
             float boundsX = TopographyHelper.HexToWorld(new Point(radius, 0)).X;
             float boundsY = TopographyHelper.HexToWorld(new Point(0, radius)).Y;
             var perlinZ = random.NextDouble();
 
             scene.WorldMap = new Map(radius);
-            scene.WorldMap.SeaLevel = SeaLevel;
 
             for(int p = -radius; p <= radius; p++)
             {
                 for(int q = -radius; q <= radius; q++)
                 {
+                    var currentPoint = new Point(p, q);
                     var cell = scene.WorldMap.GetCell(p, q);
                     if(cell == null)
                     {
                         continue;
                     }
 
+                    // TODO: Remove Magic Numbers, put them in WorldSettings
+
                     // Set cell neighbors
-                    cell.Neighbours = scene.WorldMap.GetNeighbours(new Point(p, q));
+                    cell.Neighbours = scene.WorldMap.GetNeighbours(currentPoint);
 
                     // Set cell height
-                    var worldPoint = TopographyHelper.HexToWorld(new Point(p, q));
+                    var worldPoint = TopographyHelper.HexToWorld(currentPoint);
                     var perlinPoint = (worldPoint + new Vector2(boundsX, boundsY)) * 0.01f;
-                    cell.Elevation = perlin.OctavePerlin(perlinPoint.X, perlinPoint.Y, perlinZ, 4, 0.7) * MaxElevation;
-                    if (cell.Elevation <= SeaLevel)
+                    var elevation = perlin.OctavePerlin(perlinPoint.X, perlinPoint.Y, perlinZ, 4, 0.7);
+                    // Flat valleys
+                    elevation = Math.Pow(elevation, scene.Settings.ElevationPower);
+
+                    // Actually multiply to max height
+                    elevation *= scene.Settings.ElevationMultiplier;
+
+                    // Give cells closer to the edge of the map a negative bias. This means the entire map will be surrounded by oceans.
+                    var distanceFromEdge = (radius - TopographyHelper.Distance(new Point(0, 0), currentPoint)) / radius;
+                    if(distanceFromEdge < 0 || distanceFromEdge > 1)
                     {
-                        cell.IsWater = true;
-                        cell.FoodMod = random.NextDouble() + random.Next(5);
-                        cell.ResourceMod = random.NextDouble() + random.Next(5);
-                        cell.MaxHousing = 0;
+                        throw new Exception("Value out of range, check math");
                     }
-                    else
+                    cell.Elevation = elevation * Math.Pow(distanceFromEdge, scene.Settings.EdgeDistancePower);
+
+                    // Update stats
+                    if(cell.Elevation > statHighestMountain)
                     {
-                        // Now all data has been set, calculate the modifiers
-                        cell.FoodMod = random.NextDouble() + random.Next(5);
-                        cell.ResourceMod = random.NextDouble() + random.Next(5);
-                        cell.MaxHousing = random.Next(0, 1250) + random.Next(0, 1250) + random.Next(0, 1250) + random.Next(0, 1250);
+                        statHighestMountain = cell.Elevation;
                     }
+                    if(cell.Elevation < statLowestPoint)
+                    {
+                        statLowestPoint = cell.Elevation;
+                    }
+
+                    // Set wetness by rain
+                    var rain = perlin.OctavePerlin(perlinPoint.X, perlinPoint.Y, perlinZ * 100, 2, 0.7) * scene.Settings.RainMultiplier;
+                    cell.Wetness = rain;
                 }
             }
 
-            // Loop trough cells
+            // Creates oceans by flood filling from map edge
+            FloodFillOceans();
+
+            // Do final touchups and modifier calculation
             // TODO: This can contain NULL cells, this is bad
             var cells = scene.WorldMap.Cells;
             foreach(var cell in cells)
             {
                 if(cell == null) { continue; }
+
                 // Remove single-cell 'seas' and islands
                 if(cell.IsWater)
                 {
@@ -230,82 +192,115 @@ namespace Orbis.World
                     }
                     cell.IsWater = !canBeLand;
                 }
+
+                // Calculate temperature
+                var distanceFromEdge = (radius - TopographyHelper.Distance(new Point(0, 0), cell.Coordinates)) / radius;
+                var temperature = MathHelper.Lerp(scene.Settings.PoleTemperature, scene.Settings.EquatorTemperature,
+                    (float)Math.Pow(distanceFromEdge, scene.Settings.TemperatureCurvePower));
+                var relElevation = (float)cell.Elevation - scene.Settings.SeaLevel;
+                if(!cell.IsWater)
+                {
+                    // Ocean tiles should have temperature at sea level only, otherwise use altitude multiplier
+                    temperature += relElevation * scene.Settings.ElevationTemperatureMultiplier;
+                }
+                cell.Temperature = temperature;
+
+                // Set values
+                if (cell.IsWater == true)
+                {
+                    statSeaTiles++;
+                    cell.FoodMod = random.NextDouble() + random.Next(5);
+                    cell.ResourceMod = random.NextDouble() + random.Next(5);
+                    cell.MaxHousing = 0;
+                }
+                else
+                {
+                    // Now all data has been set, calculate the modifiers
+                    cell.FoodMod = random.NextDouble() + random.Next(5);
+                    cell.ResourceMod = random.NextDouble() + random.Next(5);
+                    cell.MaxHousing = random.Next(0, 1250) + random.Next(0, 1250) + random.Next(0, 1250) + random.Next(0, 1250);
+                }
+            }
+
+            //SimulateWaterflow();
+
+            // Log stats
+            Debug.WriteLine("Stats for World Generation");
+            Debug.WriteLine("Highest Point: " + statHighestMountain);
+            Debug.WriteLine("Lowest Point:  " + statLowestPoint);
+            Debug.WriteLine("Ocean Cells:   " + statSeaTiles);
+            Debug.WriteLine("Land Cells:    " + (scene.WorldMap.CellCount - statSeaTiles));
+            Debug.WriteLine("Water coverage:" + ((float)statSeaTiles / scene.WorldMap.CellCount * 100).ToString("##.##") + "%");
+        }
+
+        private void FloodFillOceans()
+        {
+            var cell = scene.WorldMap.GetCell(scene.WorldMap.Radius, 0);
+            var cellsToCheck = new Queue<Cell>();
+            cellsToCheck.Enqueue(cell);
+            do
+            {
+                cell = cellsToCheck.Dequeue();
+                cell.IsWater = true;
+                foreach (var n in cell.Neighbours)
+                {
+                    if (!n.IsWater && n.Elevation <= scene.Settings.SeaLevel && !cellsToCheck.Contains(n))
+                    {
+                        cellsToCheck.Enqueue(n);
+                    }
+                }
+            } while (cellsToCheck.Count > 0);
+        }
+
+        private void SimulateWaterflow()
+        {
+            // Sort cells by height
+            var heightSortedCells = new List<Cell>();
+            foreach(var cell in scene.WorldMap.Cells)
+            {
+                if(cell != null && !cell.IsWater)
+                {
+                    heightSortedCells.Add(cell);
+                }
+            }
+            heightSortedCells = heightSortedCells.OrderByDescending(c => c.Elevation).ToList();
+
+            // Make water go down
+            foreach(var cell in heightSortedCells)
+            {
+                var elevation = cell.Elevation;
+                Cell targetCell = null;
+                foreach (var n in cell.Neighbours)
+                {
+                    if (n.Elevation < elevation)
+                    {
+                        elevation = n.Elevation;
+                        targetCell = n;
+                    }
+                }
+                if (targetCell != null)
+                {
+                    targetCell.Wetness += cell.Wetness;
+                }
+                else
+                {
+                    // Try to erode? Form a lake?
+                }
+
+                // TEST: Turn cells into water cells above threshold
+                /*if(cell.Wetness >= scene.Settings.LakeWetness)
+                {
+                    cell.IsWater = true;
+                }
+                else if (cell.Wetness >= scene.Settings.RiverWetness)
+                {
+                }*/
             }
         }
 
-        /// <summary>
-        /// Generate a hex grid world map with a specified size
-        /// </summary>
-        /// <param name="scene">The scene to generate the world for</param>
-        /// <param name="sizeX">The size in X</param>
-        /// <param name="sizeY">The size in Y</param>
-        /*public void GenerateWorld(Scene scene, int sizeX, int sizeY)
+        private void CalculateBiome(Cell cell)
         {
-            Perlin perlin = new Perlin(5);
 
-            // Create a array to store cells
-            scene.WorldMap = new Cell[sizeX, sizeY];
-
-            double seed = random.NextDouble();
-
-            // Generate cells
-            for (int x = 0; x < sizeX; x++)
-            {
-                for (int y = 0; y < sizeY; y++)
-                {
-                    scene.WorldMap[x, y] = new Cell(perlin.OctavePerlin((x+0.5) / 1000, (y+0.5) / 1000, seed, 10, 0.7));
-
-                    //Debug.WriteLine("X:" + x + " Y:" + y + " NV:" + scene.WorldMap[x, y].NoiseValue);
-                }
-            }
-
-            // Set neighbours for each cell
-            for (int x = 0; x < sizeX; x++)
-            {
-                for (int y = 0; y < sizeY; y++)
-                {
-                    // Create a list to store the cells
-                    scene.WorldMap[x, y].Neighbours = new List<Cell>();
-
-                    // Check if a right neighbour exists
-                    if (x + 1 < sizeX)
-                    {
-                        scene.WorldMap[x, y].Neighbours.Add(scene.WorldMap[x + 1, y]);
-                    }
-                    // Check if a bottom right neighbour exists
-                    if (y + 1 < sizeY)
-                    {
-                        scene.WorldMap[x, y].Neighbours.Add(scene.WorldMap[x, y + 1]);
-                    }
-                    // Check if a bottom left neighbour exists
-                    if (x - 1 > sizeX && y + 1 < sizeY)
-                    {
-                        scene.WorldMap[x, y].Neighbours.Add(scene.WorldMap[x - 1, y + 1]);
-                    }
-                    // Check if a top right neighbour exists
-                    if (x + 1 < sizeX && y - 1 > sizeY)
-                    {
-                        scene.WorldMap[x, y].Neighbours.Add(scene.WorldMap[x + 1, y - 1]);
-                    }
-                    // Check if a left neighbour exists
-                    if (x - 1 > sizeX)
-                    {
-                        scene.WorldMap[x, y].Neighbours.Add(scene.WorldMap[x - 1, y]);
-                    }
-                    // Check if a top left neighbour exists
-                    if (y - 1 > sizeY)
-                    {
-                        scene.WorldMap[x, y].Neighbours.Add(scene.WorldMap[x, y - 1]);
-                    }
-
-                    // Set the biome for the cell based on heightmap
-                    // TODO: Set the biome for the cell based on heightmap
-                    scene.WorldMap[x, y].Biome = null;
-
-                    // Now all data has been set, calculate the modifiers
-                    scene.WorldMap[x, y].CalculateModifiers();
-                }
-            }
-        }*/
+        }
     }
 }
