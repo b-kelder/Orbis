@@ -70,7 +70,7 @@ namespace Orbis
             scene = new Scene(seed);
             var generator = new WorldGenerator(scene);
             generator.GenerateWorld(100);
-            generator.GenerateCivs(5);
+            generator.GenerateCivs(20);
 
             simulator = new Simulator(scene, 1000);
 
@@ -128,7 +128,19 @@ namespace Orbis
 
             simulator.Update();
 
-            //sceneRenderer.UpdateScene(scene);
+            // Update renderer if we can
+            if(sceneRenderer.ReadyForUpdate)
+            {
+                Cell[] updatedCells = null;
+                do
+                {
+                    updatedCells = simulator.GetChangedCells();
+                    if (updatedCells != null && updatedCells.Length > 0)
+                    {
+                        sceneRenderer.UpdateScene(updatedCells);
+                    }
+                } while (updatedCells != null);
+            }
 
             if (input.IsKeyDown(Keys.S, new Keys[] { Keys.LeftShift, Keys.K, Keys.Y}))
             {
@@ -144,9 +156,19 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
+            base.Draw(gameTime);
+
             spriteBatch.Begin();
 
-            base.Draw(gameTime);
+            spriteBatch.DrawString(fontDebug, "Tick: " + simulator.CurrentTick, new Vector2(10, 30), Color.Red);
+            float y = 50;
+            foreach(var civ in scene.Civilizations)
+            {
+                spriteBatch.DrawString(fontDebug, civ.Name + " - " + civ.Territory.Count + " - Alive: " + civ.IsAlive, new Vector2(10, y), Color.Red);
+                y += 15;
+            }
+
+            spriteBatch.End();
         }
     }
 }

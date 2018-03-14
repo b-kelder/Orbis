@@ -67,6 +67,7 @@ namespace Orbis.Simulation
                 Cell cell = Neighbours[0];
 
                 int cellCount = Neighbours.Count;
+
                 for (int i = 1; i < cellCount; i++)
                 {
                     if (CalculateCellValue(Neighbours[i]) > CalculateCellValue(cell))
@@ -109,7 +110,7 @@ namespace Orbis.Simulation
         /// <returns>True if succesfull</returns>
         public bool ClaimCell(Cell cell)
         {
-            if (cell.Owner != null || cell.IsWater)
+            if (cell.Owner != null)
             {
                 return false;
             }

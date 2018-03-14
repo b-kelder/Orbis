@@ -374,21 +374,13 @@ namespace Orbis.Rendering
         /// MAY NOT be put in a task.
         /// </summary>
         /// <param name="scene">Scene to update to</param>
-        public void UpdateScene(Scene scene)
+        public void UpdateScene(Cell[] cells)
         {
-            // TODO: We may just regenerate the entire world mesh if it doesn't match
-            if(scene != renderedScene)
-            {
-                throw new Exception("Given scene does not match scene used to generate meshes");
-            }
-
-            if(!ReadyForUpdate) { return; }
-
             int updatedCells = 0;
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            foreach(var cell in scene.WorldMap.Cells.AsParallel())
+            foreach(var cell in cells)
             {
                 if(cell == null) { continue; }
                 var data = cellMappedData[cell];

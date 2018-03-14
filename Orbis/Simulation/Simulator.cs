@@ -2,6 +2,7 @@
 using Orbis.Engine;
 using Orbis.World;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace Orbis.Simulation
         public Scene Scene { get; set; }
 
         private Queue<SimulationAction> actionQueue;
-        private List<Cell> cellsChanged;
+        private ConcurrentQueue<Cell[]> cellsChanged;
         private int maxTick;
         private int civCount;
 
@@ -35,12 +36,14 @@ namespace Orbis.Simulation
 
             actionQueue = new Queue<SimulationAction>(scene.Civilizations.Count);
             taskList = new List<Task>();
-            cellsChanged = new List<Cell>();
+            cellsChanged = new ConcurrentQueue<Cell[]>();
         }
 
         public Cell[] GetChangedCells()
         {
-            return cellsChanged.ToArray();
+            Cell[] cells;
+            cellsChanged.TryDequeue(out cells);
+            return cells;
         }
 
         public void Update()
@@ -131,7 +134,7 @@ namespace Orbis.Simulation
                 }
             }
 
-            cellsChanged = changed;
+            cellsChanged.Enqueue(changed.ToArray());
         }
     }
 }
