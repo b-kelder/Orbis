@@ -30,6 +30,8 @@ namespace Orbis.Simulation
         /// </summary>
         public int Population { get; set; }
 
+        public int TotalHousing { get; set; }
+
         public double BaseExpand = 1;
         public double BaseExploit = 1;
         public double BaseExplore = 1;
@@ -57,7 +59,7 @@ namespace Orbis.Simulation
 
             double expand = 1, exploit = 1, explore = 1, exterminate = 1;
 
-            expand *= BaseExpand;
+            expand *= BaseExpand + (Population > 0 ? ((Population - (double)TotalHousing) / Population) : 0);
             exploit *= BaseExploit;
             explore *= BaseExplore;
             exterminate *= BaseExterminate;
@@ -172,6 +174,7 @@ namespace Orbis.Simulation
             }
 
             Neighbours.Remove(cell);
+            TotalHousing += cell.MaxHousing;
 
             return true;
         }

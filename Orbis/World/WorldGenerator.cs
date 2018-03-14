@@ -84,6 +84,7 @@ namespace Orbis.World
                         }
 
                         cell.population = 1;
+                        civ.TotalHousing += cell.MaxHousing;
 
                         break;
                     }

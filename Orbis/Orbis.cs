@@ -164,7 +164,7 @@ namespace Orbis
             float y = 50;
             foreach(var civ in scene.Civilizations)
             {
-                spriteBatch.DrawString(fontDebug, civ.Name + " - " + civ.Territory.Count + " - Alive: " + civ.IsAlive, new Vector2(10, y), Color.Red);
+                spriteBatch.DrawString(fontDebug, civ.Name + " - " + civ.Territory.Count + " - Population: " + civ.Population + " - Is Alive: " + civ.IsAlive, new Vector2(10, y), Color.Red);
                 y += 15;
             }
 
