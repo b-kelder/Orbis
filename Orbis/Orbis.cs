@@ -75,7 +75,6 @@ namespace Orbis
             graphics.ApplyChanges();
 
             base.Initialize();
-            UI.bar.Message = "Simulating";
         }
 
         private void GenerateWorld(int seed)

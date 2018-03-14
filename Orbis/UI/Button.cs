@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using Orbis.Engine;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace Orbis.UI
@@ -22,20 +23,18 @@ namespace Orbis.UI
                 return new UIElement[0];
             }
         }
+        
+        /// <summary>
+        ///     The background texture to use for drawing the button.
+        /// </summary>
+        public Texture2D BackgroundTexture { get; set; }
 
         /// <summary>
         ///     Perform the update for this frame.
         /// </summary>
         public override void Update(GameTime gameTime)
         {
-            var mouseState = Mouse.GetState();
-            if (this.AbsoluteRectangle.Contains(mouseState.Position))
-            {
-                if (mouseState.LeftButton == ButtonState.Pressed)
-                {
-                    System.Diagnostics.Debug.WriteLine("kek");
-                }
-            }
+            
         }
     }
 }

@@ -57,17 +57,22 @@ namespace Orbis.UI
             WindowSize = Game.Window.ClientBounds.Size;
             RootElement.Size = WindowSize;
 
+            Texture2D barBack = new Texture2D(Game.GraphicsDevice, 1, 1);
+            barBack.SetData(new Color[] { Color.WhiteSmoke });
             Texture2D redRect = new Texture2D(Game.GraphicsDevice, 1, 1);
-            redRect.SetData(new Color[] { Color.Red });
+            redRect.SetData(new Color[] { Color.Blue });
             SpriteFont messageFont = Game.Content.Load<SpriteFont>("DebugFont");
 
             bar = new ProgressBar()
             {
-                AnchorPosition = AnchorPosition.Center,
+                AnchorPosition = AnchorPosition.BottomLeft,
+                BackgroundTexture = barBack,
                 BarTexture = redRect,
+                Message = "Simulating",
+                MessageColor = Color.Black,
                 MessageFont = messageFont,
-                RelativeLocation = new Point(-400, -25),
-                Size = new Point(800, 50)
+                RelativeLocation = new Point(20, -70),
+                Size = new Point(WindowSize.X - 40, 50)
             };
 
             RootElement.AddChild(bar);

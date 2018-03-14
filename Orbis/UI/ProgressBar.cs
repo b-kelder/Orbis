@@ -110,7 +110,7 @@ namespace Orbis.UI
 
                 spriteBatch.Draw(BarTexture, BarRectangle, Color.White);
 
-                spriteBatch.DrawString(MessageFont, Message + "...", new Vector2(AbsoluteRectangle.Left + 5, AbsoluteRectangle.Top + 5), MessageColor);
+                spriteBatch.DrawString(MessageFont, Message + " " + _progress.ToString("0.00%"), new Vector2(AbsoluteRectangle.Left + 5, AbsoluteRectangle.Top + 5), MessageColor);
 
 
             }
