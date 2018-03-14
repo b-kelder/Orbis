@@ -39,6 +39,7 @@ namespace Orbis.Simulation
         private double foodNeed = 1;
         private double resourceNeed = 1;
         private double wealthNeed = 1;
+        private double warNeed = -1;
 
         public Civilization()
         {
@@ -67,12 +68,11 @@ namespace Orbis.Simulation
                 Cell cell = Neighbours.First();
 
                 int cellCount = Neighbours.Count;
-
-                foreach(var bor in Neighbours)
+                foreach (Cell c in Neighbours)
                 {
-                    if (CalculateCellValue(bor) > CalculateCellValue(cell))
+                    if (CalculateCellValue(c) > CalculateCellValue(cell))
                     {
-                        cell = bor;
+                        cell = c;
                     }
                 }
 
@@ -100,7 +100,24 @@ namespace Orbis.Simulation
 
         public double CalculateCellValue(Cell cell)
         {
-            return (cell.MaxHousing * housingNeed) + (cell.FoodMod * foodNeed) + (cell.ResourceMod * resourceNeed) + (cell.WealthMod * wealthNeed);
+            // Calculate value based on needs.
+            double val = (cell.MaxHousing / 1000 * housingNeed) + (cell.FoodMod * foodNeed) + (cell.ResourceMod * resourceNeed) + (cell.WealthMod * wealthNeed);
+
+            // Add value for each neighbour cell.
+            int cellCount = cell.Neighbours.Count;
+            for (int i = 0; i < cellCount; i++)
+            {
+                if (cell.Neighbours[i].Owner == this)
+                {
+                    val += 1;
+                }
+                else if (cell.Neighbours[i].Owner != null)
+                {
+                    val += warNeed;
+                }
+            }
+
+            return val;
         }
 
         /// <summary>
@@ -143,6 +160,7 @@ namespace Orbis.Simulation
                     }
                 }
             }
+
             cell.Owner = this;
             Territory.Add(cell);
 
@@ -155,7 +173,6 @@ namespace Orbis.Simulation
             }
 
             Neighbours.Remove(cell);
-            cell.population = 1;
 
             return true;
         }

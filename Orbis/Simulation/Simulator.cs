@@ -16,8 +16,8 @@ namespace Orbis.Simulation
         public int CurrentTick { get; set; }
         public Scene Scene { get; set; }
 
-        private Queue<SimulationAction> actionQueue;
         private ConcurrentQueue<Cell[]> cellsChanged;
+        private ConcurrentQueue<SimulationAction> actionQueue;
         private int maxTick;
         private int civCount;
 
@@ -34,7 +34,7 @@ namespace Orbis.Simulation
 
             rand = new Random(scene.Seed);
 
-            actionQueue = new Queue<SimulationAction>(scene.Civilizations.Count);
+            actionQueue = new ConcurrentQueue<SimulationAction>();
             taskList = new List<Task>();
             cellsChanged = new ConcurrentQueue<Cell[]>();
         }
@@ -108,26 +108,29 @@ namespace Orbis.Simulation
 
             while (actionQueue.Count > 0)
             {
-                SimulationAction action = actionQueue.Dequeue();
-                if (action.Action == Simulation4XAction.EXPAND)
+                SimulationAction action;
+                if (actionQueue.TryDequeue(out action))
                 {
-                    Cell cell = (Cell)action.Params[0];
-                    if(action.Civilization.ClaimCell(cell))
+                    if (action.Action == Simulation4XAction.EXPAND)
                     {
-                        changed.Add(cell);
+                        Cell cell = (Cell)action.Params[0];
+                        if (action.Civilization.ClaimCell(cell))
+                        {
+                            changed.Add(cell);
+                        }
                     }
-                }
-                else if (action.Action == Simulation4XAction.EXPLOIT)
-                {
+                    else if (action.Action == Simulation4XAction.EXPLOIT)
+                    {
 
-                }
-                else if(action.Action == Simulation4XAction.EXPLORE)
-                {
+                    }
+                    else if (action.Action == Simulation4XAction.EXPLORE)
+                    {
 
-                }
-                else if(action.Action == Simulation4XAction.EXTERMINATE)
-                {
+                    }
+                    else if (action.Action == Simulation4XAction.EXTERMINATE)
+                    {
 
+                    }
                 }
             }
 

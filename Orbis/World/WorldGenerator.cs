@@ -67,9 +67,20 @@ namespace Orbis.World
                     if (cell != null)
                     {
                         // No atlantis shenanigans
-                        if(!civ.ClaimCell(cell))
+                        if(cell.IsWater)
                         {
                             continue;
+                        }
+
+                        cell.Owner = civ;
+                        civ.Territory.Add(cell);
+
+                        foreach (Cell c in cell.Neighbours)
+                        {
+                            if (c.Owner != civ && !c.IsWater)
+                            {
+                                civ.Neighbours.Add(c);
+                            }
                         }
 
                         cell.population = 1;
@@ -179,13 +190,16 @@ namespace Orbis.World
                     if (cell.Elevation <= SeaLevel)
                     {
                         cell.IsWater = true;
+                        cell.FoodMod = 0;
+                        cell.ResourceMod = 0;
+                        cell.MaxHousing = 0;
                     }
                     else
                     {
                         // Now all data has been set, calculate the modifiers
                         cell.FoodMod = random.NextDouble() + random.Next(5);
                         cell.ResourceMod = random.NextDouble();
-                        cell.MaxHousing = random.Next(1, 5000);
+                        cell.MaxHousing = random.Next(0, 1250) + random.Next(0, 1250) + random.Next(0, 1250) + random.Next(0, 1250);
                     }
                 }
             }
