@@ -132,7 +132,7 @@ namespace Orbis
             // Update renderer if we can
             if(sceneRenderer.ReadyForUpdate)
             {
-                simulator.Update();
+                simulator.Update(gameTime);
                 Cell[] updatedCells = null;
                 do
                 {
