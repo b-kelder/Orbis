@@ -117,7 +117,7 @@
     <Compile Include="UI\AnchorPosition.cs" />
     <Compile Include="UI\UIElement.cs" />
     <Compile Include="UI\Panel.cs" />
-    <Compile Include="UI\UIWindow.cs" />
+    <Compile Include="UI\UIRenderer.cs" />
     <Compile Include="Rendering\AtlasModelLoader.cs" />
     <Compile Include="Rendering\AutoAtlas.cs" />
     <Compile Include="Rendering\Camera.cs" />

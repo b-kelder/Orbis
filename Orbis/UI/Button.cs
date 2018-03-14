@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using Orbis.Engine;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -26,7 +28,6 @@ namespace Orbis.UI
         /// </summary>
         public override void Update(GameTime gameTime)
         {
-            var mouseState = Mouse.GetState();
             if (this.AbsoluteRectangle.Contains(mouseState.Position))
             {
                 if (mouseState.LeftButton == ButtonState.Pressed)

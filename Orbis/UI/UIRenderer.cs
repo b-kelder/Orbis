@@ -12,7 +12,7 @@ namespace Orbis.UI
     /// <summary>
     ///     A UI Window responsible for drawing the GUI and managing UI Elements.
     /// </summary>
-    public class UIWindow : DrawableGameComponent
+    public class UIRenderer : DrawableGameComponent
     {
         /// <summary>
         ///     Gets the size of the window.
@@ -33,15 +33,6 @@ namespace Orbis.UI
         }
 
         /// <summary>
-        ///     The simulation window used by the UI View.
-        /// </summary>
-        public SimulationWindow SimulationWindow
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
         ///     The spritebatch used to draw the UI.
         /// </summary>
         private SpriteBatch _spriteBatch;
@@ -50,13 +41,11 @@ namespace Orbis.UI
         ///     Represents the currently shown window.
         /// </summary>
         /// <param name="game"></param>
-        public UIWindow(Game game) : base(game)
+        public UIRenderer(Game game) : base(game)
         {
-            RootElement = new SplitPanel()
+            RootElement = new Panel()
             {
-                FixedChild = 1,
-                SplitDirection = SplitDirection.Vertical,
-                Split = 200
+                AnchorPosition = AnchorPosition.TopLeft
             };
         }
 
@@ -64,36 +53,6 @@ namespace Orbis.UI
         {
             WindowSize = Game.Window.ClientBounds.Size;
             RootElement.Size = WindowSize;
-
-            var rightChild = new SplitPanel()
-            {
-                Split = 200,
-                SplitDirection = SplitDirection.Horizontal,
-                FixedChild = 0
-            };
-            RootElement.AddChild(rightChild);
-
-            var redRect = new Texture2D(GraphicsDevice, 1, 1);
-            redRect.SetData(new[] { Color.Red });
-
-            SimulationWindow = new SimulationWindow(GraphicsDevice.Viewport);
-            rightChild.AddChild(SimulationWindow);
-
-            var yellowRect = new Texture2D(GraphicsDevice, 1, 1);
-            yellowRect.SetData(new[] { Color.Yellow });
-            rightChild.AddChild(new Panel()
-            {
-                BackgroundTexture = yellowRect
-            });
-
-            var blueRect = new Texture2D(GraphicsDevice, 1, 1);
-            blueRect.SetData(new[] { Color.Blue });
-            RootElement.AddChild(new Panel()
-            {
-                BackgroundTexture = blueRect
-            });
-
-            
 
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
 
@@ -121,6 +80,10 @@ namespace Orbis.UI
             base.Update(gameTime);
         }
 
+        /// <summary>
+        ///     Draw the UI on screen.
+        /// </summary>
+        /// <param name="gameTime"></param>
         public override void Draw(GameTime gameTime)
         {
             _spriteBatch.Begin(SpriteSortMode.BackToFront);
