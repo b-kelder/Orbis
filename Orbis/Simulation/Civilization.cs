@@ -24,7 +24,7 @@ namespace Orbis.Simulation
         /// <summary>
         /// All neighbour cells of the civs territory
         /// </summary>
-        public List<Cell> Neighbours { get; set; }
+        public HashSet<Cell> Neighbours { get; set; }
         /// <summary>
         /// The total population of the civ
         /// </summary>
@@ -45,7 +45,7 @@ namespace Orbis.Simulation
         {
             IsAlive = true;
             Territory = new List<Cell>();
-            Neighbours = new List<Cell>();
+            Neighbours = new HashSet<Cell>();
         }
 
         /// <summary>
@@ -65,14 +65,14 @@ namespace Orbis.Simulation
 
             if (expand > exploit && expand > explore && expand > exterminate)
             {
-                Cell cell = Neighbours[0];
+                Cell cell = Neighbours.First();
 
                 int cellCount = Neighbours.Count;
-                for (int i = 1; i < cellCount; i++)
+                foreach (Cell c in Neighbours)
                 {
-                    if (CalculateCellValue(Neighbours[i]) > CalculateCellValue(cell))
+                    if (CalculateCellValue(c) > CalculateCellValue(cell))
                     {
-                        cell = Neighbours[i];
+                        cell = c;
                     }
                 }
 
@@ -101,7 +101,7 @@ namespace Orbis.Simulation
         public double CalculateCellValue(Cell cell)
         {
             // Calculate value based on needs.
-            double val = (cell.MaxHousing * housingNeed) + (cell.FoodMod * foodNeed) + (cell.ResourceMod * resourceNeed) + (cell.WealthMod * wealthNeed);
+            double val = (cell.MaxHousing / 1000 * housingNeed) + (cell.FoodMod * foodNeed) + (cell.ResourceMod * resourceNeed) + (cell.WealthMod * wealthNeed);
 
             // Add value for each neighbour cell.
             int cellCount = cell.Neighbours.Count;

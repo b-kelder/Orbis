@@ -199,7 +199,7 @@ namespace Orbis.World
                         // Now all data has been set, calculate the modifiers
                         cell.FoodMod = random.NextDouble() + random.Next(5);
                         cell.ResourceMod = random.NextDouble();
-                        cell.MaxHousing = random.Next(1, 5000);
+                        cell.MaxHousing = random.Next(0, 1250) + random.Next(0, 1250) + random.Next(0, 1250) + random.Next(0, 1250);
                     }
                 }
             }
