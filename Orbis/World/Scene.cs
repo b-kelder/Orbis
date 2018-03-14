@@ -12,10 +12,11 @@ namespace Orbis.World
         //public Cell[,] WorldMap { get; set; }
         public Map WorldMap { get; set; }
         public List<Civilization> Civilizations { get; set; }
+        public int Seed { get; set; }
 
-        public Scene()
+        public Scene(int seed)
         {
-
+            Seed = seed;
         }
     }
 }

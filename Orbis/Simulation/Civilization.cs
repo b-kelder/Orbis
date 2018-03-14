@@ -16,82 +16,108 @@ namespace Orbis.Simulation
         /// <summary>
         /// If the civ has died
         /// </summary>
-        public bool Dead { get; set; }
+        public bool IsAlive { get; set; }
         /// <summary>
         /// The cells owned by this civ
         /// </summary>
         public List<Cell> Territory { get; set; }
-
-        public List<Cell> neighbours { get; set; }
-
         /// <summary>
-        /// The devensive strength of this civ
+        /// All neighbour cells of the civs territory
         /// </summary>
-        public int DefenceModifier { get; set; }
+        public HashSet<Cell> Neighbours { get; set; }
         /// <summary>
-        /// The offensive strength of this civ
-        /// </summary>
-        public int OffenceModifier { get; set; }
-        /// <summary>
-        /// The current progress to of technology
-        /// </summary>
-        public double TechnologicalProgress { get; set; }
-
-        /// <summary>
-        /// The current population of the civ
+        /// The total population of the civ
         /// </summary>
         public int Population { get; set; }
-        /// <summary>
-        /// The current supply of food for the civ
-        /// </summary>
-        public double Food { get; set; }
-        /// <summary>
-        /// The current wealth of the civ
-        /// </summary>
-        public double Wealth { get; set; }
-        /// <summary>
-        /// The current amount of resources of the civ
-        /// </summary>
-        public double Resources { get; set; }
 
-        private int totalHousing;
+        public double BaseExpand = 2;
+        public double BaseExploit = 1;
+        public double BaseExplore = 1;
+        public double BaseExterminate = 1;
 
-        //TODO: Add personalisations
+        private double housingNeed = 1;
+        private double foodNeed = 1;
+        private double resourceNeed = 1;
+        private double wealthNeed = 1;
+        private double warNeed = -1;
 
         public Civilization()
         {
+            IsAlive = true;
             Territory = new List<Cell>();
-            neighbours = new List<Cell>();
+            Neighbours = new HashSet<Cell>();
         }
 
         /// <summary>
         /// Determane what action to perform next
         /// </summary>
         /// <returns></returns>
-        public Action DetermineAction()
+        public SimulationAction DetermineAction()
         {
-            if (Population > totalHousing)
+            SimulationAction simulationAction = new SimulationAction(this, Simulation4XAction.DONOTHING, null);
+
+            double expand = 1, exploit = 1, explore = 1, exterminate = 1;
+
+            expand *= BaseExpand;
+            exploit *= BaseExploit;
+            explore *= BaseExplore;
+            exterminate *= BaseExterminate;
+
+            if (expand > exploit && expand > explore && expand > exterminate)
             {
-                return ExpandTerritory;
+                Cell cell = Neighbours.First();
+
+                int cellCount = Neighbours.Count;
+                foreach (Cell c in Neighbours)
+                {
+                    if (CalculateCellValue(c) > CalculateCellValue(cell))
+                    {
+                        cell = c;
+                    }
+                }
+
+                simulationAction.Action = Simulation4XAction.EXPAND;
+                simulationAction.Params = new object[] { cell };
+            }
+            else if (exploit > expand && exploit > explore && exploit > exterminate)
+            {
+                simulationAction.Action = Simulation4XAction.EXPLOIT;
+                simulationAction.Params = null;
+            }
+            else if (explore > expand && explore > exploit && explore > exterminate)
+            {
+                simulationAction.Action = Simulation4XAction.EXPLORE;
+                simulationAction.Params = null;
+            }
+            else if (exterminate > expand && exterminate > exploit && exterminate > explore)
+            {
+                simulationAction.Action = Simulation4XAction.EXTERMINATE;
+                simulationAction.Params = null;
             }
 
-            // Return the do nothing action
-            return null;
+            return simulationAction;
         }
 
-        /// <summary>
-        /// Expand territory to the best neighbor cell
-        /// </summary>
-        /// <returns></returns>
-        public void ExpandTerritory()
+        public double CalculateCellValue(Cell cell)
         {
-            foreach (Cell neighbour in neighbours.AsParallel())
+            // Calculate value based on needs.
+            double val = (cell.MaxHousing / 1000 * housingNeed) + (cell.FoodMod * foodNeed) + (cell.ResourceMod * resourceNeed) + (cell.WealthMod * wealthNeed);
+
+            // Add value for each neighbour cell.
+            int cellCount = cell.Neighbours.Count;
+            for (int i = 0; i < cellCount; i++)
             {
-                if (ClaimCell(neighbour))
+                if (cell.Neighbours[i].Owner == this)
                 {
-                    return;
+                    val += 1;
+                }
+                else if (cell.Neighbours[i].Owner != null)
+                {
+                    val += warNeed;
                 }
             }
+
+            return val;
         }
 
         /// <summary>
@@ -101,10 +127,11 @@ namespace Orbis.Simulation
         /// <returns>True if succesfull</returns>
         public bool ClaimCell(Cell cell)
         {
-            if (cell.Owner != null || cell.IsWater)
+            if (cell.Owner != null)
             {
                 return false;
             }
+
             cell.Owner = this;
             Territory.Add(cell);
 
@@ -112,13 +139,11 @@ namespace Orbis.Simulation
             {
                 if (c.Owner != this)
                 {
-                    neighbours.Add(c);
+                    Neighbours.Add(c);
                 }
             }
 
-            neighbours.Remove(cell);
-
-            totalHousing += cell.Housing;
+            Neighbours.Remove(cell);
 
             return true;
         }

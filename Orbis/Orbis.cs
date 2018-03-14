@@ -63,10 +63,10 @@ namespace Orbis
             stopwatch.Start();
             // Generate world
             Debug.WriteLine("Generating world for seed " + seed);
-            scene = new Scene();
-            var generator = new WorldGenerator(seed);
-            generator.GenerateWorld(scene, 100);
-            generator.GenerateCivs(scene, 500);
+            scene = new Scene(seed);
+            var generator = new WorldGenerator(scene);
+            generator.GenerateWorld(100);
+            generator.GenerateCivs(5);
 
             stopwatch.Stop();
             Debug.WriteLine("Generated world in " + stopwatch.ElapsedMilliseconds + " ms");
@@ -143,9 +143,21 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            spriteBatch.Begin();
-            spriteBatch.DrawString(fontDebug, "STRING DRAWING TEST", new Vector2(10, 10), Color.Red);
-            spriteBatch.End();
+            
+
+            
+
+            //spriteBatch.Begin();
+
+            //spriteBatch.DrawString(fontDebug, "Civs:   Tick:" + simulator.Tick, new Vector2(10,25), Color.Red);
+            //for (int i = 0; i < scene.Civilizations.Count; i++)
+            //{
+            //    spriteBatch.DrawString(fontDebug, scene.Civilizations[i].Name + ": ", new Vector2(10, (i + 1) * 25 + 25), Color.IndianRed);
+            //    spriteBatch.DrawString(fontDebug, "Population= " + scene.Civilizations[i].Population, new Vector2(500, (i + 1) * 25 + 25), Color.Red);
+            //    spriteBatch.DrawString(fontDebug, "Size= " + scene.Civilizations[i].Territory.Count, new Vector2(850, (i + 1) * 25 + 25), Color.Red);
+            //}
+
+            //spriteBatch.End();
 
             base.Draw(gameTime);
         }
