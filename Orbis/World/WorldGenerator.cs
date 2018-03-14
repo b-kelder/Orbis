@@ -67,9 +67,20 @@ namespace Orbis.World
                     if (cell != null)
                     {
                         // No atlantis shenanigans
-                        if(!civ.ClaimCell(cell))
+                        if(cell.IsWater)
                         {
                             continue;
+                        }
+
+                        cell.Owner = civ;
+                        civ.Territory.Add(cell);
+
+                        foreach (Cell c in cell.Neighbours)
+                        {
+                            if (c.Owner != civ && !c.IsWater)
+                            {
+                                civ.Neighbours.Add(c);
+                            }
                         }
 
                         cell.population = 1;
@@ -179,6 +190,9 @@ namespace Orbis.World
                     if (cell.Elevation <= SeaLevel)
                     {
                         cell.IsWater = true;
+                        cell.FoodMod = 0;
+                        cell.ResourceMod = 0;
+                        cell.MaxHousing = 0;
                     }
                     else
                     {

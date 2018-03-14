@@ -39,6 +39,7 @@ namespace Orbis.Simulation
         private double foodNeed = 1;
         private double resourceNeed = 1;
         private double wealthNeed = 1;
+        private double warNeed = -1;
 
         public Civilization()
         {
@@ -99,7 +100,24 @@ namespace Orbis.Simulation
 
         public double CalculateCellValue(Cell cell)
         {
-            return (cell.MaxHousing * housingNeed) + (cell.FoodMod * foodNeed) + (cell.ResourceMod * resourceNeed) + (cell.WealthMod * wealthNeed);
+            // Calculate value based on needs.
+            double val = (cell.MaxHousing * housingNeed) + (cell.FoodMod * foodNeed) + (cell.ResourceMod * resourceNeed) + (cell.WealthMod * wealthNeed);
+
+            // Add value for each neighbour cell.
+            int cellCount = cell.Neighbours.Count;
+            for (int i = 0; i < cellCount; i++)
+            {
+                if (cell.Neighbours[i].Owner == this)
+                {
+                    val += 1;
+                }
+                else if (cell.Neighbours[i].Owner != null)
+                {
+                    val += warNeed;
+                }
+            }
+
+            return val;
         }
 
         /// <summary>
@@ -109,10 +127,11 @@ namespace Orbis.Simulation
         /// <returns>True if succesfull</returns>
         public bool ClaimCell(Cell cell)
         {
-            if (cell.Owner != null || cell.IsWater)
+            if (cell.Owner != null)
             {
                 return false;
             }
+
             cell.Owner = this;
             Territory.Add(cell);
 
@@ -125,7 +144,6 @@ namespace Orbis.Simulation
             }
 
             Neighbours.Remove(cell);
-            cell.population = 1;
 
             return true;
         }
