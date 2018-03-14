@@ -108,20 +108,57 @@ namespace Orbis.UI
         /// <param name="gameTime"></param>
         public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            // No drawing should be done if the required resources don't exist.
-            if (spriteBatch != null && BarTexture != null && MessageFont != null)
+            // Never draw if the progress bar is invisible.
+            if (Visible)
             {
-                if (BackgroundTexture != null)
+                // No drawing should be done if the required resources don't exist.
+                if (spriteBatch != null && BarTexture != null && MessageFont != null)
                 {
-                    spriteBatch.Draw(BackgroundTexture, AbsoluteRectangle, Color.White);
+                    if (BackgroundTexture != null)
+                    {
+                        spriteBatch.Draw(BackgroundTexture,
+                            AbsoluteRectangle,
+                            null,
+                            Color.White,
+                            0.00F,
+                            Vector2.Zero,
+                            SpriteEffects.None,
+                            LayerDepth);
+                    }
+
+                    spriteBatch.Draw(BarTexture,
+                        BarRectangle,
+                        null,
+                        Color.White,
+                        0,
+                        Vector2.Zero,
+                        SpriteEffects.None,
+                        LayerDepth - 0.001F);
+
+                    // Make sure the absolute rectangle is only calculated once for this calculation.
+                    Rectangle absoluteRect = AbsoluteRectangle;
+                    Vector2 messagePosition = new Vector2(AbsoluteRectangle.Left + 5, AbsoluteRectangle.Top + 5);
+
+                    spriteBatch.DrawString(MessageFont,
+                        Message + " " + _progress.ToString("0.00%"),
+                        messagePosition,
+                        MessageColor,
+                        0.00F,
+                        Vector2.Zero,
+                        1.00F,
+                        SpriteEffects.None,
+                        LayerDepth - 0.001F);
                 }
-
-                spriteBatch.Draw(BarTexture, BarRectangle, Color.White);
-
-                spriteBatch.DrawString(MessageFont, Message + " " + _progress.ToString("0.00%"), new Vector2(AbsoluteRectangle.Left + 5, AbsoluteRectangle.Top + 5), MessageColor);
             }
-
             // No base draw is required; the progress bar has no children.
+        }
+
+        /// <summary>
+        ///     Update the layout of the progress bar.
+        /// </summary>
+        public override void UpdateLayout()
+        {
+            // No base UpdateLayout is required; progress bars do not have children.
         }
 
         /// <summary>

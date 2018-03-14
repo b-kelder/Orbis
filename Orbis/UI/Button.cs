@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Orbis.Engine;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Orbis.Engine;
+using Orbis.UI.Exceptions;
+using System;
 
 namespace Orbis.UI
 {
@@ -101,7 +97,14 @@ namespace Orbis.UI
             // Drawing is done only if the required resources are set.
             if (spriteBatch != null && BackgroundTexture != null)
             {
-                spriteBatch.Draw(BackgroundTexture, AbsoluteRectangle, Color.White);
+                spriteBatch.Draw(BackgroundTexture,
+                    AbsoluteRectangle,
+                    null,
+                    Color.White,
+                    0.00F,
+                    Vector2.Zero,
+                    SpriteEffects.None,
+                    LayerDepth);
 
                 // No text is drawn if no font is set or if the text is empty since there is no point to doing it in those cases.
                 if (TextFont != null && !string.IsNullOrWhiteSpace(Text))
@@ -111,7 +114,16 @@ namespace Orbis.UI
 
                     // Ensure that the absolute rectangle is only calculated once for this calculation.
                     Point absoluteCenter = AbsoluteRectangle.Center;
-                    spriteBatch.DrawString(TextFont, _visibleText, new Vector2(absoluteCenter.X - textSize.X / 2, absoluteCenter.Y - textSize.Y / 2), TextColor);
+                    Vector2 textPos = new Vector2(absoluteCenter.X - textSize.X / 2, absoluteCenter.Y - textSize.Y / 2);
+                    spriteBatch.DrawString(TextFont,
+                        _visibleText,
+                        textPos,
+                        TextColor,
+                        0.00F,
+                        Vector2.Zero,
+                        1.00F,
+                        SpriteEffects.None,
+                        LayerDepth - 0.001F);
                 }
             }
         }
@@ -142,6 +154,24 @@ namespace Orbis.UI
                 } while (!fits);
             }
             // No base UpdateLayout needed; buttons have no children.
+        }
+
+        /// <summary>
+        ///     Buttons can not have children; do not use.
+        /// </summary>
+        /// <exception cref="OrbisUIException" />
+        public override void AddChild(UIElement child)
+        {
+            throw new OrbisUIException("Buttons can not have children.");
+        }
+
+        /// <summary>
+        ///     Buttons can not have children; do not use.
+        /// </summary>
+        /// <exception cref="OrbisUIException" />
+        public override void ReplaceChild(int childIndex, UIElement newChild)
+        {
+            throw new OrbisUIException("Buttons can not have children.");
         }
     }
 }

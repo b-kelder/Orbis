@@ -48,7 +48,8 @@ namespace Orbis.UI
         {
             RootElement = new Panel()
             {
-                AnchorPosition = AnchorPosition.TopLeft
+                AnchorPosition = AnchorPosition.TopLeft,
+                LayerDepth = 1.00F
             };
         }
 
@@ -125,7 +126,7 @@ namespace Orbis.UI
         /// <param name="gameTime"></param>
         public override void Draw(GameTime gameTime)
         {
-            _spriteBatch.Begin();
+            _spriteBatch.Begin(SpriteSortMode.BackToFront);
             RootElement.Draw(_spriteBatch, gameTime);
             _spriteBatch.End();
 

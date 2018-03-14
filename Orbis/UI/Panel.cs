@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Orbis.UI.Exceptions;
@@ -10,8 +7,9 @@ using Orbis.UI.Exceptions;
 namespace Orbis.UI
 {
     /// <summary>
-    ///     Represents a drawable panel in the UI.
+    ///     Represents a drawable panel in the Orbis UI.
     /// </summary>
+    /// <author>Kaj van der Veen</author>
     public class Panel : UIElement
     {
         /// <summary>
@@ -55,7 +53,14 @@ namespace Orbis.UI
                 // Drawing is only done if the required resources are set.
                 if (spriteBatch != null && BackgroundTexture != null)
                 {
-                    spriteBatch.Draw(BackgroundTexture, this.AbsoluteRectangle, Color.White);
+                    spriteBatch.Draw(BackgroundTexture,
+                        AbsoluteRectangle,
+                        null,
+                        Color.White,
+                        0.00F,
+                        Vector2.Zero,
+                        SpriteEffects.None,
+                        LayerDepth);
                 }
                 base.Draw(spriteBatch, gameTime);
             }

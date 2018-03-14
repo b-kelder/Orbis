@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Orbis.UI.Exceptions;
 
@@ -12,6 +7,7 @@ namespace Orbis.UI
     /// <summary>
     ///     Represents an element in the Orbis UI.
     /// </summary>
+    /// <author>Kaj van der Veen</author>
     public abstract class UIElement
     {
         /// <summary>
@@ -30,6 +26,11 @@ namespace Orbis.UI
         {
             get;
         }
+
+        /// <summary>
+        ///     Get the layer depth of this UI Element.
+        /// </summary>
+        public float LayerDepth { get; set; }
 
         /// <summary>
         ///     The anchor mode for this element.
@@ -236,6 +237,7 @@ namespace Orbis.UI
         public virtual void AddChild(UIElement child)
         {
             child.Parent = this;
+            child.LayerDepth = LayerDepth - 0.001F;
 
             UpdateLayout();
 
@@ -257,6 +259,7 @@ namespace Orbis.UI
         public virtual void ReplaceChild(int childIndex, UIElement newChild)
         {
             newChild.Parent = this;
+            newChild.LayerDepth = LayerDepth - 0.001F;
             
             UpdateLayout();
 
