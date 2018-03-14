@@ -67,12 +67,12 @@ namespace Orbis
             stopwatch.Start();
             // Generate world
             Debug.WriteLine("Generating world for seed " + seed);
-            scene = new Scene();
-            var generator = new WorldGenerator(seed);
-            generator.GenerateWorld(scene, 100);
-            generator.GenerateCivs(scene, 500);
+            scene = new Scene(seed);
+            var generator = new WorldGenerator(scene);
+            generator.GenerateWorld(100);
+            generator.GenerateCivs(5);
 
-            simulator = new Simulator(scene, 1);
+            simulator = new Simulator(scene, 1000);
 
             stopwatch.Stop();
             Debug.WriteLine("Generated world in " + stopwatch.ElapsedMilliseconds + " ms");
@@ -125,13 +125,6 @@ namespace Orbis
             input.UpdateInput();
 
             // See if world must be regenerated (TEST)
-            if(Input.IsKeyDown(Keys.B) && !sceneRenderer.IsUpdatingMesh)
-            {
-                // TODO: Actual threading inside WorldGenerator?
-                Task.Run(() => GenerateWorld(new Random().Next()));
-                worldUpdateTimer = 0;
-            }
-            worldUpdateTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             simulator.Update();
 
@@ -152,8 +145,6 @@ namespace Orbis
         protected override void Draw(GameTime gameTime)
         {
             spriteBatch.Begin();
-            spriteBatch.DrawString(fontDebug, "STRING DRAWING TEST", new Vector2(10, 10), Color.Red);
-            spriteBatch.End();
 
             base.Draw(gameTime);
         }

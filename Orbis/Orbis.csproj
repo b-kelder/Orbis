@@ -102,7 +102,6 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Engine\Dice.cs" />
     <Compile Include="Engine\InputHandler.cs" />
     <Compile Include="Engine\Perlin.cs" />
     <Compile Include="GamePage.xaml.cs">
@@ -121,6 +120,7 @@
     <Compile Include="Rendering\ObjParser.cs" />
     <Compile Include="Rendering\RenderableMesh.cs" />
     <Compile Include="Rendering\RenderInstance.cs" />
+    <Compile Include="Simulation\SimulationAction.cs" />
     <Compile Include="Rendering\SceneRendererComponent.cs" />
     <Compile Include="Simulation\Simulator.cs" />
     <Compile Include="Simulation\Civilization.cs" />

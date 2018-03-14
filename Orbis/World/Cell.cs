@@ -34,7 +34,7 @@ namespace Orbis.World
         /// <summary>
         /// Max population that can be housed in this cell
         /// </summary>
-        public int Housing { get; set; }
+        public int MaxHousing { get; set; }
         /// <summary>
         /// Terrain elevation level
         /// </summary>
@@ -43,8 +43,15 @@ namespace Orbis.World
         /// Indicates if this entire cell is water
         /// </summary>
         public bool IsWater { get; set; }
-
+        /// <summary>
+        /// Coordinates of the cell on the world map
+        /// </summary>
         public Point Coordinates { get; set; }
+
+        public double food;
+        public double resources;
+        public double wealth;
+        public int population;
 
         public Cell(Point coordinates)
         {
