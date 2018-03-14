@@ -54,6 +54,10 @@ namespace Orbis
         /// </summary>
         protected override void Initialize()
         {
+            this.IsFixedTimeStep = false;
+            graphics.SynchronizeWithVerticalRetrace = false;
+            graphics.ApplyChanges();
+
             base.Initialize();
         }
 
@@ -67,6 +71,8 @@ namespace Orbis
             var generator = new WorldGenerator(seed);
             generator.GenerateWorld(scene, 100);
             generator.GenerateCivs(scene, 500);
+
+            simulator = new Simulator(scene, 1);
 
             stopwatch.Stop();
             Debug.WriteLine("Generated world in " + stopwatch.ElapsedMilliseconds + " ms");
@@ -127,8 +133,10 @@ namespace Orbis
             }
             worldUpdateTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+            simulator.Update();
 
-            
+            //sceneRenderer.UpdateScene(scene);
+
             if (input.IsKeyDown(Keys.S, new Keys[] { Keys.LeftShift, Keys.K, Keys.Y}))
             {
                 Exit();

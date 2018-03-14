@@ -11,11 +11,26 @@ namespace Orbis.Rendering
     {
         public VertexBuffer VertexBuffer { get; set; }
         public IndexBuffer IndexBuffer { get; set; }
+        public CustomVertexData[] VertexData { get; set; }
 
         public RenderableMesh(GraphicsDevice device, Mesh mesh)
         {
-            VertexBuffer = mesh.CreateVertexBuffer(device);
+            VertexData = mesh.ToVertexData(device);
+            VertexBuffer = new VertexBuffer(device, typeof(CustomVertexData), VertexData.Length, BufferUsage.WriteOnly);
+            VertexBuffer.SetData(VertexData);
             IndexBuffer = mesh.CreateIndexBuffer(device);
+        }
+
+        public void UpdateVertexBuffer(GraphicsDevice device)
+        {
+            if(VertexBuffer.VertexCount != VertexData.Length)
+            {
+                throw new NotImplementedException();
+                // TODO: Use this?
+                VertexBuffer.Dispose();
+                VertexBuffer = new VertexBuffer(device, typeof(CustomVertexData), VertexData.Length, BufferUsage.WriteOnly);
+            }
+            VertexBuffer.SetData(VertexData);
         }
 
         public void Dispose()

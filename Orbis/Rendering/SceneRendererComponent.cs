@@ -14,6 +14,24 @@ namespace Orbis.Rendering
 {
     class SceneRendererComponent : DrawableGameComponent
     {
+        /// <summary>
+        /// Internal render data mapped to a cell
+        /// </summary>
+        class CellMappedData
+        {
+            public int meshIndex;
+            public List<int> vertexIndexes;
+        }
+
+        struct MeshGenerationResult
+        {
+            public List<Mesh> rawMeshes;
+            public List<RenderableMesh> renderableMeshes;
+            public Dictionary<Cell, CellMappedData> cellData;
+        }
+
+
+        private Dictionary<Cell, CellMappedData> cellMappedData;
         private Orbis orbis;
 
         private Effect basicShader;
@@ -21,19 +39,25 @@ namespace Orbis.Rendering
         private Dictionary<Civilization, Color> civColors;
         Camera camera;
 
+        private List<RenderableMesh> cellMeshes;
+
         List<RenderInstance> renderInstances;
 
         private float rotation;
         private float distance;
         private float angle;
-        private Rendering.Model hexModel;
-        private Rendering.Model houseHexModel;
-        private Rendering.Model waterHexModel;
+        private Model hexModel;
+        private Model houseHexModel;
+        private Model waterHexModel;
 
-        private Task<List<RenderInstance>> meshTask;
+        private Task<MeshGenerationResult> meshTask;
+
+        private Scene renderedScene;
 
         public bool IsUpdatingMesh { get { return meshTask != null && meshTask.Status != TaskStatus.RanToCompletion; } }
-
+        public bool ReadyForUpdate { get {
+                return renderedScene != null && cellMappedData != null && cellMeshes != null;
+            } }
 
         public SceneRendererComponent(Orbis game) : base(game)
         {
@@ -89,10 +113,22 @@ namespace Orbis.Rendering
                 {
                     instance.mesh.Dispose();
                 }
-                this.renderInstances = meshTask.Result;
+                var meshData = meshTask.Result;
+                this.cellMappedData = meshData.cellData;
+                this.cellMeshes = meshData.renderableMeshes;
+                foreach(var mesh in this.cellMeshes)
+                {
+                    renderInstances.Add(new RenderInstance
+                    {
+                        mesh = mesh,
+                        material = hexModel.Material,
+                        matrix = Matrix.Identity
+                    });
+                }
                 meshTask = null;
             }
 
+            // TODO: Camera movement overhaul
             var camMoveDelta = Vector3.Zero;
             float speed = 100 * (float)gameTime.ElapsedGameTime.TotalSeconds;
             float scale = camera.OrthographicScale;
@@ -217,8 +253,15 @@ namespace Orbis.Rendering
             base.Draw(gameTime);
         }
 
+        /// <summary>
+        /// Call when a new world is generated.
+        /// </summary>
+        /// <param name="scene">Scene containing new world</param>
+        /// <param name="seed">Seed used to generate world</param>
         public async void OnNewWorldGenerated(Scene scene, int seed)
         {
+            renderedScene = scene;
+
             var colorRandom = new Random(seed);
             civColors = new Dictionary<Civilization, Color>();
             foreach (var civ in scene.Civilizations)
@@ -232,7 +275,7 @@ namespace Orbis.Rendering
             {
                 await meshTask;
             }
-            meshTask = Task<List<RenderInstance>>.Run(() => {
+            meshTask = Task.Run(() => {
                 return GenerateMeshesFromScene(scene);
             });
 
@@ -240,10 +283,13 @@ namespace Orbis.Rendering
             camera.LookTarget = new Vector3(camera.LookTarget.X, camera.LookTarget.Y, scene.WorldMap.SeaLevel);
         }
 
-        private List<RenderInstance> GenerateMeshesFromScene(Scene scene)
+        private MeshGenerationResult GenerateMeshesFromScene(Scene scene)
         {
+            var renderableMeshes = new List<RenderableMesh>();
+            var rawMeshes = new List<Mesh>();
+            var cellData = new Dictionary<Cell, CellMappedData>();
+
             // Hex generation test
-            var renderInstances = new List<RenderInstance>();
             var hexMesh = hexModel.Mesh;
             var houseHexMesh = houseHexModel.Mesh;
             var waterHexMesh = waterHexModel.Mesh;
@@ -271,17 +317,16 @@ namespace Orbis.Rendering
                         (float)cell.Elevation);
                     // Cell color
                     // TODO: This doesn't work because the combiner doesn't combine immediately. Ensure that it does or add color to MeshInstance?
-                    var color = cell.Owner != null ? civColors[cell.Owner] : Color.Black;
+                    var color = GetCellColor(cell);
                     var mesh = cell.IsWater ? waterHexMesh : hexMesh;
 
                     // Temporary way to make sea actually level
                     if (cell.IsWater)
                     {
-                        color = Color.Aquamarine;
                         position.Z = scene.WorldMap.SeaLevel;
                     }
 
-                    hexCombiner.Add(new MeshInstance
+                    int meshIndex = hexCombiner.Add(new MeshInstance
                     {
                         mesh = mesh,
                         matrix = Matrix.CreateTranslation(position),
@@ -289,26 +334,87 @@ namespace Orbis.Rendering
                         color = color,
                         useColor = true,
                     });
+
+                    // Register partial cell mapped data
+                    cellData[cell] = new CellMappedData
+                    {
+                        meshIndex = meshIndex
+                    };
                 }
             }
 
             // Combine meshes
-            var combinedHexes = hexCombiner.GetCombinedMeshes();
-            foreach (var mesh in combinedHexes)
+            var meshList = hexCombiner.GetCombinedMeshes();
+            for(int i = 0; i < meshList.Count; i++)
             {
-                renderInstances.Add(new RenderInstance()
-                {
-                    mesh = new RenderableMesh(orbis.GraphicsDevice, mesh),
-                    material = hexModel.Material,
-                    matrix = Matrix.Identity,
-                });
+                var renderable = new RenderableMesh(orbis.GraphicsDevice, meshList[i]);
+                renderableMeshes.Add(renderable);
 
                 Debug.WriteLine("Adding hex mesh");
             }
+            // Finish cell mapped data
+            foreach(var cell in cellData)
+            {
+                var mesh = meshList[cell.Value.meshIndex];
+                cell.Value.vertexIndexes = mesh.TagIndexMap[cell.Key.Coordinates];
+            }
+
             stopwatch.Stop();
             Debug.WriteLine("Generated meshes in " + stopwatch.ElapsedMilliseconds + " ms");
 
-            return renderInstances;
+            return new MeshGenerationResult {
+                cellData = cellData,
+                rawMeshes = rawMeshes,
+                renderableMeshes = renderableMeshes
+            };
+        }
+
+        /// <summary>
+        /// Called to update the rendered representation of the scene.
+        /// MAY NOT be put in a task.
+        /// </summary>
+        /// <param name="scene">Scene to update to</param>
+        public void UpdateScene(Scene scene)
+        {
+            // TODO: We may just regenerate the entire world mesh if it doesn't match
+            if(scene != renderedScene)
+            {
+                throw new Exception("Given scene does not match scene used to generate meshes");
+            }
+
+            if(!ReadyForUpdate) { return; }
+
+            int updatedCells = 0;
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            foreach(var cell in scene.WorldMap.Cells.AsParallel())
+            {
+                if(cell == null) { continue; }
+                var data = cellMappedData[cell];
+                var mesh = cellMeshes[data.meshIndex];
+                foreach(var i in data.vertexIndexes)
+                {
+                    mesh.VertexData[i].Color = GetCellColor(cell);
+                }
+                updatedCells++;
+            }
+
+            stopwatch.Stop();
+            Debug.WriteLine("Took " + stopwatch.ElapsedMilliseconds + " ms to update vertexdata for " + updatedCells + " cells");
+            stopwatch.Restart();
+            foreach(var mesh in cellMeshes)
+            {
+                mesh.UpdateVertexBuffer(orbis.GraphicsDevice);
+            }
+            stopwatch.Stop();
+            Debug.WriteLine("Took " + stopwatch.ElapsedMilliseconds + " ms to update vertex buffers");
+        }
+
+        private Color GetCellColor(Cell cell)
+        {
+            var color = cell.Owner != null ? civColors[cell.Owner] : cell.IsWater ? Color.Aquamarine : Color.Black;
+            return color;
         }
     }
 }
