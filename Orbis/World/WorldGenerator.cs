@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 namespace Orbis.World
 {
+    /// <summary>
+    /// Author: Bram Kelder, Wouter Brookhuis, Kaj v.d. Veen
+    /// </summary>
     class WorldGenerator
     {
         /// <summary>

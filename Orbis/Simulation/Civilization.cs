@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Orbis.World;
 
+/// <summary>
+/// Author: Bram Kelder, Wouter Brookhuis
+/// </summary>
 namespace Orbis.Simulation
 {
     class Civilization

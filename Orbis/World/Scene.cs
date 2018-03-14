@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Orbis.World
 {
+    /// <summary>
+    /// Author: Bram Kelder
+    /// </summary>
     class Scene
     {
         public Map WorldMap { get; set; }
