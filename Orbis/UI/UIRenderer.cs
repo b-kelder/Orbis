@@ -69,13 +69,29 @@ namespace Orbis.UI
                 BackgroundTexture = barBack,
                 BarTexture = redRect,
                 Message = "Simulating",
-                MessageColor = Color.Black,
                 MessageFont = messageFont,
                 RelativeLocation = new Point(20, -70),
                 Size = new Point(WindowSize.X - 40, 50)
             };
 
             RootElement.AddChild(bar);
+
+            Button button = new Button()
+            {
+                AnchorPosition = AnchorPosition.Center,
+                BackgroundTexture = barBack,
+                Text = "Click Me!",
+                TextFont = messageFont,
+                RelativeLocation = new Point(-50, -25),
+                Size = new Point(100, 50),
+                OnClick = () =>
+                {
+                    System.Diagnostics.Debug.WriteLine("Button clicked!");
+                }
+            };
+
+            RootElement.AddChild(button);
+
 
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
 
@@ -109,7 +125,7 @@ namespace Orbis.UI
         /// <param name="gameTime"></param>
         public override void Draw(GameTime gameTime)
         {
-            _spriteBatch.Begin(SpriteSortMode.BackToFront);
+            _spriteBatch.Begin();
             RootElement.Draw(_spriteBatch, gameTime);
             _spriteBatch.End();
 

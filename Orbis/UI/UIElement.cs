@@ -57,6 +57,11 @@ namespace Orbis.UI
         protected AnchorPosition _anchorPos;
 
         /// <summary>
+        ///     Is the UI Element visible?
+        /// </summary>
+        public bool Visible { get; set; }
+
+        /// <summary>
         ///     A rectangle with the absolute on-screen position and size of the element.
         /// </summary>
         public Rectangle AbsoluteRectangle
@@ -172,6 +177,7 @@ namespace Orbis.UI
             Parent = null;
             _relativeRect = Rectangle.Empty;
             _anchorPos = AnchorPosition.TopLeft;
+            Visible = true;
         }
 
         /// <summary>

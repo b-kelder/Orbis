@@ -70,7 +70,7 @@ namespace Orbis.UI
         {
             get
             {
-                // Ensure absolute rectangle is only calculated once for this.
+                // Ensure absolute rectangle is only calculated once for this calculation.
                 Rectangle absoluteRectangle = AbsoluteRectangle;
 
                 Rectangle barRectangle = Rectangle.Empty;
@@ -93,11 +93,19 @@ namespace Orbis.UI
             _progress = 0.00F;
         }
 
+        /// <summary>
+        ///     The update method for the progress bar.
+        /// </summary>
         public override void Update(GameTime gameTime)
         {
-            base.Update(gameTime);
+            // No base update required; the item has no children.
         }
 
+        /// <summary>
+        ///     Draw the progress bar on the screen.
+        /// </summary>
+        /// <param name="spriteBatch"></param>
+        /// <param name="gameTime"></param>
         public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
             // No drawing should be done if the required resources don't exist.
@@ -111,9 +119,9 @@ namespace Orbis.UI
                 spriteBatch.Draw(BarTexture, BarRectangle, Color.White);
 
                 spriteBatch.DrawString(MessageFont, Message + " " + _progress.ToString("0.00%"), new Vector2(AbsoluteRectangle.Left + 5, AbsoluteRectangle.Top + 5), MessageColor);
-
-
             }
+
+            // No base draw is required; the progress bar has no children.
         }
 
         /// <summary>

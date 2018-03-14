@@ -50,11 +50,15 @@ namespace Orbis.UI
         /// </param>
         public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            if (spriteBatch != null && BackgroundTexture != null)
+            if (Visible)
             {
-                spriteBatch.Draw(BackgroundTexture, this.AbsoluteRectangle, Color.White);
+                // Drawing is only done if the required resources are set.
+                if (spriteBatch != null && BackgroundTexture != null)
+                {
+                    spriteBatch.Draw(BackgroundTexture, this.AbsoluteRectangle, Color.White);
+                }
+                base.Draw(spriteBatch, gameTime);
             }
-            base.Draw(spriteBatch, gameTime);
         }
 
         /// <summary>
