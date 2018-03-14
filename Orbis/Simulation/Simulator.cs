@@ -31,6 +31,8 @@ namespace Orbis.Simulation
         private Task simulationTask;
         private List<Task> taskList;
 
+        private List<War> ongoingWars;
+
         public Simulator(Scene scene, int simulationLength)
         {
             Scene = scene;
@@ -43,6 +45,7 @@ namespace Orbis.Simulation
             actionQueue = new ConcurrentQueue<SimulationAction>();
             taskList = new List<Task>();
             cellsChanged = new ConcurrentQueue<Cell[]>();
+            ongoingWars = new List<War>();
         }
 
         public Cell[] GetChangedCells()
@@ -155,6 +158,8 @@ namespace Orbis.Simulation
                     }
                     else if (action.Action == Simulation4XAction.EXTERMINATE)
                     {
+                        Civilization civ = (Civilization)action.Params[0];
+
 
                     }
                 }

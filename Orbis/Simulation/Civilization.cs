@@ -21,6 +21,10 @@ namespace Orbis.Simulation
         /// </summary>
         public bool IsAlive { get; set; }
         /// <summary>
+        /// Is currently at war
+        /// </summary>
+        public bool AtWar { get; set; }
+        /// <summary>
         /// The cells owned by this civ
         /// </summary>
         public HashSet<Cell> Territory { get; set; }
@@ -60,7 +64,12 @@ namespace Orbis.Simulation
         /// <returns></returns>
         public SimulationAction DetermineAction()
         {
-            SimulationAction simulationAction = new SimulationAction(this, Simulation4XAction.DONOTHING, null);
+            SimulationAction action = new SimulationAction(this, Simulation4XAction.DONOTHING, null);
+
+            if (AtWar)
+            {
+                return action;
+            }
 
             double expand = 1, exploit = 1, explore = 1, exterminate = 1;
 
@@ -82,29 +91,28 @@ namespace Orbis.Simulation
                     }
                 }
 
-                simulationAction.Action = Simulation4XAction.EXPAND;
-                simulationAction.Params = new object[] { cell };
+                action.Action = Simulation4XAction.EXPAND;
+                action.Params = new object[] { cell };
             }
             else if (exploit > expand && exploit > explore && exploit > exterminate)
             {
-                simulationAction.Action = Simulation4XAction.EXPLOIT;
-                simulationAction.Params = null;
+                action.Action = Simulation4XAction.EXPLOIT;
+                action.Params = null;
             }
             else if (explore > expand && explore > exploit && explore > exterminate)
             {
-                simulationAction.Action = Simulation4XAction.EXPLORE;
-                simulationAction.Params = null;
+                action.Action = Simulation4XAction.EXPLORE;
+                action.Params = null;
             }
             else if (exterminate > expand && exterminate > exploit && exterminate > explore)
             {
                 Civilization civilization = null;
 
-
-                simulationAction.Action = Simulation4XAction.EXTERMINATE;
-                simulationAction.Params = new object[] { civilization };
+                action.Action = Simulation4XAction.EXTERMINATE;
+                action.Params = new object[] { civilization };
             }
 
-            return simulationAction;
+            return action;
         }
 
         public double CalculateCellValue(Cell cell)
