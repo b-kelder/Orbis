@@ -17,6 +17,7 @@ namespace Orbis.Simulation
     class War
     {
         public int Duration { get; private set; }
+        public Cell[] toTransfer { get; set; }
 
         private Random _random;
         private int _upperBound;
@@ -74,30 +75,34 @@ namespace Orbis.Simulation
                 warEnded = true;
 
                 // TODO: implement GetWarResultCells.
-                Cell[] toTransfer = GetWarResultCells(true);
+                toTransfer = GetWarResultCells(true);
                 foreach (Cell cell in toTransfer)
                 {
-                    //_attacker.ClaimCell(cell);
+                    _attacker.ClaimCell(cell);
                 }
 
-                System.Diagnostics.Debug.WriteLine("The war between {0} and {1} has been won by {0}.",
+                System.Diagnostics.Debug.WriteLine("The war between {0} ({1}) and {2} ({3}) has been won by {0}.",
                     _attacker.Name,
-                    _defender.Name);
+                    _attacker.Population,
+                    _defender.Name,
+                    _defender.Population);
             }
             else if(battleResult < _lowerBound + 5 * Duration)
             {
                 warEnded = true;
 
                 // TODO: implement GetWarResultCells.
-                Cell[] toTransfer = GetWarResultCells(true);
+                toTransfer = GetWarResultCells(true);
                 foreach (Cell cell in toTransfer)
                 {
-                    //_attacker.ClaimCell(cell);
+                    _defender.ClaimCell(cell);
                 }
 
-                System.Diagnostics.Debug.WriteLine("The war between {0} and {1} has been won by {1}.",
+                System.Diagnostics.Debug.WriteLine("The war between {0} ({1}) and {2} ({3}) has been won by {2}.",
                     _attacker.Name,
-                    _defender.Name);
+                    _attacker.Population,
+                    _defender.Name,
+                    _defender.Population);
             }
 
             if (warEnded)
@@ -119,10 +124,17 @@ namespace Orbis.Simulation
         /// <returns>
         ///     The bordering cells between the two civs.
         /// </returns>
-        private Cell[] GetWarResultCells(bool victory)
+        public Cell[] GetWarResultCells(bool victory)
         {
+            if (victory)
+            {
+                return _defender.Territory.ToArray();
+            }
+            else
+            {
+                return _attacker.Territory.ToArray();
+            }
             // TODO: Get cells to transfer.
-            return new Cell[1];
         }
     }
 }

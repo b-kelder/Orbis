@@ -32,13 +32,14 @@ namespace Orbis.Simulation
         private List<Task> taskList;
 
         private List<War> ongoingWars;
+        private ConcurrentDictionary<Cell, Civilization> cc;
 
         public Simulator(Scene scene, int simulationLength)
         {
             Scene = scene;
             maxTick = simulationLength;
             civCount = scene.Civilizations.Count;
-            TickLengthInSeconds = 0;
+            TickLengthInSeconds = 0.1;
 
             rand = new Random(scene.Seed);
 
@@ -46,12 +47,12 @@ namespace Orbis.Simulation
             taskList = new List<Task>();
             cellsChanged = new ConcurrentQueue<Cell[]>();
             ongoingWars = new List<War>();
+            cc = new ConcurrentDictionary<Cell, Civilization>();
         }
 
         public Cell[] GetChangedCells()
         {
-            Cell[] cells;
-            cellsChanged.TryDequeue(out cells);
+            cellsChanged.TryDequeue(out Cell[] cells);
             return cells;
         }
 
@@ -94,12 +95,14 @@ namespace Orbis.Simulation
                 taskList.Add(Task.Run(() =>
                 {
                     bool hasLand = false;
+                    int population = 0;
 
                     foreach (var cell in civ.Territory)
                     {
                         if (cell.population <= 0)
                         {
-                            // Remove cell from territory
+                            cc.TryAdd(cell, civ);
+                            
                             continue;
                         }
 
@@ -119,21 +122,29 @@ namespace Orbis.Simulation
 
                         cell.population += birth - death;
 
-                        civ.Population += birth - death;
+                        population += cell.population;
                         civ.TotalResource += roll * 5 * cell.ResourceMod;
                         civ.TotalWealth += roll * 5 * cell.WealthMod;
                     }
 
-                    if (!hasLand)
+                    if (!hasLand || population <= 0)
                     {
                         civ.IsAlive = false;
                     }
+
+                    civ.Population = population;
                 }));
             }
 
             Task.WaitAll(taskList.ToArray());
 
             List<Cell> changed = new List<Cell>();
+
+            foreach (KeyValuePair<Cell, Civilization> ccc in cc)
+            {
+                ccc.Value.LoseCell(ccc.Key);
+                changed.Add(ccc.Key);
+            }
 
             while (actionQueue.Count > 0)
             {
@@ -174,6 +185,11 @@ namespace Orbis.Simulation
                 bool warResult = war.Battle();
                 if (warResult)
                 {
+                    Cell[] cells = war.toTransfer;
+                    foreach (Cell cell in cells)
+                    {
+                        changed.Add(cell);
+                    }
                     finishedWars.Add(war);
                 }
             }

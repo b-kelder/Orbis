@@ -103,6 +103,12 @@ namespace Orbis.Simulation
 
             if (expand > exploit && expand > explore && expand > exterminate)
             {
+                if (Neighbours.Count <= 0)
+                {
+                    LoseCell(Territory.First());
+                    return action;
+                }
+
                 Cell cell = Neighbours.First();
 
                 int cellCount = Neighbours.Count;
@@ -169,6 +175,49 @@ namespace Orbis.Simulation
             return val;
         }
 
+        public bool LoseCell(Cell cell)
+        {
+            if (cell.Owner != this)
+            {
+                return false;
+            }
+
+            if (!Territory.Remove(cell))
+            {
+                return false;
+            }
+
+            cell.Owner = null;
+
+            Neighbours.Add(cell);
+
+            List<Cell> a = new List<Cell>();
+            foreach (Cell c in cell.Neighbours)
+            {
+                if (c.Owner == this)
+                {
+                    foreach (Cell cc in c.Neighbours)
+                    {
+                        if (cc.Owner != this)
+                        {
+                            Neighbours.Add(cc);
+                        }
+                    }
+                }
+                else
+                {
+                    a.Add(c);
+                }
+            }
+
+            foreach (Cell c in a)
+            {
+                Neighbours.Remove(c);
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Add a cell to this civs territory
         /// </summary>
@@ -176,38 +225,9 @@ namespace Orbis.Simulation
         /// <returns>True if succesfull</returns>
         public bool ClaimCell(Cell cell)
         {
-            if(cell.Owner != null)
+            if (cell.Owner != null)
             {
-                // Recalculate neighbours, TODO: do war
-                cell.Owner.Territory.Remove(cell);
-                // Get neighbouring territory
-                HashSet<Cell> neighbouringTerritory = new HashSet<Cell>();
-                foreach(var n1 in cell.Neighbours)
-                {
-                    foreach(var n2 in n1.Neighbours)
-                    {
-                        if(n2.Owner == cell.Owner && n2 != cell)
-                        {
-                            neighbouringTerritory.Add(n2);
-                        }
-                    }
-                    if(n1.Owner == cell.Owner)
-                    {
-                        neighbouringTerritory.Add(n1);
-                    }
-                    cell.Owner.Territory.Remove(n1);
-                }
-                // Update based on territory
-                foreach(var territory in neighbouringTerritory)
-                {
-                    foreach (Cell c in territory.Neighbours)
-                    {
-                        if (c.Owner != this && c != cell)
-                        {
-                            Neighbours.Add(c);
-                        }
-                    }
-                }
+                cell.Owner.LoseCell(cell);
             }
 
             cell.Owner = this;
@@ -235,6 +255,8 @@ namespace Orbis.Simulation
 
             Neighbours.Remove(cell);
             TotalHousing += cell.MaxHousing;
+
+            cell.population = 100;
 
             return true;
         }
