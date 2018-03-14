@@ -2,6 +2,7 @@
 using Orbis.Engine;
 using Orbis.World;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -12,113 +13,148 @@ namespace Orbis.Simulation
 {
     class Simulator
     {
-        /// <summary>
-        /// The scene to simulate for
-        /// </summary>
+        public int CurrentTick { get; set; }
         public Scene Scene { get; set; }
+        public double TickLengthInSeconds { get; set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        private Task task;
+        private ConcurrentQueue<Cell[]> cellsChanged;
+        private ConcurrentQueue<SimulationAction> actionQueue;
+        private int maxTick;
+        private int civCount;
+        private double elapsedTime = 0;
 
-        /// <summary>
-        /// The current tick in the simulation
-        /// </summary>
-        public int Tick { get; set; }
+        private Random rand;
 
-        public int SimLength { get; set; }
+        private Task simulationTask;
+        private List<Task> taskList;
 
-        /// <summary>
-        /// Queue of all by civs chosen actions.
-        /// </summary>
-        private Queue<Action> actionQueue;
-
-        /// <summary>
-        /// Create a simulator object
-        /// </summary>
-        public Simulator()
+        public Simulator(Scene scene, int simulationLength)
         {
-            actionQueue = new Queue<Action>();
-        }
-
-        /// <summary>
-        /// Create a simulator object that simulates for any amout of ticks
-        /// </summary>
-        /// <param name="scene">The scene to simulate for</param>
-        /// <param name="length">Amount of ticks to simulate</param>
-        public Simulator(Scene scene, int length)
-        {
-            if (scene.Civilizations.Count <= 0)
-            {
-                throw new ArgumentException("No civs to simulate in this scene");
-            }
-
             Scene = scene;
-            SimLength = length;
+            maxTick = simulationLength;
+            civCount = scene.Civilizations.Count;
+            TickLengthInSeconds = 0.1;
 
-            actionQueue = new Queue<Action>();
+            rand = new Random(scene.Seed);
 
-            Tick = 0;
+            actionQueue = new ConcurrentQueue<SimulationAction>();
+            taskList = new List<Task>();
+            cellsChanged = new ConcurrentQueue<Cell[]>();
         }
 
-        /// <summary>
-        /// Update function called every update
-        /// </summary>
-        public void Update()
+        public Cell[] GetChangedCells()
         {
-            if (Tick >= SimLength)
+            Cell[] cells;
+            cellsChanged.TryDequeue(out cells);
+            return cells;
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            if (CurrentTick >= maxTick)
             {
                 return;
             }
-            if (task == null || task.IsCompleted)
+
+            elapsedTime += gameTime.ElapsedGameTime.TotalSeconds;
+
+            if ((simulationTask == null || simulationTask.IsCompleted) && elapsedTime > TickLengthInSeconds)
             {
-                task = Task.Run(()=> StartTick());
+                simulationTask = Task.Run(()=> 
+                {
+                    Tick();
+                });
+
+                elapsedTime = 0;
             }
         }
 
-        private void StartTick()
+        public void Tick()
         {
-            Tick++;
+            CurrentTick++;
 
-            foreach (Civilization civ in Scene.Civilizations)
+            taskList.Clear();
+
+            for (int i = 0; i < civCount; i++)
             {
-                // Check if the civ is still alive.
-                if (civ.Dead)
+                Civilization civ = Scene.Civilizations[i];
+                if (!civ.IsAlive)
                 {
                     continue;
                 }
 
-                // Let the civ decide an action
                 actionQueue.Enqueue(civ.DetermineAction());
 
-                // Go through each cell and claim resources for this tick
-                foreach (Cell cell in civ.Territory.AsParallel())
+                taskList.Add(Task.Run(() =>
                 {
-                    civ.Food += Dice.Roll(5, 5) * cell.FoodMod;
-                    civ.Wealth += Dice.Roll(5, 5) * cell.WealthMod;
-                    civ.Resources += Dice.Roll(5, 5) * cell.ResourceMod;
-                }
+                    bool hasLand = false;
 
-                // Calculate birth
-                int births = Dice.Roll(3, civ.Population / 5);
+                    foreach (var cell in civ.Territory)
+                    {
+                        if (cell.population <= 0)
+                        {
+                            // Remove cell from territory
+                            continue;
+                        }
 
-                // Calculate deaths
-                int PeopleWithNoFood = (int)Math.Ceiling(civ.Population - civ.Food);
-                int deaths = Dice.Roll(10, civ.Population / 5) + PeopleWithNoFood;
+                        if (!cell.IsWater)
+                        {
+                            hasLand = true;
+                        }
 
-                // Grow population based on birth and deaths
-                civ.Population += births - deaths;
-            }  
+                        int roll = rand.Next(5, 25);
+                        cell.food += roll * 5 * cell.FoodMod;
+                        cell.resources += roll * 5 * cell.ResourceMod;
+                        cell.wealth += roll * 5 * cell.WealthMod;
+
+                        int peopleWithNoFood = (int)Math.Ceiling(cell.population - cell.food);
+                        int birth = 3 * rand.Next(0, cell.population / 5);
+                        int death = rand.Next(0, cell.population / 5) + peopleWithNoFood;
+
+                        cell.population += birth - death;
+                        civ.Population += birth - death;
+                    }
+
+                    if (!hasLand)
+                    {
+                        civ.IsAlive = false;
+                    }
+                }));
+            }
+
+            Task.WaitAll(taskList.ToArray());
+
+            List<Cell> changed = new List<Cell>();
 
             while (actionQueue.Count > 0)
             {
-                Action simuationAction = actionQueue.Dequeue();
-                if (simuationAction != null)
+                SimulationAction action;
+                if (actionQueue.TryDequeue(out action))
                 {
-                    simuationAction.Invoke();
+                    if (action.Action == Simulation4XAction.EXPAND)
+                    {
+                        Cell cell = (Cell)action.Params[0];
+                        if (action.Civilization.ClaimCell(cell))
+                        {
+                            changed.Add(cell);
+                        }
+                    }
+                    else if (action.Action == Simulation4XAction.EXPLOIT)
+                    {
+
+                    }
+                    else if (action.Action == Simulation4XAction.EXPLORE)
+                    {
+
+                    }
+                    else if (action.Action == Simulation4XAction.EXTERMINATE)
+                    {
+
+                    }
                 }
             }
+
+            cellsChanged.Enqueue(changed.ToArray());
         }
     }
 }

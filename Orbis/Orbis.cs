@@ -18,6 +18,11 @@ namespace Orbis
     /// </summary>
     public class Orbis : Game
     {
+        public static readonly int TEST_SEED = 19450513;
+        public static readonly int TEST_CIVS = 22;
+        public static readonly int TEST_RADIUS = 128;
+        public static readonly int TEST_TICKS = 10000;
+
         public InputHandler Input { get { return input; } }
         public GraphicsDeviceManager Graphics { get { return graphics; } }
 
@@ -54,6 +59,10 @@ namespace Orbis
         /// </summary>
         protected override void Initialize()
         {
+            this.IsFixedTimeStep = false;
+            graphics.SynchronizeWithVerticalRetrace = false;
+            graphics.ApplyChanges();
+
             base.Initialize();
         }
 
@@ -63,10 +72,12 @@ namespace Orbis
             stopwatch.Start();
             // Generate world
             Debug.WriteLine("Generating world for seed " + seed);
-            scene = new Scene();
-            var generator = new WorldGenerator(seed);
-            generator.GenerateWorld(scene, 100);
-            generator.GenerateCivs(scene, 500);
+            scene = new Scene(seed);
+            var generator = new WorldGenerator(scene);
+            generator.GenerateWorld(TEST_RADIUS);
+            generator.GenerateCivs(TEST_CIVS);
+
+            simulator = new Simulator(scene, TEST_TICKS);
 
             stopwatch.Stop();
             Debug.WriteLine("Generated world in " + stopwatch.ElapsedMilliseconds + " ms");
@@ -97,7 +108,7 @@ namespace Orbis
 
             fontDebug = Content.Load<SpriteFont>("DebugFont");
 
-            GenerateWorld(1499806334);
+            GenerateWorld(TEST_SEED);
         }
 
         /// <summary>
@@ -118,17 +129,21 @@ namespace Orbis
             // Update user input
             input.UpdateInput();
 
-            // See if world must be regenerated (TEST)
-            if(Input.IsKeyDown(Keys.B) && !sceneRenderer.IsUpdatingMesh)
+            // Update renderer if we can
+            if(sceneRenderer.ReadyForUpdate)
             {
-                // TODO: Actual threading inside WorldGenerator?
-                Task.Run(() => GenerateWorld(new Random().Next()));
-                worldUpdateTimer = 0;
+                simulator.Update(gameTime);
+                Cell[] updatedCells = null;
+                do
+                {
+                    updatedCells = simulator.GetChangedCells();
+                    if (updatedCells != null && updatedCells.Length > 0)
+                    {
+                        sceneRenderer.UpdateScene(updatedCells);
+                    }
+                } while (updatedCells != null);
             }
-            worldUpdateTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-
-            
             if (input.IsKeyDown(Keys.S, new Keys[] { Keys.LeftShift, Keys.K, Keys.Y}))
             {
                 Exit();
@@ -143,11 +158,21 @@ namespace Orbis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            spriteBatch.Begin();
-            spriteBatch.DrawString(fontDebug, "STRING DRAWING TEST", new Vector2(10, 10), Color.Red);
-            spriteBatch.End();
-
             base.Draw(gameTime);
+
+            spriteBatch.Begin();
+
+            spriteBatch.DrawString(fontDebug, "Tick: " + simulator.CurrentTick, new Vector2(10, 50), Color.Red);
+            float y = 80;
+            foreach(var civ in scene.Civilizations)
+            {
+                spriteBatch.DrawString(fontDebug, civ.Name + " - " + civ.Territory.Count + " - Population: " + civ.Population + " - Is Alive: " + civ.IsAlive, new Vector2(10, y), Color.Red);
+                y += 15;
+            }
+
+            spriteBatch.DrawString(fontDebug, "FPS: " + (1 / gameTime.ElapsedGameTime.TotalSeconds).ToString("##.##"), new Vector2(10, 30), Color.Red);
+
+            spriteBatch.End();
         }
     }
 }

@@ -15,19 +15,23 @@ namespace Orbis.World
         public float SeaLevel { get; set; }
         public float MaxElevation { get; set; }
 
+        private Scene scene;
+
         /// <summary>
         /// World generator constructor
         /// </summary>
         /// <param name="seed">A seed to base generation on</param>
-        public WorldGenerator(int seed)
+        public WorldGenerator(Scene scene)
         {
+            this.scene = scene;
+
             // Create a random object based on a seed
-            random = new Random(seed);
+            random = new Random(scene.Seed);
             SeaLevel = 18;
             MaxElevation = 35;
         }
 
-        public void GenerateCivs(Scene scene, int count)
+        public void GenerateCivs(int count)
         {
             var availableCells = new List<Point>();
             for (int x = -scene.WorldMap.Radius; x <= scene.WorldMap.Radius; x++)
@@ -45,12 +49,7 @@ namespace Orbis.World
                 // Create a civ with all base values
                 Civilization civ = new Civilization
                 {
-                    Name = "Kees",
-                    DefenceModifier = Dice.Roll(6, 1),
-                    OffenceModifier = Dice.Roll(6, 1),
-                    Population = 1,
-                    TechnologicalProgress = 0,
-                    Wealth = 0,
+                    Name = "Kees" + i,
                 };
 
                 // Select a random starting cell for the civ
@@ -68,10 +67,24 @@ namespace Orbis.World
                     if (cell != null)
                     {
                         // No atlantis shenanigans
-                        if(!civ.ClaimCell(cell))
+                        if(cell.IsWater)
                         {
                             continue;
                         }
+
+                        cell.Owner = civ;
+                        civ.Territory.Add(cell);
+
+                        foreach (Cell c in cell.Neighbours)
+                        {
+                            if (c.Owner != civ && !c.IsWater)
+                            {
+                                civ.Neighbours.Add(c);
+                            }
+                        }
+
+                        cell.population = 1;
+                        civ.TotalHousing += cell.MaxHousing;
 
                         break;
                     }
@@ -148,7 +161,7 @@ namespace Orbis.World
             }
         }
         */
-        public void GenerateWorld(Scene scene, int radius)
+        public void GenerateWorld(int radius)
         {
             Perlin perlin = new Perlin(5);
             float boundsX = TopographyHelper.HexToWorld(new Point(radius, 0)).X;
@@ -178,13 +191,16 @@ namespace Orbis.World
                     if (cell.Elevation <= SeaLevel)
                     {
                         cell.IsWater = true;
+                        cell.FoodMod = random.NextDouble() + random.Next(5);
+                        cell.ResourceMod = random.NextDouble() + random.Next(5);
+                        cell.MaxHousing = 0;
                     }
                     else
                     {
                         // Now all data has been set, calculate the modifiers
                         cell.FoodMod = random.NextDouble() + random.Next(5);
-                        cell.ResourceMod = random.NextDouble();
-                        cell.Housing = random.Next(1, 5000);
+                        cell.ResourceMod = random.NextDouble() + random.Next(5);
+                        cell.MaxHousing = random.Next(0, 1250) + random.Next(0, 1250) + random.Next(0, 1250) + random.Next(0, 1250);
                     }
                 }
             }
