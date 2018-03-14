@@ -20,11 +20,11 @@ namespace Orbis.Simulation
         /// <summary>
         /// The cells owned by this civ
         /// </summary>
-        public List<Cell> Territory { get; set; }
+        public HashSet<Cell> Territory { get; set; }
         /// <summary>
         /// All neighbour cells of the civs territory
         /// </summary>
-        public List<Cell> Neighbours { get; set; }
+        public HashSet<Cell> Neighbours { get; set; }
         /// <summary>
         /// The total population of the civ
         /// </summary>
@@ -43,8 +43,8 @@ namespace Orbis.Simulation
         public Civilization()
         {
             IsAlive = true;
-            Territory = new List<Cell>();
-            Neighbours = new List<Cell>();
+            Territory = new HashSet<Cell>();
+            Neighbours = new HashSet<Cell>();
         }
 
         /// <summary>
@@ -64,15 +64,15 @@ namespace Orbis.Simulation
 
             if (expand > exploit && expand > explore && expand > exterminate)
             {
-                Cell cell = Neighbours[0];
+                Cell cell = Neighbours.First();
 
                 int cellCount = Neighbours.Count;
 
-                for (int i = 1; i < cellCount; i++)
+                foreach(var bor in Neighbours)
                 {
-                    if (CalculateCellValue(Neighbours[i]) > CalculateCellValue(cell))
+                    if (CalculateCellValue(bor) > CalculateCellValue(cell))
                     {
-                        cell = Neighbours[i];
+                        cell = bor;
                     }
                 }
 
@@ -110,9 +110,42 @@ namespace Orbis.Simulation
         /// <returns>True if succesfull</returns>
         public bool ClaimCell(Cell cell)
         {
-            if (cell.Owner != null)
+            /*if (cell.Owner != null || cell.IsWater)
             {
                 return false;
+            }*/
+            if(cell.Owner != null)
+            {
+                // Recalculate neighbours, TODO: do war
+                cell.Owner.Territory.Remove(cell);
+                // Get neighbouring territory
+                HashSet<Cell> neighbouringTerritory = new HashSet<Cell>();
+                foreach(var n1 in cell.Neighbours)
+                {
+                    foreach(var n2 in n1.Neighbours)
+                    {
+                        if(n2.Owner == cell.Owner && n2 != cell)
+                        {
+                            neighbouringTerritory.Add(n2);
+                        }
+                    }
+                    if(n1.Owner == cell.Owner)
+                    {
+                        neighbouringTerritory.Add(n1);
+                    }
+                    cell.Owner.Territory.Remove(n1);
+                }
+                // Update based on territory
+                foreach(var territory in neighbouringTerritory)
+                {
+                    foreach (Cell c in territory.Neighbours)
+                    {
+                        if (c.Owner != this && c != cell)
+                        {
+                            Neighbours.Add(c);
+                        }
+                    }
+                }
             }
             cell.Owner = this;
             Territory.Add(cell);

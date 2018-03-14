@@ -80,11 +80,8 @@ namespace Orbis.Simulation
 
                 taskList.Add(Task.Run(() =>
                 {
-                    int cellCount = civ.Territory.Count;
-                    for (int j = 0; j < cellCount; j++)
+                    foreach(var cell in civ.Territory)
                     {
-                        Cell cell = civ.Territory[j];
-
                         if (cell.population <= 0)
                         {
                             continue;

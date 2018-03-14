@@ -72,7 +72,7 @@ namespace Orbis
             generator.GenerateWorld(100);
             generator.GenerateCivs(20);
 
-            simulator = new Simulator(scene, 1000);
+            simulator = new Simulator(scene, 10000);
 
             stopwatch.Stop();
             Debug.WriteLine("Generated world in " + stopwatch.ElapsedMilliseconds + " ms");
