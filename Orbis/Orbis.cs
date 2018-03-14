@@ -126,7 +126,7 @@ namespace Orbis
 
             // See if world must be regenerated (TEST)
 
-            simulator.Update();
+            simulator.Update(gameTime);
 
             // Update renderer if we can
             if(sceneRenderer.ReadyForUpdate)

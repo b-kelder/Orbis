@@ -30,16 +30,15 @@ namespace Orbis.Simulation
         /// </summary>
         public int Population { get; set; }
 
-        public double BaseExpand = 2;
+        public double BaseExpand = 1;
         public double BaseExploit = 1;
         public double BaseExplore = 1;
-        public double BaseExterminate = 1;
+        public double BaseExterminate = -2;
 
         private double housingNeed = 1;
         private double foodNeed = 1;
         private double resourceNeed = 1;
         private double wealthNeed = 1;
-        private double warNeed = -1;
 
         public Civilization()
         {
@@ -109,11 +108,11 @@ namespace Orbis.Simulation
             {
                 if (cell.Neighbours[i].Owner == this)
                 {
-                    val += 1;
+                    val += 2;
                 }
                 else if (cell.Neighbours[i].Owner != null)
                 {
-                    val += warNeed;
+                    val += BaseExterminate;
                 }
             }
 

@@ -15,11 +15,13 @@ namespace Orbis.Simulation
     {
         public int CurrentTick { get; set; }
         public Scene Scene { get; set; }
+        public double TickLengthInSeconds { get; set; }
 
         private ConcurrentQueue<Cell[]> cellsChanged;
         private ConcurrentQueue<SimulationAction> actionQueue;
         private int maxTick;
         private int civCount;
+        private double elapsedTime = 0;
 
         private Random rand;
 
@@ -31,6 +33,7 @@ namespace Orbis.Simulation
             Scene = scene;
             maxTick = simulationLength;
             civCount = scene.Civilizations.Count;
+            TickLengthInSeconds = 0.3;
 
             rand = new Random(scene.Seed);
 
@@ -46,19 +49,23 @@ namespace Orbis.Simulation
             return cells;
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
             if (CurrentTick >= maxTick)
             {
                 return;
             }
 
-            if (simulationTask == null || simulationTask.IsCompleted)
+            elapsedTime += gameTime.ElapsedGameTime.TotalSeconds;
+
+            if ((simulationTask == null || simulationTask.IsCompleted) && elapsedTime > TickLengthInSeconds)
             {
                 simulationTask = Task.Run(()=> 
                 {
                     Tick();
                 });
+
+                elapsedTime = 0;
             }
         }
 
