@@ -33,7 +33,7 @@ namespace Orbis.Simulation
             Scene = scene;
             maxTick = simulationLength;
             civCount = scene.Civilizations.Count;
-            TickLengthInSeconds = 0.1;
+            TickLengthInSeconds = 0;
 
             rand = new Random(scene.Seed);
 
@@ -112,7 +112,10 @@ namespace Orbis.Simulation
                         int death = rand.Next(0, cell.population / 5) + peopleWithNoFood;
 
                         cell.population += birth - death;
+
                         civ.Population += birth - death;
+                        civ.TotalResource += roll * 5 * cell.ResourceMod;
+                        civ.TotalWealth += roll * 5 * cell.WealthMod;
                     }
 
                     if (!hasLand)

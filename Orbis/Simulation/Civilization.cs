@@ -31,11 +31,13 @@ namespace Orbis.Simulation
         public int Population { get; set; }
 
         public int TotalHousing { get; set; }
+        public double TotalWealth { get; set; }
+        public double TotalResource { get; set; }
 
-        public double BaseExpand = 1;
+        public double BaseExpand = 3;
         public double BaseExploit = 1;
         public double BaseExplore = 1;
-        public double BaseExterminate = -2;
+        public double BaseExterminate = 0;
 
         private double housingNeed = 1;
         private double foodNeed = 1;
@@ -92,8 +94,11 @@ namespace Orbis.Simulation
             }
             else if (exterminate > expand && exterminate > exploit && exterminate > explore)
             {
+                Civilization civilization = null;
+
+
                 simulationAction.Action = Simulation4XAction.EXTERMINATE;
-                simulationAction.Params = null;
+                simulationAction.Params = new object[] { civilization };
             }
 
             return simulationAction;
@@ -104,17 +109,22 @@ namespace Orbis.Simulation
             // Calculate value based on needs.
             double val = (cell.MaxHousing / 1000 * housingNeed) + (cell.FoodMod * foodNeed) + (cell.ResourceMod * resourceNeed) + (cell.WealthMod * wealthNeed);
 
+            if (cell.Owner == null)
+            {
+                val += 2.5;
+            }
+            else if (cell.Owner != null)
+            {
+                val += -4 + BaseExterminate;
+            }
+
             // Add value for each neighbour cell.
             int cellCount = cell.Neighbours.Count;
             for (int i = 0; i < cellCount; i++)
             {
                 if (cell.Neighbours[i].Owner == this)
                 {
-                    val += 2;
-                }
-                else if (cell.Neighbours[i].Owner != null)
-                {
-                    val += BaseExterminate;
+                    val += 2.5;
                 }
             }
 
