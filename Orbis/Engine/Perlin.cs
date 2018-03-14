@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+/// <summary>
+/// Author: Auke Muller, Bram Kelder, Wouter Brookhuis, Kaj v.d. Veen
+/// </summary>
 namespace Orbis.Engine
 {
     /// <summary>

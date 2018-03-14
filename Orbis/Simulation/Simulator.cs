@@ -9,6 +9,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+/// <summary>
+/// Author: Bram Kelder
+/// </summary>
 namespace Orbis.Simulation
 {
     class Simulator
@@ -28,18 +31,21 @@ namespace Orbis.Simulation
         private Task simulationTask;
         private List<Task> taskList;
 
+        private List<War> ongoingWars;
+
         public Simulator(Scene scene, int simulationLength)
         {
             Scene = scene;
             maxTick = simulationLength;
             civCount = scene.Civilizations.Count;
-            TickLengthInSeconds = 0.1;
+            TickLengthInSeconds = 0;
 
             rand = new Random(scene.Seed);
 
             actionQueue = new ConcurrentQueue<SimulationAction>();
             taskList = new List<Task>();
             cellsChanged = new ConcurrentQueue<Cell[]>();
+            ongoingWars = new List<War>();
         }
 
         public Cell[] GetChangedCells()
@@ -112,7 +118,10 @@ namespace Orbis.Simulation
                         int death = rand.Next(0, cell.population / 5) + peopleWithNoFood;
 
                         cell.population += birth - death;
+
                         civ.Population += birth - death;
+                        civ.TotalResource += roll * 5 * cell.ResourceMod;
+                        civ.TotalWealth += roll * 5 * cell.WealthMod;
                     }
 
                     if (!hasLand)
@@ -149,6 +158,8 @@ namespace Orbis.Simulation
                     }
                     else if (action.Action == Simulation4XAction.EXTERMINATE)
                     {
+                        Civilization civ = (Civilization)action.Params[0];
+
 
                     }
                 }

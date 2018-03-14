@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+/// <summary>
+/// Author: Bram Kelder
+/// </summary>
 namespace Orbis.World
 {
     class Biome

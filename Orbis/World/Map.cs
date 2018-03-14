@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using System.Diagnostics;
 
+/// <summary>
+/// Author: Wouter Brookhuis
+/// </summary>
 namespace Orbis.World
 {
     class Map
