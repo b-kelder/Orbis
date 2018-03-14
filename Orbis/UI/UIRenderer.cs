@@ -14,6 +14,9 @@ namespace Orbis.UI
     /// </summary>
     public class UIRenderer : DrawableGameComponent
     {
+        // TEST
+        public ProgressBar bar;
+
         /// <summary>
         ///     Gets the size of the window.
         /// </summary>
@@ -53,6 +56,21 @@ namespace Orbis.UI
         {
             WindowSize = Game.Window.ClientBounds.Size;
             RootElement.Size = WindowSize;
+
+            Texture2D redRect = new Texture2D(Game.GraphicsDevice, 1, 1);
+            redRect.SetData(new Color[] { Color.Red });
+            SpriteFont messageFont = Game.Content.Load<SpriteFont>("DebugFont");
+
+            bar = new ProgressBar()
+            {
+                AnchorPosition = AnchorPosition.Center,
+                BarTexture = redRect,
+                MessageFont = messageFont,
+                RelativeLocation = new Point(-400, -25),
+                Size = new Point(800, 50)
+            };
+
+            RootElement.AddChild(bar);
 
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
 

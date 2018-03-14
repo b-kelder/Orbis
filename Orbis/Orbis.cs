@@ -31,6 +31,8 @@ namespace Orbis
 
         InputHandler input;
 
+        UI.UIRenderer UI;
+
         private Scene scene;
         private Simulator simulator;
 
@@ -45,10 +47,19 @@ namespace Orbis
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            sceneRenderer = new SceneRendererComponent(this);
+
+            sceneRenderer = new SceneRendererComponent(this)
+            {
+                DrawOrder = 0
+            };
             Components.Add(sceneRenderer);
 
             input = new InputHandler();
+            UI = new UI.UIRenderer(this)
+            {
+                DrawOrder = 1
+            };
+            Components.Add(UI);
         }
 
         /// <summary>
@@ -64,6 +75,7 @@ namespace Orbis
             graphics.ApplyChanges();
 
             base.Initialize();
+            UI.bar.Message = "Simulating";
         }
 
         private void GenerateWorld(int seed)
@@ -81,7 +93,6 @@ namespace Orbis
 
             stopwatch.Stop();
             Debug.WriteLine("Generated world in " + stopwatch.ElapsedMilliseconds + " ms");
-
             // Coloring data
             sceneRenderer.OnNewWorldGenerated(scene, seed);
         }
@@ -129,8 +140,12 @@ namespace Orbis
             // Update user input
             input.UpdateInput();
 
+            base.Update(gameTime);
+
+            UI.bar.Progress = (float)simulator.CurrentTick / TEST_TICKS; ;
+
             // Update renderer if we can
-            if(sceneRenderer.ReadyForUpdate)
+            if (sceneRenderer.ReadyForUpdate)
             {
                 simulator.Update(gameTime);
                 Cell[] updatedCells = null;
@@ -148,8 +163,6 @@ namespace Orbis
             {
                 Exit();
             }
-
-            base.Update(gameTime);
         }
 
         /// <summary>

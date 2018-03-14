@@ -321,6 +321,15 @@ namespace Orbis.UI
                 {
                     absoluteRect.Location = absoluteRect.Location + parentRect.Center;
                 }
+                else if (_anchorPos == AnchorPosition.BottomLeft)
+                {
+                    absoluteRect.Y += parentRect.Bottom;
+                }
+                else if (_anchorPos == AnchorPosition.BottomRight)
+                {
+                    Point parentBottomRight = new Point(parentRect.Right, parentRect.Bottom);
+                    absoluteRect.Location = absoluteRect.Location + parentBottomRight;
+                }
             }
 
             return absoluteRect;

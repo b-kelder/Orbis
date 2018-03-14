@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Orbis.UI
 {
-    public class Button : Panel
+    public class Button : UIElement
     {
         /// <summary>
         ///     Get the button's children.
