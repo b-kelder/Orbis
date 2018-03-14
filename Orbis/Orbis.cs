@@ -93,7 +93,7 @@ namespace Orbis
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             AudioManager.LoadContent(Content);
-            AudioManager.PlayEffect("DEV_TEST");
+            AudioManager.PlaySong("DEV_TEST");
 
             fontDebug = Content.Load<SpriteFont>("DebugFont");
 
