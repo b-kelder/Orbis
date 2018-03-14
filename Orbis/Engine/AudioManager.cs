@@ -17,7 +17,7 @@ namespace Orbis.Engine
         private const string FILE_EXTENSION     = "*.xnb";
         private const string FILE_DIR_ROOT      = "Audio";
         private const string FILE_DIR_SONGS     = FILE_DIR_ROOT + "/Songs";
-        private const string FILE_DIR_EFFECT    = FILE_DIR_ROOT + "/Songs";
+        private const string FILE_DIR_EFFECT    = FILE_DIR_ROOT + "/Effects";
 
         // Audio config
         private const float DEFAULT_VOLUME      = 1;
