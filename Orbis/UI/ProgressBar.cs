@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Orbis.UI.Exceptions;
 using System;
 
 namespace Orbis.UI
@@ -176,7 +175,7 @@ namespace Orbis.UI
         /// <exception cref="OrbisUIException" />
         public override void ReplaceChild(int childIndex, UIElement newChild)
         {
-            throw new OrbisUIException("Progress bars can not have children");
+            throw new OrbisUIException("Progress bars can not have children.");
         }
     }
 }

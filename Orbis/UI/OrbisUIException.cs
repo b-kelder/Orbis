@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Orbis.UI.Exceptions
+namespace Orbis.UI
 {
     /// <summary>
     ///     Exceptions thrown by Orbis UI.

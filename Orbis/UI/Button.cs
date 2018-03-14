@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Orbis.Engine;
-using Orbis.UI.Exceptions;
 using System;
 
 namespace Orbis.UI

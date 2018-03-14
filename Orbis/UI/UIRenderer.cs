@@ -77,6 +77,21 @@ namespace Orbis.UI
 
             RootElement.AddChild(bar);
 
+            TextBox box = new TextBox()
+            {
+                AnchorPosition = AnchorPosition.TopRight,
+                BackgroundTexture = barBack,
+                TextFont = messageFont,
+                RelativeLocation = new Point(-420, 20),
+                Size = new Point(400, 200)
+            };
+
+            box.Text.AppendLine("Test line meme test");
+            box.Text.AppendLine("Test line meme test meme test line meme line test.");
+            box.Text.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
+
+            RootElement.AddChild(box);
+
             Button button = new Button()
             {
                 AnchorPosition = AnchorPosition.Center,
@@ -87,7 +102,14 @@ namespace Orbis.UI
                 Size = new Point(100, 50),
                 OnClick = () =>
                 {
-                    System.Diagnostics.Debug.WriteLine("Button clicked!");
+                    if (box.Visible)
+                    {
+                        box.Visible = false;
+                    }
+                    else
+                    {
+                        box.Visible = true;
+                    }
                 }
             };
 
