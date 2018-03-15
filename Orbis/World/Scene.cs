@@ -13,13 +13,15 @@ namespace Orbis.World
         public Map WorldMap { get; set; }
         public List<Civilization> Civilizations { get; set; }
         public int Seed { get; private set; }
+        public BiomeCollection BiomeCollection { get; private set; }
 
         public XMLModel.WorldSettings Settings { get; private set; }
 
-        public Scene(int seed, XMLModel.WorldSettings settings)
+        public Scene(int seed, XMLModel.WorldSettings settings, BiomeCollection biomeCollection)
         {
             Seed = seed;
             Settings = settings;
+            BiomeCollection = biomeCollection;
         }
     }
 }

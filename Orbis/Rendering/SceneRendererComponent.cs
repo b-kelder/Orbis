@@ -29,6 +29,11 @@ namespace Orbis.Rendering
             public List<int> vertexIndexes;
         }
 
+        class BiomeMappedData
+        {
+            public Model hexModel;
+        }
+
         struct MeshGenerationResult
         {
             public List<Mesh> rawMeshes;
@@ -38,6 +43,7 @@ namespace Orbis.Rendering
 
         private CellColorMode cellColorMode;
 
+        private Dictionary<string, BiomeMappedData> biomeMappedData;
         private Dictionary<Cell, CellMappedData> cellMappedData;
         private Orbis orbis;
 
@@ -53,13 +59,11 @@ namespace Orbis.Rendering
         private float rotation;
         private float distance;
         private float angle;
-        private Model hexModel;
-        private Model houseHexModel;
-        private Model waterHexModel;
 
         private Queue<RenderableMesh> meshUpdateQueue;
         private Task<MeshGenerationResult> meshTask;
         private Scene renderedScene;
+        private AtlasModelLoader modelLoader;
 
         public bool IsUpdatingMesh { get { return meshTask != null && meshTask.Status != TaskStatus.RanToCompletion; } }
         public bool ReadyForUpdate { get {
@@ -73,7 +77,7 @@ namespace Orbis.Rendering
             this.meshUpdateQueue = new Queue<RenderableMesh>();
             MaxUpdateTime = 3;
             this.orbis = game;
-            cellColorMode = CellColorMode.Temperature;
+            cellColorMode = CellColorMode.Wetness;
         }
 
         public override void Initialize()
@@ -99,11 +103,19 @@ namespace Orbis.Rendering
             basicShader.CurrentTechnique = basicShader.Techniques["DefaultTechnique"];
             basicShader.Parameters["ColorMapTexture"].SetValue(black);
 
-            var loader = new AtlasModelLoader(2048, 2048, basicShader, Game.Content);
-            hexModel = loader.LoadModel("hex", "hex_grass", "hex_c");
-            houseHexModel = loader.LoadModel("house", "house");
-            waterHexModel = loader.LoadModel("hex", "hex_water", "hex_c");
-            loader.FinializeLoading(GraphicsDevice);
+            modelLoader = new AtlasModelLoader(2048, 2048, basicShader, Game.Content);
+            // Load biome data
+            var biomeData = orbis.Content.Load<XMLModel.BiomeCollection>("Config/Biomes");
+            biomeMappedData = new Dictionary<string, BiomeMappedData>();
+            foreach (var biome in biomeData.Biomes)
+            {
+                biomeMappedData.Add(biome.Name, new BiomeMappedData
+                {
+                    hexModel = modelLoader.LoadModel(biome.HexModel.Name, biome.HexModel.Texture, biome.HexModel.ColorTexture)
+                });
+            }
+
+            modelLoader.FinializeLoading(GraphicsDevice);
 
             base.LoadContent();
         }
@@ -133,7 +145,7 @@ namespace Orbis.Rendering
                     renderInstances.Add(new RenderInstance
                     {
                         mesh = mesh,
-                        material = hexModel.Material,
+                        material = modelLoader.Material,
                         matrix = Matrix.Identity
                     });
                 }
@@ -314,10 +326,6 @@ namespace Orbis.Rendering
             var rawMeshes = new List<Mesh>();
             var cellData = new Dictionary<Cell, CellMappedData>();
 
-            // Hex generation test
-            var hexMesh = hexModel.Mesh;
-            var houseHexMesh = houseHexModel.Mesh;
-            var waterHexMesh = waterHexModel.Mesh;
             // Use mesh combiners to get a bit more performant mesh for now
             var hexCombiner = new MeshCombiner();
 
@@ -343,7 +351,7 @@ namespace Orbis.Rendering
                     // Cell color
                     // TODO: This doesn't work because the combiner doesn't combine immediately. Ensure that it does or add color to MeshInstance?
                     var color = GetCellColor(cell);
-                    var mesh = cell.IsWater | cell.Wetness >= scene.Settings.RiverWetness ? waterHexMesh : hexMesh;
+                    var mesh = biomeMappedData[cell.Biome.Name].hexModel.Mesh;
 
                     // Temporary way to make sea actually level
                     if (cell.IsWater && cell.Elevation < scene.Settings.SeaLevel)

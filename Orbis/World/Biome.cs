@@ -12,20 +12,23 @@ namespace Orbis.World
         /// <summary>
         /// Modifier for the amount of food within the biome used as a basis for cell modifiers
         /// </summary>
-        public int FoodModifier { get; set; }
+        public double FoodModifier { get; set; }
         /// <summary>
         /// Modifier for the amount of recources in the biome  used as a basis for cell modifiers
         /// </summary>
-        public int ResourceModifier { get; set; }
+        public double ResourceModifier { get; set; }
         /// <summary>
         /// Modifier for the amount of usable space for the population  used as a basis for cell modifiers
         /// </summary>
-        public int PopulationModifier { get; set; }
+        public double PopulationModifier { get; set; }
 
 
-        public Biome()
+        public Biome(XMLModel.Biome data)
         {
-
+            this.ResourceModifier = data.ResourceModifier;
+            this.PopulationModifier = data.PopulationModifier;
+            this.FoodModifier = data.FoodModifier;
+            this.Name = data.Name;
         }
     }
 }

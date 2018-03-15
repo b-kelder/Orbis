@@ -126,6 +126,7 @@
     <Compile Include="Simulation\Civilization.cs" />
     <Compile Include="TopographyHelper.cs" />
     <Compile Include="World\Biome.cs" />
+    <Compile Include="World\BiomeCollection.cs" />
     <Compile Include="World\Cell.cs" />
     <Compile Include="World\Map.cs" />
     <Compile Include="World\Scene.cs" />

@@ -220,6 +220,9 @@ namespace Orbis.World
                     cell.ResourceMod = random.NextDouble() + random.Next(5);
                     cell.MaxHousing = random.Next(0, 1250) + random.Next(0, 1250) + random.Next(0, 1250) + random.Next(0, 1250);
                 }
+
+                // Set biome
+                AssignBiome(cell);
             }
 
             //SimulateWaterflow();
@@ -298,9 +301,28 @@ namespace Orbis.World
             }
         }
 
-        private void CalculateBiome(Cell cell)
+        private void AssignBiome(Cell cell)
         {
-
+            // Right now these values are hardcoded
+            // Maps should be 128*32
+            // X:
+            // 63 = 0 *C
+            // 0 = -63 *C
+            // 126 = +63 *C
+            // 127 = +64 *C
+            // Y:
+            // 0 = 0 mm rain
+            // 31 = 3100 mm rain
+            int x = MathHelper.Clamp((int)Math.Round(cell.Temperature) + 63, 0, 127);
+            int y = MathHelper.Clamp((int)Math.Round(cell.Wetness / 100), 0, 31);
+            if(cell.IsWater)
+            {
+                cell.Biome = scene.BiomeCollection.GetSeaBiome(x, y);
+            }
+            else
+            {
+                cell.Biome = scene.BiomeCollection.GetLandBiome(x, y);
+            }
         }
     }
 }
