@@ -23,7 +23,7 @@ namespace Orbis
         public static readonly int TEST_RADIUS = 128;
         public static readonly int TEST_TICKS = 10000;
 
-        public InputHandler Input { get { return input; } }
+        public InputHandler Input { get { return InputHandler.GetInstance(); } }
         public GraphicsDeviceManager Graphics { get { return graphics; } }
 
         GraphicsDeviceManager graphics;
@@ -70,6 +70,8 @@ namespace Orbis
         /// </summary>
         protected override void Initialize()
         {
+            AudioManager.Initialize();
+
             this.IsFixedTimeStep = false;
             graphics.SynchronizeWithVerticalRetrace = false;
             graphics.ApplyChanges();
@@ -105,16 +107,8 @@ namespace Orbis
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-
-            // Config Test
-            XMLModel.Civilization[] civData = Content.Load<XMLModel.Civilization[]>("Config/Civilization");
-            Debug.WriteLine(civData[0].name);
-            Debug.WriteLine(civData[1].name);
-
-            XMLModel.Biome[] biomeData = Content.Load<XMLModel.Biome[]>("Config/Biome");
-            Debug.WriteLine(biomeData[0].name);
-            Debug.WriteLine(biomeData[0].populationModifier);
-            // End Config Test
+            AudioManager.LoadContent(Content);
+            AudioManager.PlaySong("DEV_TEST");
 
             fontDebug = Content.Load<SpriteFont>("DebugFont");
 
@@ -137,7 +131,7 @@ namespace Orbis
         protected override void Update(GameTime gameTime)
         {
             // Update user input
-            input.UpdateInput();
+            Input.UpdateInput();
 
             base.Update(gameTime);
 
@@ -158,7 +152,7 @@ namespace Orbis
                 } while (updatedCells != null);
             }
 
-            if (input.IsKeyDown(Keys.S, new Keys[] { Keys.LeftShift, Keys.K, Keys.Y}))
+            if (Input.IsKeyDown(Keys.S, new Keys[] { Keys.LeftShift, Keys.K, Keys.Y}))
             {
                 Exit();
             }
