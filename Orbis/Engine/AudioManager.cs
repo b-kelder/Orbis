@@ -58,57 +58,6 @@ namespace Orbis.Engine
         }
 
         /// <summary>
-        /// Load all songs
-        /// </summary>
-        /// <param name="content"></param>
-        private static void LoadSongs(ContentManager content)
-        {
-            try
-            {
-                // Fetch files from directory
-                FileInfo[] files = new DirectoryInfo(content.RootDirectory + "/" + FILE_DIR_SONGS).GetFiles(FILE_EXTENSION);
-
-                for (int i = 0; i < files.Length; i++)
-                {
-                    string fileName     = Path.GetFileNameWithoutExtension(files[i].Name);      // Fetch name without extension
-                    songLib[fileName]   = content.Load<Song>(FILE_DIR_SONGS + "/" + fileName);  // Load from pipeline and push to lib
-                }
-            }
-            catch(Exception ex)
-            {
-                
-                Debug.WriteLine(ex);
-            }
-        }
-
-        /// <summary>
-        /// Load all effects
-        /// </summary>
-        /// <param name="content"></param>
-        private static void LoadEffects(ContentManager content)
-        {
-            try
-            {
-                // Fetch files from directory
-                FileInfo[] files = new DirectoryInfo(content.RootDirectory + "/" + FILE_DIR_EFFECT).GetFiles(FILE_EXTENSION);
-
-                for (int i = 0; i < files.Length; i++)
-                {
-                    string fileName         = Path.GetFileNameWithoutExtension(files[i].Name);              // Fetch file without extension
-                    SoundEffect soundEffect = content.Load<SoundEffect>(FILE_DIR_EFFECT + "/" + fileName);  // Load from pipeline
-
-                    // Push to lib so it can be used
-                    soundEffect.Name        = fileName;
-                    effectLib[fileName]     = soundEffect.CreateInstance();
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-            }
-        }
-
-        /// <summary>
         /// Play a song
         /// </summary>
         /// <param name="name">The name of the song</param>
@@ -126,7 +75,7 @@ namespace Orbis.Engine
             if (songLib.ContainsKey(name))
             {
                 MediaPlayer.IsRepeating = repeating;
-                MediaPlayer.Volume = volume;
+                MediaPlayer.Volume      = volume;
                 MediaPlayer.Play(songLib[name]);
             }
             else
@@ -155,6 +104,57 @@ namespace Orbis.Engine
             else
             {
                 Debug.WriteLine("Effect: " + name + " does not exist.");
+            }
+        }
+
+        /// <summary>
+        /// Load all songs
+        /// </summary>
+        /// <param name="content"></param>
+        private static void LoadSongs(ContentManager content)
+        {
+            try
+            {
+                // Fetch files from directory
+                FileInfo[] files = new DirectoryInfo(content.RootDirectory + "/" + FILE_DIR_SONGS).GetFiles(FILE_EXTENSION);
+
+                for (int i = 0; i < files.Length; i++)
+                {
+                    string fileName     = Path.GetFileNameWithoutExtension(files[i].Name);      // Fetch name without extension
+                    songLib[fileName]   = content.Load<Song>(FILE_DIR_SONGS + "/" + fileName);  // Load from pipeline and push to lib
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Debug.WriteLine(ex);
+            }
+        }
+
+        /// <summary>
+        /// Load all effects
+        /// </summary>
+        /// <param name="content"></param>
+        private static void LoadEffects(ContentManager content)
+        {
+            try
+            {
+                // Fetch files from directory
+                FileInfo[] files = new DirectoryInfo(content.RootDirectory + "/" + FILE_DIR_EFFECT).GetFiles(FILE_EXTENSION);
+
+                for (int i = 0; i < files.Length; i++)
+                {
+                    string fileName         = Path.GetFileNameWithoutExtension(files[i].Name);              // Fetch file without extension
+                    SoundEffect soundEffect = content.Load<SoundEffect>(FILE_DIR_EFFECT + "/" + fileName);  // Load from pipeline
+
+                    // Push to lib so it can be used
+                    soundEffect.Name = fileName;
+                    effectLib[fileName] = soundEffect.CreateInstance();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
             }
         }
     }
