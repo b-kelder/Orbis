@@ -68,8 +68,9 @@ namespace Orbis.UI
             // Buttons don't respond when invisible or when no click action has been set.
             if (Visible && OnClick != null)
             {
-                MouseState mouseState = Mouse.GetState();
-                if (AbsoluteRectangle.Contains(mouseState.Position) && mouseState.LeftButton == ButtonState.Pressed)
+                InputHandler input = InputHandler.GetInstance();
+                Point mousePosition = Mouse.GetState().Position;
+                if (AbsoluteRectangle.Contains(mousePosition) && input.IsMouseReleased(MouseButton.Left))
                 {
                     OnClick();
                 }

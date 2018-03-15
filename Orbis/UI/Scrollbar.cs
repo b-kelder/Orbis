@@ -1,11 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Orbis.Engine;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Orbis.UI
 {
@@ -76,18 +74,24 @@ namespace Orbis.UI
         /// </param>
         public override void Update(GameTime gameTime)
         {
-            var mouseState = Mouse.GetState();
-            if (_upButton.Contains(mouseState.Position) && mouseState.LeftButton == ButtonState.Pressed)
+            // Scrollbar handles input through the buttons at the top and bottom.
+            InputHandler input = InputHandler.GetInstance();
+            Point mousePosition = Mouse.GetState().Position;
+            if (_upButton.Contains(mousePosition))
             {
-                System.Diagnostics.Debug.WriteLine("Up button was clicked");
+                if (input.IsMouseHold(MouseButton.Left))
+                {
+                    HandlePosition = MathHelper.Clamp(HandlePosition - 0.5F, 0, 100);
+                    UpdateLayout();
+                }
             }
-            if (_handle.Contains(mouseState.Position) && mouseState.LeftButton == ButtonState.Pressed)
+            else if (_downButton.Contains(mousePosition))
             {
-                System.Diagnostics.Debug.WriteLine("Handle was clicked");
-            }
-            if (_downButton.Contains(mouseState.Position) && mouseState.LeftButton == ButtonState.Pressed)
-            {
-                System.Diagnostics.Debug.WriteLine("Down button was clicked");
+                if (input.IsMouseHold(MouseButton.Left))
+                {
+                    HandlePosition = MathHelper.Clamp(HandlePosition + 0.5F, 0, 100);
+                    UpdateLayout();
+                }
             }
             // No base Update needed; scrollbars do not have children.
         }
