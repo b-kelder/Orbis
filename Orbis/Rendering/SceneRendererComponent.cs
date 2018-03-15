@@ -154,54 +154,64 @@ namespace Orbis.Rendering
 
             // TODO: Camera movement overhaul
             var camMoveDelta = Vector3.Zero;
-            float speed = 100 * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            float movementSpeed = 100 * (float)gameTime.ElapsedGameTime.TotalSeconds * (distance / 10);
+            float rotationSpeed = 100 * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            float zoomSpeed = 100 * (float)gameTime.ElapsedGameTime.TotalSeconds;
             float scale = camera.OrthographicScale;
 
             if (orbis.Input.IsKeyHeld(Keys.LeftShift))
             {
-                speed /= 5;
+                movementSpeed /= 5;
+                rotationSpeed /= 5;
+                zoomSpeed /= 5;
+            }
+            if (orbis.Input.IsKeyHeld(Keys.LeftControl))
+            {
+                movementSpeed *= 5;
+                rotationSpeed *= 5;
+                zoomSpeed *= 5;
             }
             if (orbis.Input.IsKeyHeld(Keys.Up))
             {
-                angle -= speed;
+                angle -= rotationSpeed;
             }
             if (orbis.Input.IsKeyHeld(Keys.Down))
             {
-                angle += speed;
+                angle += rotationSpeed;
             }
             if (orbis.Input.IsKeyHeld(Keys.Left))
             {
-                rotation -= speed;
+                rotation -= rotationSpeed;
             }
             if (orbis.Input.IsKeyHeld(Keys.Right))
             {
-                rotation += speed;
+                rotation += rotationSpeed;
             }
             if (orbis.Input.IsKeyHeld(Keys.OemPlus))
             {
-                distance -= speed;
+                distance -= zoomSpeed;
                 //scale -= speed;
             }
             if (orbis.Input.IsKeyHeld(Keys.OemMinus))
             {
-                distance += speed;
+                distance += zoomSpeed;
                 //scale += speed;
             }
             if (orbis.Input.IsKeyHeld(Keys.W))
             {
-                camMoveDelta.Y += speed * 0.07f;
+                camMoveDelta.Y += movementSpeed * 0.07f;
             }
             if (orbis.Input.IsKeyHeld(Keys.A))
             {
-                camMoveDelta.X -= speed * 0.07f;
+                camMoveDelta.X -= movementSpeed * 0.07f;
             }
             if (orbis.Input.IsKeyHeld(Keys.S))
             {
-                camMoveDelta.Y -= speed * 0.07f;
+                camMoveDelta.Y -= movementSpeed * 0.07f;
             }
             if (orbis.Input.IsKeyHeld(Keys.D))
             {
-                camMoveDelta.X += speed * 0.07f;
+                camMoveDelta.X += movementSpeed * 0.07f;
             }
 
             angle = MathHelper.Clamp(angle, -80, -5);
