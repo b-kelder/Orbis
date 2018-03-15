@@ -15,7 +15,7 @@ namespace Orbis.UI
         public UIElement Parent
         {
             get;
-            protected set;
+            set;
         }
 
         /// <summary>
@@ -29,7 +29,18 @@ namespace Orbis.UI
         /// <summary>
         ///     Get the layer depth of this UI Element.
         /// </summary>
-        public float LayerDepth { get; set; }
+        public float LayerDepth {
+            get
+            {
+                return _layerDepth;
+            }
+            set
+            {
+                _layerDepth = value;
+                UpdateLayout();
+            }
+        }
+        protected float _layerDepth;
 
         /// <summary>
         ///     The anchor mode for this element.

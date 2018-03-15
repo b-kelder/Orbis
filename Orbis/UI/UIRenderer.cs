@@ -82,13 +82,30 @@ namespace Orbis.UI
                 AnchorPosition = AnchorPosition.TopRight,
                 BackgroundTexture = barBack,
                 TextFont = messageFont,
+                GraphicsDevice = GraphicsDevice,
                 RelativeLocation = new Point(-420, 20),
-                Size = new Point(400, 200)
+                Size = new Point(400, 100)
             };
 
-            box.Text.AppendLine("Test line meme test");
-            box.Text.AppendLine("Test line meme test meme test line meme line test.");
-            box.Text.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
+            Texture2D red = new Texture2D(GraphicsDevice, 1, 1);
+            red.SetData(new Color[] { Color.Red });
+            Texture2D green = new Texture2D(GraphicsDevice, 1, 1);
+            green.SetData(new Color[] { Color.Green });
+
+            box.Scrollbar.BackgroundTexture = redRect;
+            box.Scrollbar.ButtonTexture = green;
+            box.Scrollbar.HandleTexture = red;
+
+            box.AppendLine("Test line meme test");
+            box.AppendLine("Test line meme test meme test line meme line test.");
+            box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
+            box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
+            box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
+            box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
+            box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
+            box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
+            box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
+            box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
 
             RootElement.AddChild(box);
 

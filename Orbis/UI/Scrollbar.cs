@@ -54,12 +54,17 @@ namespace Orbis.UI
         /// </summary>
         public bool IsHorizontal { get; set; }
 
+        // The absolute position and size of the buttons used to navigate the scrollbar.
+        private Rectangle _upButton;
+        private Rectangle _handle;
+        private Rectangle _downButton;
+
         /// <summary>
         ///     Create a new <see cref="Scrollbar"/>.
         /// </summary>
         public Scrollbar()
         {
-            HandlePosition = 50.00F;
+            HandlePosition = 50F;
         }
 
         /// <summary>
@@ -71,7 +76,20 @@ namespace Orbis.UI
         /// </param>
         public override void Update(GameTime gameTime)
         {
-            base.Update(gameTime);
+            var mouseState = Mouse.GetState();
+            if (_upButton.Contains(mouseState.Position) && mouseState.LeftButton == ButtonState.Pressed)
+            {
+                System.Diagnostics.Debug.WriteLine("Up button was clicked");
+            }
+            if (_handle.Contains(mouseState.Position) && mouseState.LeftButton == ButtonState.Pressed)
+            {
+                System.Diagnostics.Debug.WriteLine("Handle was clicked");
+            }
+            if (_downButton.Contains(mouseState.Position) && mouseState.LeftButton == ButtonState.Pressed)
+            {
+                System.Diagnostics.Debug.WriteLine("Down button was clicked");
+            }
+            // No base Update needed; scrollbars do not have children.
         }
 
         public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
@@ -82,13 +100,47 @@ namespace Orbis.UI
                 // Drawing will not happen if the required resources are not assigned.
                 if (spriteBatch != null && BackgroundTexture != null && HandleTexture != null && ButtonTexture != null)
                 {
-                    
+                    spriteBatch.Draw(BackgroundTexture,
+                        AbsoluteRectangle,
+                        null,
+                        Color.White,
+                        0F,
+                        Vector2.Zero,
+                        SpriteEffects.None,
+                        LayerDepth);
+
+                    spriteBatch.Draw(ButtonTexture,
+                        _upButton,
+                        null,
+                        Color.White,
+                        0F,
+                        Vector2.Zero,
+                        SpriteEffects.None,
+                        LayerDepth - 0.001F);
+
+                    spriteBatch.Draw(HandleTexture,
+                        _handle,
+                        null,
+                        Color.White,
+                        0F,
+                        Vector2.Zero,
+                        SpriteEffects.None,
+                        LayerDepth - 0.001F);
+
+                    spriteBatch.Draw(ButtonTexture,
+                        _downButton,
+                        null,
+                        Color.White,
+                        0F,
+                        Vector2.Zero,
+                        SpriteEffects.FlipVertically,
+                        LayerDepth - 0.001F);
                 }
             }
         }
 
         /// <summary>
-        ///     Scrollbars cannot have children; do not use.
+        ///     Scrollbars can not have children; do not use.
         /// </summary>
         /// <exception cref="OrbisUIException" />
         public override void AddChild(UIElement child)
@@ -110,7 +162,20 @@ namespace Orbis.UI
         /// </summary>
         public override void UpdateLayout()
         {
-            base.UpdateLayout();
+            // Don't bother updating these things if the scrollbar isn't visible.
+            if (Visible)
+            {
+                // Ensure the absolute position is only calculated once.
+                Rectangle absoluteRectangle = AbsoluteRectangle;
+
+                // Set the positions of the buttons and handle based on the absolute position of the scrollbar.
+                _upButton = new Rectangle(absoluteRectangle.X, absoluteRectangle.Y, 15, 15);
+                int handleY = (int)Math.Floor(absoluteRectangle.Y + ((Size.Y - 50) * (HandlePosition / 100)));
+                _handle = new Rectangle(absoluteRectangle.X, handleY + 15, 15, 20);
+                _downButton = new Rectangle(absoluteRectangle.X, absoluteRectangle.Bottom - 15, 15, 15);
+            }
+
+            // No base UpdateLayout needed; scrollbars do not have children;
         }
     }
 }

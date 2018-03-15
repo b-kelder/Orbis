@@ -228,7 +228,7 @@ namespace Orbis.Rendering
 
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
             GraphicsDevice.Clear(Color.Aqua);
 
             // Required when using SpriteBatch as well

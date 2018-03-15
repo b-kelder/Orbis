@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Orbis.UI
@@ -30,11 +31,24 @@ namespace Orbis.UI
         /// <summary>
         ///     The text displayed in the textbox.
         /// </summary>
-        public StringBuilder Text
+        public string Text
         {
-            get;
-            set;
+            get
+            {
+                string textString = (_stringBuilder != null) ? _stringBuilder.ToString() : "";
+                return textString;   
+            }
         }
+
+        /// <summary>
+        ///     A stringBuilder used for formatting text in the textbox.
+        /// </summary>
+        private StringBuilder _stringBuilder;
+
+        /// <summary>
+        ///     The lines in the textbox, does allow for "lines" to be multiline.
+        /// </summary>
+        public List<string> Lines { get; set; }
 
         /// <summary>
         ///     The font used for drawing the text.
@@ -51,18 +65,45 @@ namespace Orbis.UI
         /// </summary>
         public GraphicsDevice GraphicsDevice { get; set; }
 
+        /// <summary>
+        ///     A texture that the full text of the textbox has been drawn to.
+        /// </summary>
+        private Texture2D _fulltext;
+
+        /// <summary>
+        ///     The viewport within the full text that is shown.
+        /// </summary>
+        private Rectangle _viewPort;
+
+        /// <summary>
+        ///     The scrollbar used to scroll in the text.
+        /// </summary>
+        public Scrollbar Scrollbar { get; set; }
 
         /// <summary>
         ///     Create a new <see cref="TextBox"/>.
         /// </summary>
         public TextBox()
         {
-            Text = new StringBuilder();
+            _stringBuilder = new StringBuilder();
+            _viewPort = new Rectangle(0, 0, AbsoluteRectangle.Width - 23, AbsoluteRectangle.Height);
+            Lines = new List<string>();
             TextColor = Color.Black;
+            Scrollbar = new Scrollbar()
+            {
+                AnchorPosition = AnchorPosition.TopRight,
+                RelativeLocation = new Point(-15, 0),
+                Parent = this
+            };
         }
 
         public override void Update(GameTime gameTime)
         {
+            if (Scrollbar.Visible)
+            {
+                _viewPort.Y = (int)Math.Floor(_fulltext.Height * (Scrollbar.HandlePosition / 100));
+            }
+            Scrollbar.Update(gameTime);
             // No base update needed; textboxes do not have children.
         }
 
@@ -89,23 +130,38 @@ namespace Orbis.UI
                         AbsoluteRectangle,
                         null,
                         Color.White,
-                        0.00F,
+                        0F,
                         Vector2.Zero,
                         SpriteEffects.None,
                         LayerDepth);
                 }
 
-                if (TextFont != null && !string.IsNullOrWhiteSpace(Text.ToString()))
+                // Only draw the text if there is any and if the font has been specified.
+                if (TextFont != null && Lines.Count > 0 && _fulltext != null)
                 {
-                    spriteBatch.DrawString(TextFont,
-                        Text,
-                        new Vector2(AbsoluteRectangle.Left + 2, AbsoluteRectangle.Top + 2),
-                        TextColor,
-                        0.00F,
+                    Rectangle absoluteRect = new Rectangle(AbsoluteRectangle.X,
+                        AbsoluteRectangle.Y,
+                        AbsoluteRectangle.Width,
+                        AbsoluteRectangle.Height);
+
+                    if (_viewPort.Height < absoluteRect.Height)
+                    {
+                        absoluteRect.Height = _viewPort.Height;
+                    }
+
+                    spriteBatch.Draw(_fulltext,
+                        absoluteRect,
+                        _viewPort,
+                        Color.White,
+                        0F,
                         Vector2.Zero,
-                        1.00F,
                         SpriteEffects.None,
                         LayerDepth - 0.001F);
+                }
+
+                if (Scrollbar != null && Scrollbar.Visible)
+                {
+                    Scrollbar.Draw(spriteBatch, gameTime);
                 }
             }
 
@@ -135,51 +191,163 @@ namespace Orbis.UI
         /// </summary>
         public override void UpdateLayout()
         {
-            StringBuilder stringBuilder = new StringBuilder();
-            StringBuilder lineBuilder = new StringBuilder();
-            float spaceWidth = TextFont.MeasureString(" ").X;
-
-            string[] lines = Text.ToString().Split('\n');
-            foreach (string line in lines)
+            // Don't bother processing when the required resources aren't set or when there are no lines.
+            if (GraphicsDevice != null && TextFont != null && Lines.Count > 0)
             {
-                lineBuilder.Clear();
-                float currentLineWidth = 0.00F;
-                string[] words = line.ToString().Split(' ');
-                foreach (string word in words)
-                {
-                    float width = TextFont.MeasureString(word).X;
+                WrapLines();
+            }
 
-                    if (Math.Ceiling(currentLineWidth + width) < AbsoluteRectangle.Width - 4)
+            if (_fulltext != null)
+            {
+                if (AbsoluteRectangle.Height > _fulltext.Height)
+                {
+                    if (Scrollbar.Visible)
                     {
-                        lineBuilder.Append(word + " ");
-                        currentLineWidth += width + spaceWidth;
+                        Scrollbar.Visible = false;
+                    }
+                    _viewPort.Height = _fulltext.Height;
+                }
+                else
+                {
+                    if (!Scrollbar.Visible)
+                    {
+                        Scrollbar.Visible = true;
+                    }
+                    _viewPort.Height = AbsoluteRectangle.Height;
+                }
+                _viewPort.Width = AbsoluteRectangle.Width;
+            }
+
+            if (Scrollbar.Visible)
+            {
+                Scrollbar.Size = new Point(15, AbsoluteRectangle.Height);
+                Scrollbar.LayerDepth = LayerDepth - 0.001F;
+            }
+
+            // No base updateLayout needed; textboxes do not have children.
+        }
+
+        /// <summary>
+        ///     Wrap a the lines to fit within the text box.
+        /// </summary>
+        private void WrapLines()
+        {
+            List<string> wrappedLines = new List<string>();
+            _stringBuilder = new StringBuilder();
+            float spaceWidth = TextFont.MeasureString(" ").X;
+            Rectangle absoluteRect = AbsoluteRectangle;
+
+            foreach (string line in Lines)
+            {
+                // The line is wrapped to fit within the text box.
+                string wrappedLine = WrapLine(line, spaceWidth, absoluteRect.Width - 23);
+                wrappedLines.Add(_stringBuilder.ToString());
+            }
+
+            _stringBuilder.Clear();
+            foreach (string wrappedLine in wrappedLines)
+            {
+                _stringBuilder.AppendLine(wrappedLine);
+            }
+
+            // The text is drawn to a RenderTarget2D so it can be scrolled through.
+            Vector2 finalSize = TextFont.MeasureString(_stringBuilder);
+            RenderTarget2D fulltextRenderTarget = new RenderTarget2D(GraphicsDevice,
+                (int)Math.Ceiling(finalSize.X),
+                (int)Math.Ceiling(finalSize.Y));
+
+            GraphicsDevice.SetRenderTarget(fulltextRenderTarget);
+            SpriteBatch textBatch = new SpriteBatch(GraphicsDevice);
+
+            textBatch.Begin();
+            GraphicsDevice.Clear(Color.Transparent);
+            textBatch.DrawString(TextFont, _stringBuilder, new Vector2(4, 4), TextColor);
+            textBatch.End();
+
+            GraphicsDevice.SetRenderTarget(null);
+
+            _fulltext = fulltextRenderTarget;
+        }
+
+        /// <summary>
+        ///     Get a wrapped line that fits within the constraints of the text box.
+        /// </summary>
+        /// 
+        /// <param name="line">
+        ///     The line to wrap.
+        /// </param>
+        /// <param name="spaceWidth">
+        ///     The width of a space in the font.
+        /// </param>
+        /// <param name="maxWidth">
+        ///     The maximum line width.
+        /// </param>
+        /// 
+        /// <returns>
+        ///     The wrapped line.
+        /// </returns>
+        private string WrapLine(string line, float spaceWidth, float maxWidth)
+        {
+            float lineWidth = 0F;
+            _stringBuilder.Clear();
+            string[] words = line.Split(' ');
+            foreach (string word in words)
+            {
+                float wordWidth = TextFont.MeasureString(word).X;
+
+                if (Math.Ceiling(lineWidth + wordWidth) < maxWidth)
+                {
+                    _stringBuilder.Append(word + " ");
+                    lineWidth += wordWidth + spaceWidth;
+                }
+                else
+                {
+                    if (Math.Ceiling(wordWidth) > maxWidth)
+                    {
+                        // Wrap words that don't fit in their entirety.
+                        string remainder = word;
+                        float remainderWidth;
+                        do
+                        {
+                            float partWidth;
+                            string part = remainder;
+                            do
+                            {
+                                part = part.Substring(0, part.Length - 1);
+                                remainder = part.Substring(part.Length - 2);
+                                partWidth = TextFont.MeasureString(part).X;
+                            } while (Math.Ceiling(partWidth) > maxWidth);
+
+                            _stringBuilder.Append(part + "\n");
+                            remainderWidth = TextFont.MeasureString(remainder).X;
+
+                        } while (Math.Ceiling(remainderWidth) > maxWidth);
+                        _stringBuilder.Append(remainder + " ");
                     }
                     else
                     {
-                        lineBuilder.Append("\n" + word + " ");
-                        currentLineWidth = width + spaceWidth;
+                        // Add the word on a new line.
+                        _stringBuilder.Append("\n" + word + " ");
+                        lineWidth = spaceWidth;
                     }
                 }
-                stringBuilder.Append(lineBuilder.ToString());
             }
 
-            Vector2 finalSize = TextFont.MeasureString(stringBuilder);
+            return _stringBuilder.ToString();
+        }
 
-            RenderTarget2D fullText = new RenderTarget2D(GraphicsDevice, (int)Math.Ceiling(finalSize.X), (int)Math.Ceiling(finalSize.Y));
+        /// <summary>
+        ///     Append a line to the text in the textbox.
+        /// </summary>
+        /// 
+        /// <param name="text">
+        ///     The text to append to the textBox as a new line.
+        /// </param>
+        public void AppendLine(string text)
+        {
+            Lines.Add(text);
 
-            GraphicsDevice.SetRenderTarget(fullText);
-            RasterizerState originalRasterizerState = GraphicsDevice.RasterizerState;
-            BlendState originalBlendState = GraphicsDevice.BlendState;
-            DepthStencilState originalDepthStencilState = GraphicsDevice.DepthStencilState;
-
-            SpriteBatch fulltextSpriteBatch = new SpriteBatch(GraphicsDevice);
-            fulltextSpriteBatch.Begin(SpriteSortMode.Deferred);
-            fulltextSpriteBatch.DrawString(TextFont,
-                stringBuilder,
-                Vector2.Zero,
-                TextColor);
-
-
+            UpdateLayout();
         }
     }
 }
