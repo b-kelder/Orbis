@@ -9,6 +9,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+/// <summary>
+/// Author: Bram Kelder
+/// </summary>
 namespace Orbis.Simulation
 {
     class Simulator
@@ -28,6 +31,9 @@ namespace Orbis.Simulation
         private Task simulationTask;
         private List<Task> taskList;
 
+        private List<War> ongoingWars;
+        private ConcurrentDictionary<Cell, Civilization> cc;
+
         public Simulator(Scene scene, int simulationLength)
         {
             Scene = scene;
@@ -40,12 +46,13 @@ namespace Orbis.Simulation
             actionQueue = new ConcurrentQueue<SimulationAction>();
             taskList = new List<Task>();
             cellsChanged = new ConcurrentQueue<Cell[]>();
+            ongoingWars = new List<War>();
+            cc = new ConcurrentDictionary<Cell, Civilization>();
         }
 
         public Cell[] GetChangedCells()
         {
-            Cell[] cells;
-            cellsChanged.TryDequeue(out cells);
+            cellsChanged.TryDequeue(out Cell[] cells);
             return cells;
         }
 
@@ -82,18 +89,20 @@ namespace Orbis.Simulation
                 {
                     continue;
                 }
-
+                
                 actionQueue.Enqueue(civ.DetermineAction());
 
                 taskList.Add(Task.Run(() =>
                 {
                     bool hasLand = false;
+                    int population = 0;
 
                     foreach (var cell in civ.Territory)
                     {
                         if (cell.population <= 0)
                         {
-                            // Remove cell from territory
+                            cc.TryAdd(cell, civ);
+                            
                             continue;
                         }
 
@@ -112,19 +121,36 @@ namespace Orbis.Simulation
                         int death = rand.Next(0, cell.population / 5) + peopleWithNoFood;
 
                         cell.population += birth - death;
-                        civ.Population += birth - death;
+
+                        population += cell.population;
+                        civ.TotalResource += roll * 5 * cell.ResourceMod;
+                        civ.TotalWealth += roll * 5 * cell.WealthMod;
                     }
 
-                    if (!hasLand)
+                    if (!hasLand || population <= 0)
                     {
                         civ.IsAlive = false;
+                        civ.SetPopulation(0);
+                        foreach (Cell cell in civ.Territory)
+                        {
+                            cc.TryAdd(cell, civ);
+                        }
                     }
+
+                    civ.SetPopulation(population);
                 }));
             }
 
             Task.WaitAll(taskList.ToArray());
 
             List<Cell> changed = new List<Cell>();
+
+            foreach (KeyValuePair<Cell, Civilization> ccc in cc)
+            {
+                ccc.Key.population = 0;
+                ccc.Value.LoseCell(ccc.Key);
+                changed.Add(ccc.Key);
+            }
 
             while (actionQueue.Count > 0)
             {
@@ -149,9 +175,46 @@ namespace Orbis.Simulation
                     }
                     else if (action.Action == Simulation4XAction.EXTERMINATE)
                     {
-
+                        Civilization defender = (Civilization)action.Params[0];
+                        War war = new War(Scene, action.Civilization, defender);
+                        ongoingWars.Add(war);
                     }
                 }
+            }
+
+            int warCount = ongoingWars.Count;
+            HashSet<War> finishedWars = new HashSet<War>();
+            // Get the result of the current battle in each ongoing war.
+            for (int warIndex = 0; warIndex < warCount; warIndex++)
+            {
+                War war = ongoingWars[warIndex];
+                bool warResult = war.Battle();
+                if (warResult)
+                {
+                    Cell[] toTransfer = war.GetWarResultCells(warResult);
+
+                    foreach (Cell cell in toTransfer)
+                    {
+                        if (warResult)
+                        {
+                            war.Attacker.ClaimCell(cell);
+                        }
+                        else
+                        {
+                            war.Defender.ClaimCell(cell);
+                        }
+                        
+                        changed.Add(cell);
+                    }
+
+                    finishedWars.Add(war);
+                }
+            }
+
+            // Wars that have come to an end are removed from the ongoing wars list.
+            foreach (War war in finishedWars)
+            {
+                ongoingWars.Remove(war);
             }
 
             cellsChanged.Enqueue(changed.ToArray());

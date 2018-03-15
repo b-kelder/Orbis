@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 
 namespace Orbis.World
 {
+    /// <summary>
+    /// Author: Bram Kelder
+    /// </summary>
     class Scene
     {
-        //public Cell[,] WorldMap { get; set; }
         public Map WorldMap { get; set; }
         public List<Civilization> Civilizations { get; set; }
         public int Seed { get; private set; }

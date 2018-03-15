@@ -8,6 +8,9 @@ using System.Diagnostics;
 
 namespace Orbis.World
 {
+    /// <summary>
+    /// Author: Bram Kelder, Wouter Brookhuis, Kaj v.d. Veen
+    /// </summary>
     class WorldGenerator
     {
         /// <summary>
@@ -154,6 +157,7 @@ namespace Orbis.World
                     }
                     if(cell.Elevation < statLowestPoint)
                     {
+                        // Now all data has been set, calculate the modifiers
                         statLowestPoint = cell.Elevation;
                     }
 
@@ -209,15 +213,17 @@ namespace Orbis.World
                 if (cell.IsWater == true)
                 {
                     statSeaTiles++;
-                    cell.FoodMod = random.NextDouble() + random.Next(5);
-                    cell.ResourceMod = random.NextDouble() + random.Next(5);
+                    cell.FoodMod = random.NextDouble() + random.Next(1, 2);
+                    cell.ResourceMod = random.NextDouble() + random.Next(1, 2);
                     cell.MaxHousing = 0;
                 }
                 else
                 {
                     // Now all data has been set, calculate the modifiers
-                    cell.FoodMod = random.NextDouble() + random.Next(5);
-                    cell.ResourceMod = random.NextDouble() + random.Next(5);
+                    cell.FoodMod = random.NextDouble() + random.Next(1, 5);
+                    cell.ResourceMod = random.NextDouble() + random.Next(1, 5);
+                    cell.WealthMod = random.NextDouble() + random.Next(1, 5);
+
                     cell.MaxHousing = random.Next(0, 1250) + random.Next(0, 1250) + random.Next(0, 1250) + random.Next(0, 1250);
                 }
 

@@ -125,6 +125,7 @@
     <Compile Include="Rendering\SceneRendererComponent.cs" />
     <Compile Include="Simulation\Simulator.cs" />
     <Compile Include="Simulation\Civilization.cs" />
+    <Compile Include="Simulation\War.cs" />
     <Compile Include="TopographyHelper.cs" />
     <Compile Include="World\Biome.cs" />
     <Compile Include="World\BiomeCollection.cs" />

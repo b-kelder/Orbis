@@ -77,7 +77,7 @@ namespace Orbis.Rendering
             this.meshUpdateQueue = new Queue<RenderableMesh>();
             MaxUpdateTime = 3;
             this.orbis = game;
-            cellColorMode = CellColorMode.Wetness;
+            cellColorMode = CellColorMode.OwnerColor;
         }
 
         public override void Initialize()

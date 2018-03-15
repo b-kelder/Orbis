@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Orbis.World;
 
+/// <summary>
+/// Author: Bram Kelder, Wouter Brookhuis, Kaj van der Veen
+/// </summary>
 namespace Orbis.Simulation
 {
     class Civilization
@@ -18,6 +21,21 @@ namespace Orbis.Simulation
         /// </summary>
         public bool IsAlive { get; set; }
         /// <summary>
+        /// Is currently at war
+        /// </summary>
+        public bool AtWar
+        {
+            get
+            {
+                return (Wars.Count != 0);
+            }
+        }
+
+        /// <summary>
+        /// The current wars for this Civ.
+        /// </summary>
+        public List<War> Wars;
+        /// <summary>
         /// The cells owned by this civ
         /// </summary>
         public HashSet<Cell> Territory { get; set; }
@@ -26,16 +44,26 @@ namespace Orbis.Simulation
         /// </summary>
         public HashSet<Cell> Neighbours { get; set; }
         /// <summary>
+        ///     All civs this civ borders.
+        /// </summary>
+        public HashSet<Civilization> BorderCivs { get; set; }
+        /// <summary>
+        ///     The opinion this civ has of neighbouring civs.
+        /// </summary>
+        public Dictionary<Civilization, int> CivOpinions { get; set; }
+        /// <summary>
         /// The total population of the civ
         /// </summary>
-        public int Population { get; set; }
+        public int Population { get; private set; }
 
         public int TotalHousing { get; set; }
+        public double TotalWealth { get; set; }
+        public double TotalResource { get; set; }
 
         public double BaseExpand = 1;
         public double BaseExploit = 1;
         public double BaseExplore = 1;
-        public double BaseExterminate = -2;
+        public double BaseExterminate = 1;
 
         private double housingNeed = 1;
         private double foodNeed = 1;
@@ -47,6 +75,14 @@ namespace Orbis.Simulation
             IsAlive = true;
             Territory = new HashSet<Cell>();
             Neighbours = new HashSet<Cell>();
+            Wars = new List<War>();
+            BorderCivs = new HashSet<Civilization>();
+            CivOpinions = new Dictionary<Civilization, int>();
+        }
+
+        public void SetPopulation(int population)
+        {
+            Population = population;
         }
 
         /// <summary>
@@ -55,17 +91,31 @@ namespace Orbis.Simulation
         /// <returns></returns>
         public SimulationAction DetermineAction()
         {
-            SimulationAction simulationAction = new SimulationAction(this, Simulation4XAction.DONOTHING, null);
+            SimulationAction action = new SimulationAction(this, Simulation4XAction.DONOTHING, null);
+
+            if (AtWar)
+            {
+                return action;
+            }
 
             double expand = 1, exploit = 1, explore = 1, exterminate = 1;
 
             expand *= BaseExpand + (Population > 0 ? ((Population - (double)TotalHousing) / Population) : 0);
             exploit *= BaseExploit;
             explore *= BaseExplore;
-            exterminate *= BaseExterminate;
+
+            // TODO: make picking targets use logic instead of "The first one I hate (which is the first guy I border) will do".
+            Civilization iHate = BorderCivs.FirstOrDefault(c => CivOpinions[c] <= -100);
+            exterminate *= BaseExterminate + (iHate != null ? ((Math.Abs(CivOpinions[iHate]) - 100) / 20) : 0);
 
             if (expand > exploit && expand > explore && expand > exterminate)
             {
+                if (Neighbours.Count <= 0)
+                {
+                    LoseCell(Territory.First());
+                    return action;
+                }
+
                 Cell cell = Neighbours.First();
 
                 int cellCount = Neighbours.Count;
@@ -77,26 +127,29 @@ namespace Orbis.Simulation
                     }
                 }
 
-                simulationAction.Action = Simulation4XAction.EXPAND;
-                simulationAction.Params = new object[] { cell };
+                action.Action = Simulation4XAction.EXPAND;
+                action.Params = new object[] { cell };
             }
             else if (exploit > expand && exploit > explore && exploit > exterminate)
             {
-                simulationAction.Action = Simulation4XAction.EXPLOIT;
-                simulationAction.Params = null;
+                action.Action = Simulation4XAction.EXPLOIT;
+                action.Params = null;
             }
             else if (explore > expand && explore > exploit && explore > exterminate)
             {
-                simulationAction.Action = Simulation4XAction.EXPLORE;
-                simulationAction.Params = null;
+                action.Action = Simulation4XAction.EXPLORE;
+                action.Params = null;
             }
             else if (exterminate > expand && exterminate > exploit && exterminate > explore)
             {
-                simulationAction.Action = Simulation4XAction.EXTERMINATE;
-                simulationAction.Params = null;
+                if (iHate != null)
+                {
+                    action.Action = Simulation4XAction.EXTERMINATE;
+                    action.Params = new object[] { iHate };
+                }
             }
 
-            return simulationAction;
+            return action;
         }
 
         public double CalculateCellValue(Cell cell)
@@ -104,21 +157,69 @@ namespace Orbis.Simulation
             // Calculate value based on needs.
             double val = (cell.MaxHousing / 1000 * housingNeed) + (cell.FoodMod * foodNeed) + (cell.ResourceMod * resourceNeed) + (cell.WealthMod * wealthNeed);
 
+            if (cell.Owner == null)
+            {
+                val += 2.5;
+            }
+            else if (cell.Owner != null)
+            {
+                val *= -10 + BaseExterminate;
+            }
+
             // Add value for each neighbour cell.
             int cellCount = cell.Neighbours.Count;
             for (int i = 0; i < cellCount; i++)
             {
                 if (cell.Neighbours[i].Owner == this)
                 {
-                    val += 2;
-                }
-                else if (cell.Neighbours[i].Owner != null)
-                {
-                    val += BaseExterminate;
+                    val += 2.5;
                 }
             }
 
             return val;
+        }
+
+        public bool LoseCell(Cell cell)
+        {
+            if (cell.Owner != this)
+            {
+                return false;
+            }
+
+            if (!Territory.Remove(cell))
+            {
+                return false;
+            }
+
+            cell.Owner = null;
+
+            Neighbours.Add(cell);
+
+            List<Cell> a = new List<Cell>();
+            foreach (Cell c in cell.Neighbours)
+            {
+                if (c.Owner == this)
+                {
+                    foreach (Cell cc in c.Neighbours)
+                    {
+                        if (cc.Owner != this)
+                        {
+                            Neighbours.Add(cc);
+                        }
+                    }
+                }
+                else
+                {
+                    a.Add(c);
+                }
+            }
+
+            foreach (Cell c in a)
+            {
+                Neighbours.Remove(c);
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -128,38 +229,9 @@ namespace Orbis.Simulation
         /// <returns>True if succesfull</returns>
         public bool ClaimCell(Cell cell)
         {
-            if(cell.Owner != null)
+            if (cell.Owner != null)
             {
-                // Recalculate neighbours, TODO: do war
-                cell.Owner.Territory.Remove(cell);
-                // Get neighbouring territory
-                HashSet<Cell> neighbouringTerritory = new HashSet<Cell>();
-                foreach(var n1 in cell.Neighbours)
-                {
-                    foreach(var n2 in n1.Neighbours)
-                    {
-                        if(n2.Owner == cell.Owner && n2 != cell)
-                        {
-                            neighbouringTerritory.Add(n2);
-                        }
-                    }
-                    if(n1.Owner == cell.Owner)
-                    {
-                        neighbouringTerritory.Add(n1);
-                    }
-                    cell.Owner.Territory.Remove(n1);
-                }
-                // Update based on territory
-                foreach(var territory in neighbouringTerritory)
-                {
-                    foreach (Cell c in territory.Neighbours)
-                    {
-                        if (c.Owner != this && c != cell)
-                        {
-                            Neighbours.Add(c);
-                        }
-                    }
-                }
+                cell.Owner.LoseCell(cell);
             }
 
             cell.Owner = this;
@@ -170,11 +242,25 @@ namespace Orbis.Simulation
                 if (c.Owner != this)
                 {
                     Neighbours.Add(c);
+
+                    if (c.Owner != null)
+                    {
+                        if (BorderCivs.Add(c.Owner))
+                        {
+                            CivOpinions.Add(c.Owner, -20);
+                        }
+                        else
+                        {
+                            CivOpinions[c.Owner] -= 20;
+                        }
+                    }
                 }
             }
 
             Neighbours.Remove(cell);
             TotalHousing += cell.MaxHousing;
+
+            cell.population = 100;
 
             return true;
         }

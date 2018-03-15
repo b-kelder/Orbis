@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using Orbis.Engine;
 using Orbis.Simulation;
 
+/// <summary>
+/// Author: Bram Kelder
+/// </summary>
 namespace Orbis.World
 {
     class Cell
