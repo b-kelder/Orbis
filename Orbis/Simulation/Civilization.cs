@@ -243,7 +243,7 @@ namespace Orbis.Simulation
                     {
                         if (BorderCivs.Add(c.Owner))
                         {
-                            CivOpinions.Add(c.Owner, 0);
+                            CivOpinions.Add(c.Owner, -20);
                         }
                         else
                         {

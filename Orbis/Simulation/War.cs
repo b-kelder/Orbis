@@ -17,14 +17,14 @@ namespace Orbis.Simulation
     class War
     {
         public int Duration { get; private set; }
-        public Cell[] toTransfer { get; set; }
+        public Civilization Attacker { get; set; }
+        public Civilization Defender { get; set; }
 
         private Random _random;
         private int _upperBound;
         private int _lowerBound;
         private Scene _scene;
-        private Civilization _attacker;
-        private Civilization _defender;
+        
 
         /// <summary>
         ///  Start a new war between two civs.
@@ -37,16 +37,16 @@ namespace Orbis.Simulation
             _upperBound = 100;
             _lowerBound = 0;
             _scene = scene;
-            _attacker = attacker;
-            _defender = defender;
+            Attacker = attacker;
+            Defender = defender;
             Duration = 1;
 
-            _attacker.Wars.Add(this);
-            _defender.Wars.Add(this);
+            Attacker.Wars.Add(this);
+            Defender.Wars.Add(this);
 
             System.Diagnostics.Debug.WriteLine("{0} has declared war on {1}."
-                , _attacker.Name
-                , _defender.Name);
+                , Attacker.Name
+                , Defender.Name);
         }
 
         /// <summary>
@@ -59,56 +59,49 @@ namespace Orbis.Simulation
 
             // TODO: Add other modifiers to this calculation
             int battleResult = (int)Math.Floor(_random.Next(1, 21)
-                + (0.4 * _attacker.Population + 10 * _attacker.Wars.Count)
-                - (0.4 * _defender.Population + 10 * _defender.Wars.Count));
+                + (0.4 * Attacker.Population + 10 * Attacker.Wars.Count)
+                - (0.4 * Defender.Population + 10 * Defender.Wars.Count));
 
             System.Diagnostics.Debug.WriteLine("Battle result for war between {0} and {1}: {2}.",
-                _attacker.Name,
-                _defender.Name,
+                Attacker.Name,
+                Defender.Name,
                 battleResult);
 
-            _attacker.Population -= (int)Math.Floor((double)battleResult * (5 * Duration));
-            _defender.Population -= (int)Math.Floor((double)battleResult * (5 * Duration));
+            Attacker.Population -= (int)Math.Floor((double)battleResult * (5 * Duration));
+            Defender.Population -= (int)Math.Floor((double)battleResult * (5 * Duration));
 
             if(battleResult > _upperBound - 5 * Duration)
             {
                 warEnded = true;
 
                 // TODO: implement GetWarResultCells.
-                toTransfer = GetWarResultCells(true);
-                foreach (Cell cell in toTransfer)
-                {
-                    _attacker.ClaimCell(cell);
-                }
 
                 System.Diagnostics.Debug.WriteLine("The war between {0} ({1}) and {2} ({3}) has been won by {0}.",
-                    _attacker.Name,
-                    _attacker.Population,
-                    _defender.Name,
-                    _defender.Population);
+                    Attacker.Name,
+                    Attacker.Population,
+                    Defender.Name,
+                    Defender.Population);
             }
             else if(battleResult < _lowerBound + 5 * Duration)
             {
                 warEnded = true;
 
-                // TODO: implement GetWarResultCells.
-                toTransfer = GetWarResultCells(true);
-                foreach (Cell cell in toTransfer)
-                {
-                    _defender.ClaimCell(cell);
-                }
-
                 System.Diagnostics.Debug.WriteLine("The war between {0} ({1}) and {2} ({3}) has been won by {2}.",
-                    _attacker.Name,
-                    _attacker.Population,
-                    _defender.Name,
-                    _defender.Population);
+                    Attacker.Name,
+                    Attacker.Population,
+                    Defender.Name,
+                    Defender.Population);
             }
 
             if (warEnded)
             {
-                _attacker.Wars.Remove(this);
-                _defender.Wars.Remove(this);
+                Attacker.BorderCivs.Remove(Defender);
+                Attacker.CivOpinions.Remove(Defender);
+                Attacker.Wars.Remove(this);
+
+                Defender.BorderCivs.Remove(Attacker);
+                Defender.CivOpinions.Remove(Attacker);
+                Defender.Wars.Remove(this);
             }
 
             Duration++;
@@ -128,11 +121,11 @@ namespace Orbis.Simulation
         {
             if (victory)
             {
-                return _defender.Territory.ToArray();
+                return Defender.Territory.ToArray();
             }
             else
             {
-                return _attacker.Territory.ToArray();
+                return Attacker.Territory.ToArray();
             }
             // TODO: Get cells to transfer.
         }

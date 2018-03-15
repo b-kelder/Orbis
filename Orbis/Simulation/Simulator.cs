@@ -89,7 +89,7 @@ namespace Orbis.Simulation
                 {
                     continue;
                 }
-
+                
                 actionQueue.Enqueue(civ.DetermineAction());
 
                 taskList.Add(Task.Run(() =>
@@ -130,6 +130,11 @@ namespace Orbis.Simulation
                     if (!hasLand || population <= 0)
                     {
                         civ.IsAlive = false;
+                        civ.Population = 0;
+                        foreach (Cell cell in civ.Territory)
+                        {
+                            cc.TryAdd(cell, civ);
+                        }
                     }
 
                     civ.Population = population;
@@ -142,6 +147,7 @@ namespace Orbis.Simulation
 
             foreach (KeyValuePair<Cell, Civilization> ccc in cc)
             {
+                ccc.Key.population = 0;
                 ccc.Value.LoseCell(ccc.Key);
                 changed.Add(ccc.Key);
             }
@@ -185,11 +191,22 @@ namespace Orbis.Simulation
                 bool warResult = war.Battle();
                 if (warResult)
                 {
-                    Cell[] cells = war.toTransfer;
-                    foreach (Cell cell in cells)
+                    Cell[] toTransfer = war.GetWarResultCells(warResult);
+
+                    foreach (Cell cell in toTransfer)
                     {
+                        if (warResult)
+                        {
+                            war.Attacker.ClaimCell(cell);
+                        }
+                        else
+                        {
+                            war.Defender.ClaimCell(cell);
+                        }
+                        
                         changed.Add(cell);
                     }
+
                     finishedWars.Add(war);
                 }
             }
