@@ -18,7 +18,8 @@ namespace Orbis
     /// </summary>
     public class Orbis : Game
     {
-        public static readonly int TEST_SEED = 19450513;
+
+        public static readonly int TEST_SEED = 913279214;
         public static readonly int TEST_CIVS = 22;
         public static readonly int TEST_RADIUS = 128;
         public static readonly int TEST_TICKS = 10000;
@@ -79,13 +80,13 @@ namespace Orbis
             base.Initialize();
         }
 
-        private void GenerateWorld(int seed)
+        private void GenerateWorld(int seed, XMLModel.WorldSettings worldSettings, BiomeCollection biomeCollection)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             // Generate world
             Debug.WriteLine("Generating world for seed " + seed);
-            scene = new Scene(seed);
+            scene = new Scene(seed, worldSettings, biomeCollection);
             var generator = new WorldGenerator(scene);
             generator.GenerateWorld(TEST_RADIUS);
             generator.GenerateCivs(TEST_CIVS);
@@ -110,9 +111,13 @@ namespace Orbis
             AudioManager.LoadContent(Content);
             AudioManager.PlaySong("DEV_TEST");
 
+            XMLModel.WorldSettings worldSettings = Content.Load<XMLModel.WorldSettings>("Config/WorldSettings");
             fontDebug = Content.Load<SpriteFont>("DebugFont");
 
-            GenerateWorld(TEST_SEED);
+            // Biome table test
+            var biomeData = Content.Load<XMLModel.BiomeCollection>("Config/Biomes");
+            var biomeCollection = new BiomeCollection(biomeData, Content);
+            GenerateWorld(TEST_SEED, worldSettings, biomeCollection);
         }
 
         /// <summary>
@@ -168,13 +173,18 @@ namespace Orbis
 
             spriteBatch.Begin();
 
-            spriteBatch.DrawString(fontDebug, "Tick: " + simulator.CurrentTick, new Vector2(10, 50), Color.Red);
-            float y = 80;
-            foreach(var civ in scene.Civilizations)
-            {
-                spriteBatch.DrawString(fontDebug, civ.Name + " - " + civ.Territory.Count + " - Population: " + civ.Population + " - Is Alive: " + civ.IsAlive, new Vector2(10, y), Color.Red);
-                y += 15;
-            }
+            //spriteBatch.DrawString(fontDebug, "Tick: " + simulator.CurrentTick, new Vector2(10, 50), Color.Red);
+            //float y = 80;
+            //foreach (var civ in scene.Civilizations)
+            //{
+            //    spriteBatch.DrawString(fontDebug, civ.Name, new Vector2(10, y), Color.Red);
+            //    spriteBatch.DrawString(fontDebug, "Size: " + civ.Territory.Count, new Vector2(200, y), Color.Red);
+            //    spriteBatch.DrawString(fontDebug, "Population: " + civ.Population, new Vector2(300, y), Color.Red);
+            //    spriteBatch.DrawString(fontDebug, "Is Alive: " + civ.IsAlive, new Vector2(500, y), Color.Red);
+            //    spriteBatch.DrawString(fontDebug, "Wealth: " + civ.TotalWealth, new Vector2(600, y), Color.Red);
+            //    spriteBatch.DrawString(fontDebug, "Resource: " + civ.TotalResource, new Vector2(800, y), Color.Red);
+            //    y += 15;
+            //}
 
             spriteBatch.DrawString(fontDebug, "FPS: " + (1 / gameTime.ElapsedGameTime.TotalSeconds).ToString("##.##"), new Vector2(10, 30), Color.Red);
 

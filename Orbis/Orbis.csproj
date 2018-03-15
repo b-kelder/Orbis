@@ -140,10 +140,12 @@
     <Compile Include="Rendering\SceneRendererComponent.cs" />
     <Compile Include="Simulation\Simulator.cs" />
     <Compile Include="Simulation\Civilization.cs" />
+    <Compile Include="Simulation\War.cs" />
     <Compile Include="TopographyHelper.cs" />
     <Compile Include="UI\Utility\BasicTextureFactory.cs" />
     <Compile Include="UI\Utility\TextHelper.cs" />
     <Compile Include="World\Biome.cs" />
+    <Compile Include="World\BiomeCollection.cs" />
     <Compile Include="World\Cell.cs" />
     <Compile Include="World\Map.cs" />
     <Compile Include="World\Scene.cs" />
