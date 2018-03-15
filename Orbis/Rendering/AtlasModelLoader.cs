@@ -23,6 +23,8 @@ namespace Orbis.Rendering
 
         public string BaseModelDirectory { get; set; }
         public string BaseTextureDirectory { get; set; }
+        public Material Material { get { return material; } }
+
 
         public AtlasModelLoader(int atlasWidth, int atlasHeight, Effect shader, ContentManager contentManager)
         {

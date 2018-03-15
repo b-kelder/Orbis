@@ -10,6 +10,18 @@ namespace Orbis
     class TopographyHelper
     {
         /// <summary>
+        /// Returns the distance between two coordinates
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static float Distance(Point a, Point b)
+        {
+            var cubeA = ConvertAxialToCube(a.ToVector2());
+            var cubeB = ConvertAxialToCube(b.ToVector2());
+            return Math.Max(Math.Abs(cubeA.X - cubeB.X), Math.Max(Math.Abs(cubeA.Y - cubeB.Y), Math.Abs(cubeA.Z = cubeB.Z)));
+        }
+        /// <summary>
         /// Converts a hex point to a world point.
         /// </summary>
         /// <param name="point"></param>
