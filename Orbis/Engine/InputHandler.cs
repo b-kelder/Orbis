@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework.Input;
 
 namespace Orbis.Engine
 {
@@ -25,6 +18,11 @@ namespace Orbis.Engine
     /// <Author>Jannick Zeegers</Author>
     public class InputHandler
     {
+        /// <summary>
+        /// The static variable holding the once instance of the singleton InputHandler.
+        /// </summary>
+        private static InputHandler uniqueInstance;
+
         /// <summary>
         /// The state of the keyboard.
         /// </summary>
@@ -56,16 +54,24 @@ namespace Orbis.Engine
         private GamePadState gStatePrevious;
 
         /// <summary>
-        /// Constructor for InputHandler.
+        /// The private constructor for InputHandler.
         /// </summary>
-        public InputHandler()
+        private InputHandler() { }
+
+        /// <summary>
+        /// Used to get the single instance of the InputHandler.
+        /// </summary>
+        /// <returns>Returns the singleton InputHandler.</returns>
+        public static InputHandler GetInstance()
         {
+            if (uniqueInstance == null)
+            {
+                uniqueInstance = new InputHandler();
+            }
+            return uniqueInstance;
         }
 
         #region KeyboardInput
-        /**************************************************************
-         *                    Public functions                          
-         *************************************************************/
         /// <summary>
         /// Checks if a given key is currently held down.
         /// </summary>
@@ -164,9 +170,6 @@ namespace Orbis.Engine
             return kState.IsKeyUp(key) && kStatePrevious.IsKeyDown(key);
         }
 
-        /**************************************************************
-         *                    Private functions                          
-         *************************************************************/
         /// <summary>
         /// Updates the current keyboard keys states.
         /// </summary>
@@ -179,9 +182,6 @@ namespace Orbis.Engine
         #endregion
 
         #region MouseInput
-        /**************************************************************
-         *                    Public functions                          
-         *************************************************************/
         /// <summary>
         /// Checks if a given mousebutton is currently held down.
         /// </summary>
@@ -284,9 +284,6 @@ namespace Orbis.Engine
                    GetButtonState(mButton)         == ButtonState.Released;
         }
 
-        /**************************************************************
-         *                    Private functions                          
-         *************************************************************/
         /// <summary>
         /// Returns the state of the given MouseButton.
         /// </summary>
@@ -337,9 +334,6 @@ namespace Orbis.Engine
         #endregion
 
         #region GamePadInput
-        /**************************************************************
-         *                    Public functions                          
-         *************************************************************/
         /// <summary>
         /// Checks if a given button is currently held down.
         /// </summary>
@@ -438,9 +432,6 @@ namespace Orbis.Engine
             return gState.IsButtonUp(button) && gStatePrevious.IsButtonDown(button);
         }
 
-        /**************************************************************
-         *                    Private functions                          
-         *************************************************************/
         /// <summary>
         /// Updates the current gamepad button states.
         /// </summary>
@@ -452,9 +443,6 @@ namespace Orbis.Engine
         }
         #endregion
 
-        /**************************************************************
-         *                    Public functions                          
-         *************************************************************/
         /// <summary>
         /// Updates the states of all the input devices.
         /// </summary>

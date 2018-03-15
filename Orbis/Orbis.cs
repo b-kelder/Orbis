@@ -23,13 +23,11 @@ namespace Orbis
         public static readonly int TEST_RADIUS = 128;
         public static readonly int TEST_TICKS = 10000;
 
-        public InputHandler Input { get { return input; } }
+        public InputHandler Input { get { return InputHandler.GetInstance(); } }
         public GraphicsDeviceManager Graphics { get { return graphics; } }
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-
-        InputHandler input;
 
         private Scene scene;
         private Simulator simulator;
@@ -47,8 +45,6 @@ namespace Orbis
             Content.RootDirectory = "Content";
             sceneRenderer = new SceneRendererComponent(this);
             Components.Add(sceneRenderer);
-
-            input = new InputHandler();
         }
 
         /// <summary>
@@ -121,7 +117,7 @@ namespace Orbis
         protected override void Update(GameTime gameTime)
         {
             // Update user input
-            input.UpdateInput();
+            Input.UpdateInput();
 
             // Update renderer if we can
             if(sceneRenderer.ReadyForUpdate)
@@ -138,7 +134,7 @@ namespace Orbis
                 } while (updatedCells != null);
             }
 
-            if (input.IsKeyDown(Keys.S, new Keys[] { Keys.LeftShift, Keys.K, Keys.Y}))
+            if (Input.IsKeyDown(Keys.S, new Keys[] { Keys.LeftShift, Keys.K, Keys.Y}))
             {
                 Exit();
             }
