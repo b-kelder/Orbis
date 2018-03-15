@@ -58,17 +58,29 @@ namespace Orbis.Simulation
             bool warEnded = false;
 
             // TODO: Add other modifiers to this calculation
-            int battleResult = (int)Math.Floor(_random.Next(1, 21)
-                + (0.4 * Attacker.Population + 10 * Attacker.Wars.Count)
-                - (0.4 * Defender.Population + 10 * Defender.Wars.Count));
+            int attackerScore = (int)Math.Floor(_random.Next(1, 21)
+                + ((double)Attacker.Population / Defender.Population)
+                + ((double)Attacker.TotalWealth / Defender.TotalWealth)
+                + Defender.Wars.Count);
+
+            int defenderScore = (int)Math.Floor(_random.Next(1, 21) 
+                + ((double)Defender.Population / Attacker.Population)
+                + ((double)Defender.TotalWealth / Attacker.TotalWealth)
+                + Attacker.Wars.Count);
+
+            int battleResult = attackerScore - defenderScore;
+
+
+                //+ (0.4 * Attacker.Population + 10 * Attacker.Wars.Count)
+                //- (0.4 * Defender.Population + 10 * Defender.Wars.Count));
 
             System.Diagnostics.Debug.WriteLine("Battle result for war between {0} and {1}: {2}.",
                 Attacker.Name,
                 Defender.Name,
                 battleResult);
 
-            Attacker.Population -= (int)Math.Floor((double)battleResult * (5 * Duration));
-            Defender.Population -= (int)Math.Floor((double)battleResult * (5 * Duration));
+            //Attacker.Population -= (int)Math.Floor((double)battleResult * (5 * Duration));
+            //Defender.Population -= (int)Math.Floor((double)battleResult * (5 * Duration));
 
             if(battleResult > _upperBound - 5 * Duration)
             {
@@ -119,15 +131,30 @@ namespace Orbis.Simulation
         /// </returns>
         public Cell[] GetWarResultCells(bool victory)
         {
+            Civilization winner;
+            Civilization loser;
+
             if (victory)
             {
-                return Defender.Territory.ToArray();
+                winner = Attacker;
+                loser = Defender;
             }
             else
             {
-                return Attacker.Territory.ToArray();
+                winner = Defender;
+                loser = Attacker;
             }
-            // TODO: Get cells to transfer.
+
+            HashSet<Cell> cells = new HashSet<Cell>();
+            foreach (Cell cell in winner.Neighbours)
+            {
+                if (cell.Owner == loser)
+                {
+                    cells.Add(cell);
+                }
+            }
+
+            return cells.ToArray();
         }
     }
 }

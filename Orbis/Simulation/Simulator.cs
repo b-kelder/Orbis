@@ -130,14 +130,14 @@ namespace Orbis.Simulation
                     if (!hasLand || population <= 0)
                     {
                         civ.IsAlive = false;
-                        civ.Population = 0;
+                        civ.SetPopulation(0);
                         foreach (Cell cell in civ.Territory)
                         {
                             cc.TryAdd(cell, civ);
                         }
                     }
 
-                    civ.Population = population;
+                    civ.SetPopulation(population);
                 }));
             }
 

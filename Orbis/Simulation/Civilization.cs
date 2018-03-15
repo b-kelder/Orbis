@@ -54,16 +54,16 @@ namespace Orbis.Simulation
         /// <summary>
         /// The total population of the civ
         /// </summary>
-        public int Population { get; set; }
+        public int Population { get; private set; }
 
         public int TotalHousing { get; set; }
         public double TotalWealth { get; set; }
         public double TotalResource { get; set; }
 
-        public double BaseExpand = 3;
+        public double BaseExpand = 1;
         public double BaseExploit = 1;
         public double BaseExplore = 1;
-        public double BaseExterminate = 0;
+        public double BaseExterminate = 1;
 
         private double housingNeed = 1;
         private double foodNeed = 1;
@@ -78,6 +78,11 @@ namespace Orbis.Simulation
             Wars = new List<War>();
             BorderCivs = new HashSet<Civilization>();
             CivOpinions = new Dictionary<Civilization, int>();
+        }
+
+        public void SetPopulation(int population)
+        {
+            Population = population;
         }
 
         /// <summary>
@@ -98,8 +103,10 @@ namespace Orbis.Simulation
             expand *= BaseExpand + (Population > 0 ? ((Population - (double)TotalHousing) / Population) : 0);
             exploit *= BaseExploit;
             explore *= BaseExplore;
-            // Debug value: always declare war on all neighbours.
-            exterminate *= BaseExterminate + (CivOpinions.Count * 10000);
+
+            // TODO: make picking targets use logic instead of "The first one I hate (which is the first guy I border) will do".
+            Civilization iHate = BorderCivs.FirstOrDefault(c => CivOpinions[c] <= -100);
+            exterminate *= BaseExterminate + (iHate != null ? ((Math.Abs(CivOpinions[iHate]) - 100) / 20) : 0);
 
             if (expand > exploit && expand > explore && expand > exterminate)
             {
@@ -135,13 +142,10 @@ namespace Orbis.Simulation
             }
             else if (exterminate > expand && exterminate > exploit && exterminate > explore)
             {
-                // TODO: make picking targets use logic instead of "The first one I hate (which is the first guy I border) will do".
-                Civilization civilization = BorderCivs.FirstOrDefault(c => CivOpinions[c] <= -20);
-
-                if (civilization != null)
+                if (iHate != null)
                 {
                     action.Action = Simulation4XAction.EXTERMINATE;
-                    action.Params = new object[] { civilization };
+                    action.Params = new object[] { iHate };
                 }
             }
 
@@ -159,7 +163,7 @@ namespace Orbis.Simulation
             }
             else if (cell.Owner != null)
             {
-                val += -4 + BaseExterminate;
+                val *= -10 + BaseExterminate;
             }
 
             // Add value for each neighbour cell.

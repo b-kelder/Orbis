@@ -194,8 +194,8 @@ namespace Orbis.World
                     if (cell.Elevation <= SeaLevel)
                     {
                         cell.IsWater = true;
-                        cell.FoodMod = random.NextDouble() + random.Next(2);
-                        cell.ResourceMod = random.NextDouble() + random.Next(2);
+                        cell.FoodMod = random.NextDouble() + random.Next(1, 2);
+                        cell.ResourceMod = random.NextDouble() + random.Next(1, 2);
 
                         cell.MaxHousing = 0;
                     }
