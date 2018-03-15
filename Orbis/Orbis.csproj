@@ -110,20 +110,17 @@
     </Compile>
     <Compile Include="Orbis.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\BasicElements\IUpdateable.cs" />
     <Compile Include="UI\BasicElements\PositionedText.cs" />
     <Compile Include="UI\BasicElements\Button.cs" />
     <Compile Include="UI\InputTextBox.cs" />
     <Compile Include="UI\BasicElements\IBasicElement.cs" />
     <Compile Include="UI\BasicElements\PositionedTexture.cs" />
     <Compile Include="UI\ProgressBar.cs" />
-    <Compile Include="UI\OrbisUIException.cs" />
     <Compile Include="UI\BasicElements\Scrollbar.cs" />
-    <Compile Include="UI\SplitDirection.cs" />
-    <Compile Include="UI\SplitPanel.cs" />
     <Compile Include="UI\AnchorPosition.cs" />
     <Compile Include="UI\TextBox.cs" />
     <Compile Include="UI\UIElement.cs" />
-    <Compile Include="UI\Panel.cs" />
     <Compile Include="UI\UIRenderer.cs" />
     <Compile Include="Rendering\AtlasModelLoader.cs" />
     <Compile Include="Rendering\AutoAtlas.cs" />

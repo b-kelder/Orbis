@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Orbis.UI.BasicElements;
 using Orbis.UI.Utility;
 
@@ -16,29 +10,17 @@ namespace Orbis.UI
     /// </summary>
     public class UIRenderer : DrawableGameComponent
     {
+        private UIElement test;
+
         /// <summary>
         ///     A factory for creating and managing basic single-color textures.
         /// </summary>
         public BasicTextureFactory BasicTextureFactory { get; private set; }
 
-        // TEST
-        public ProgressBar bar;
-
-        public IBasicElement kek;
-
         /// <summary>
         ///     Gets the size of the window.
         /// </summary>
         private Point WindowSize
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        ///     The root element for the window.
-        /// </summary>
-        public UIElement RootElement
         {
             get;
             set;
@@ -55,11 +37,6 @@ namespace Orbis.UI
         /// <param name="game"></param>
         public UIRenderer(Game game) : base(game)
         {
-            RootElement = new Panel()
-            {
-                AnchorPosition = AnchorPosition.TopLeft,
-                LayerDepth = 1.00F
-            };
         }
 
         public override void Initialize()
@@ -67,17 +44,15 @@ namespace Orbis.UI
             BasicTextureFactory = new BasicTextureFactory(Game.GraphicsDevice);
 
             WindowSize = Game.Window.ClientBounds.Size;
-            RootElement.Size = WindowSize;
 
             Texture2D whiteSmokeTexture = BasicTextureFactory.CreateBasicTexture(Color.WhiteSmoke);
             SpriteFont messageFont = Game.Content.Load<SpriteFont>("DebugFont");
 
-            kek = new Button(whiteSmokeTexture, messageFont, "Willem kees helmina banaan")
+            test = new ProgressBar(Game)
             {
-                Position = new Point(400, 400),
-                Size = new Point(100, 50),
-                SceenPosition = new Rectangle(new Point(400,400), new Point(100,50)),
-                LayerDepth = 1F
+                Size = new Point(800, 600),
+                AnchorPosition = AnchorPosition.Center,
+                RelativePosition = new Point(-400, -300)
             };
 
             //Texture2D barBack = new Texture2D(Game.GraphicsDevice, 1, 1);
@@ -186,14 +161,6 @@ namespace Orbis.UI
         /// </param>
         public override void Update(GameTime gameTime)
         {
-            var newWindowSize = Game.Window.ClientBounds.Size;
-            if (WindowSize != newWindowSize)
-            {
-                RootElement.Size = newWindowSize;
-                WindowSize = newWindowSize;
-            }
-
-            RootElement.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -205,11 +172,7 @@ namespace Orbis.UI
         public override void Draw(GameTime gameTime)
         {
             _spriteBatch.Begin(SpriteSortMode.BackToFront);
-            //RootElement.Draw(_spriteBatch, gameTime);
-            if (kek != null)
-            {
-                kek.Render(_spriteBatch);
-            }
+            test.Draw(_spriteBatch);
             _spriteBatch.End();
 
             base.Draw(gameTime);

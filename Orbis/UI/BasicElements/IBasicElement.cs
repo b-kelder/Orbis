@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Orbis.UI.BasicElements
@@ -12,13 +6,10 @@ namespace Orbis.UI.BasicElements
     /// <summary>
     ///     A basic element in the Orbis UI that can be drawn.
     /// </summary>
+    /// 
+    /// <author>Kaj van der Veen</author>
     public interface IBasicElement
     {
-        /// <summary>
-        ///     The position of the element.
-        /// </summary>
-        Point Position { get; set; }
-
         /// <summary>
         ///     The combination of position and size for the element.
         /// </summary>
@@ -34,6 +25,11 @@ namespace Orbis.UI.BasicElements
         /// 
         /// <exception cref="ArgumentOutOfRangeException" />
         float LayerDepth { get; set; }
+
+        /// <summary>
+        ///     The position of the element.
+        /// </summary>
+        Point Position { get; set; }
 
         /// <summary>
         ///     Effects to use for drawing the element..

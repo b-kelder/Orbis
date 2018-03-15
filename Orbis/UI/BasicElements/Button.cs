@@ -10,8 +10,13 @@ namespace Orbis.UI.BasicElements
     ///     A button in the Orbis UI.
     /// </summary>
     /// <author>Kaj van der Veen</author>
-    public class Button : PositionedTexture
+    public class Button : PositionedTexture, IUpdatableElement
     {
+        /// <summary>
+        ///     Fires when the button has been clicked.
+        /// </summary>
+        public event EventHandler ButtonClickedEvent;
+
         /// <summary>
         ///     The layer depth of the button.
         /// </summary>
@@ -38,6 +43,11 @@ namespace Orbis.UI.BasicElements
                 }
             }
         }
+
+        /// <summary>
+        ///     The onscreen position to check for mouse input.
+        /// </summary>
+        public Rectangle SceenPosition { get; set; }
 
         /// <summary>
         ///     The size of the button.
@@ -91,16 +101,6 @@ namespace Orbis.UI.BasicElements
                 }
             }
         }
-
-        /// <summary>
-        ///     The onscreen position to check for mouse input.
-        /// </summary>
-        public Rectangle SceenPosition { get; set; }
-
-        /// <summary>
-        ///     Fires when the button has been clicked.
-        /// </summary>
-        public event EventHandler ButtonClickedEvent;
 
         /// <summary>
         ///     Perform the button's update for this frame.
@@ -158,60 +158,5 @@ namespace Orbis.UI.BasicElements
                 _text.Render(spriteBatch);
             }
         }
-
-        ///// <summary>
-        /////     Draw the button on the screen.
-        ///// </summary>
-        ///// <param name="spriteBatch"></param>
-        ///// <param name="gameTime"></param>
-        //public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
-        //{
-        //    // Drawing is done only if the required resources are set.
-        //    if (spriteBatch != null && BackgroundTexture != null)
-        //    {
-        //        spriteBatch.Draw(BackgroundTexture,
-        //            AbsoluteRectangle,
-        //            null,
-        //            Color.White,
-        //            0.00F,
-        //            Vector2.Zero,
-        //            SpriteEffects.None,
-        //            LayerDepth);
-
-        //        // No text is drawn if no font is set or if the text is empty since there is no point to doing it in those cases.
-        //        if (TextFont != null && !string.IsNullOrWhiteSpace(Text))
-        //        {
-        //            // Before drawing the string, it is wrapped to fit within the button.
-        //            Vector2 textSize = TextFont.MeasureString(_visibleText);
-
-        //            // Ensure that the absolute rectangle is only calculated once for this calculation.
-        //            Point absoluteCenter = AbsoluteRectangle.Center;
-        //            Vector2 textPos = new Vector2(absoluteCenter.X - textSize.X / 2, absoluteCenter.Y - textSize.Y / 2);
-        //            spriteBatch.DrawString(TextFont,
-        //                _visibleText,
-        //                textPos,
-        //                TextColor,
-        //                0.00F,
-        //                Vector2.Zero,
-        //                1.00F,
-        //                SpriteEffects.None,
-        //                LayerDepth - 0.001F);
-        //        }
-        //    }
-        //}
-
-        ///// <summary>
-        /////     Updates the layout of the <see cref="Button"/>.
-        ///// </summary>
-        //public override void UpdateLayout()
-        //{
-        //    if (TextFont != null && !string.IsNullOrWhiteSpace(Text) && Size.X > 0 && Size.Y > 0)
-        //    {
-               
-
-
-        //    }
-        //    // No base UpdateLayout needed; buttons have no children.
-        //}
     }
 }

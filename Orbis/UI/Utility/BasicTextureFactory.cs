@@ -11,6 +11,11 @@ namespace Orbis.UI.Utility
     /// <summary>
     ///     A factory for creating and managing single-color basic textures.
     /// </summary>
+    /// 
+    /// <remarks>
+    ///     This is essentially a debug class and shouldn't be included in the final project,
+    ///     as it is just a utility for easy placeholder texture creation.
+    /// </remarks>
     public class BasicTextureFactory : IDisposable
     {
         // Used for creating textures.

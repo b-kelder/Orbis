@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace Orbis.UI.BasicElements
 {
@@ -13,11 +9,6 @@ namespace Orbis.UI.BasicElements
     /// </summary>
     public class PositionedTexture : IBasicElement
     {
-        /// <summary>
-        ///     The position of the texture.
-        /// </summary>
-        public virtual Point Position { get; set; }
-
         /// <summary>
         ///     The combination of position and size for the texture.
         /// </summary>
@@ -53,14 +44,19 @@ namespace Orbis.UI.BasicElements
         private float _layerDepth;
 
         /// <summary>
-        ///     Effects to use for drawing the texture.
+        ///     The position of the texture.
         /// </summary>
-        public SpriteEffects SpriteEffects { get; set; }
+        public virtual Point Position { get; set; }
 
         /// <summary>
         ///     The dimensions of the texture.
         /// </summary>
         public virtual Point Size { get; set; }
+
+        /// <summary>
+        ///     Effects to use for drawing the texture.
+        /// </summary>
+        public SpriteEffects SpriteEffects { get; set; }
 
         /// <summary>
         ///     The texture that will be drawn.

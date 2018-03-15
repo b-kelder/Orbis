@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace Orbis.UI.BasicElements
 {
@@ -13,22 +9,6 @@ namespace Orbis.UI.BasicElements
     /// </summary>
     public class PositionedText : IBasicElement
     {
-        /// <summary>
-        ///     The position of the text;
-        /// </summary>
-        public Point Position
-        {
-            get
-            {
-                return new Point((int)_position.X, (int)_position.Y);
-            }
-            set
-            {
-                _position = new Vector2(value.X, value.Y);
-            }
-        }
-        private Vector2 _position;
-
         /// <summary>
         ///     The combination of position and size for the text.
         /// </summary>
@@ -41,6 +21,24 @@ namespace Orbis.UI.BasicElements
                 return new Rectangle(Position, size);
             }
         }
+
+        /// <summary>
+        ///     The font to use for drawing the text.
+        /// </summary>
+        /// 
+        /// <exception cref="ArgumentNullException" />
+        public SpriteFont Font
+        {
+            get
+            {
+                return _font;
+            }
+            set
+            {
+                _font = value ?? throw new ArgumentNullException();
+            }
+        }
+        private SpriteFont _font;
 
         /// <summary>
         ///     The layer depth of the text.
@@ -66,9 +64,30 @@ namespace Orbis.UI.BasicElements
         private float _layerDepth;
 
         /// <summary>
+        ///     The position of the text;
+        /// </summary>
+        public Point Position
+        {
+            get
+            {
+                return new Point((int)_position.X, (int)_position.Y);
+            }
+            set
+            {
+                _position = new Vector2(value.X, value.Y);
+            }
+        }
+        private Vector2 _position;
+
+        /// <summary>
         ///     Effects to use for drawing the text.
         /// </summary>
         public SpriteEffects SpriteEffects { get; set; }
+
+        /// <summary>
+        ///     The color in which the text will be drawn.
+        /// </summary>
+        public Color TextColor { get; set; }
 
         /// <summary>
         ///     The text to draw.
@@ -87,29 +106,6 @@ namespace Orbis.UI.BasicElements
             }
         }
         private string _text;
-
-        /// <summary>
-        ///     The font to use for drawing the text.
-        /// </summary>
-        /// 
-        /// <exception cref="ArgumentNullException" />
-        public SpriteFont Font
-        {
-            get
-            {
-                return _font;
-            }
-            set
-            {
-                _font = value ?? throw new ArgumentNullException();
-            }
-        }
-        private SpriteFont _font;
-
-        /// <summary>
-        ///     The color in which the text will be drawn.
-        /// </summary>
-        public Color TextColor { get; set; }
 
         /// <summary>
         ///     Create a new <see cref="PositionedText"/>.

@@ -1,5 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Orbis.UI.BasicElements;
+using System;
+using System.Collections.Generic;
 
 namespace Orbis.UI
 {
@@ -9,63 +12,93 @@ namespace Orbis.UI
     /// <author>Kaj van der Veen</author>
     public abstract class UIElement
     {
-        /// <summary>
-        ///     The parent element for this UI Element.
-        /// </summary>
-        public UIElement Parent
-        {
-            get;
-            set;
-        }
+        // Used to save the basic elements making up this element.
+        protected List<IBasicElement> _childElements;
+
+        // Used to draw the element.
+        protected Texture2D _elementTexture;
+
+        // Used to indicate that element needs to be rerendered the next frame.
+        private bool _isInvalidated;
+
+        // Used to keep track of children that can be updated.
+        protected List<IUpdatableElement> _updatables;
 
         /// <summary>
-        ///     The children of this UI Element.
+        ///     The anchor mode for this element. Decides where the element anchors to the window.
         /// </summary>
-        abstract public UIElement[] Children
-        {
-            get;
-        }
+        public AnchorPosition AnchorPosition { get; set; }
 
         /// <summary>
-        ///     Get the layer depth of this UI Element.
+        ///     The relative position of the UI element.
         /// </summary>
-        public float LayerDepth {
-            get
-            {
-                return _layerDepth;
-            }
-            set
-            {
-                _layerDepth = value;
-                UpdateLayout();
-            }
-        }
-        protected float _layerDepth;
+        public Point RelativePosition { get; set; }
 
         /// <summary>
-        ///     The anchor mode for this element.
-        ///     Decides where the element anchors to the parent.
+        ///     The on-screen position of the element.
         /// </summary>
-        public AnchorPosition AnchorPosition
+        public Point ScreenPosition
         {
             get
             {
-                return _anchorPos;
-            }
-            set
-            {
-                // Resetting layout when the value hasn't changed is inefficiënt and therefore avoided.
-                if (_anchorPos != value)
+                Point location = new Point(RelativePosition.X, RelativePosition.Y);
+                Rectangle windowSize = Window.ClientBounds;
+
+                switch (AnchorPosition)
                 {
-                    _anchorPos = value;
-                    UpdateLayout();
+                    case AnchorPosition.TopRight:
+                        location.X += windowSize.Right;
+                        break;
+                    case AnchorPosition.Center:
+                        location += windowSize.Center;
+                        break;
+                    case AnchorPosition.BottomLeft:
+                        location.Y += windowSize.Bottom;
+                        break;
+                    case AnchorPosition.BottomRight:
+                        location.X += windowSize.Right;
+                        location.Y += windowSize.Bottom;
+                        break;
+
+                    case AnchorPosition.TopLeft:
+                    default:
+                        // The top left requires no changes.
+                        break;
                 }
+
+                return location;
+                //// Anchor positions decide what point of the parent the element is relative to.
+                //if (AnchorPosition == AnchorPosition.TopLeft)
+                //{
+                //    location.Y;
+                //}
+                //else if (AnchorPosition == AnchorPosition.TopRight)
+                //{
+                //    Point parentTopRight = new Point(parentRect.Right, parentRect.Top);
+                //    absoluteRect.Location = absoluteRect.Location + parentTopRight;
+                //}
+                //else if (AnchorPosition == AnchorPosition.Center)
+                //{
+                //    absoluteRect.Location = absoluteRect.Location + parentRect.Center;
+                //}
+                //else if (AnchorPosition == AnchorPosition.BottomLeft)
+                //{
+                //    absoluteRect.Y += parentRect.Bottom;
+                //}
+                //else if (AnchorPosition == AnchorPosition.BottomRight)
+                //{
+                //    Point parentBottomRight = new Point(parentRect.Right, parentRect.Bottom);
+                //    absoluteRect.Location = absoluteRect.Location + parentBottomRight;
+                //}
+
+                //return absoluteRect;
             }
         }
+
         /// <summary>
-        ///     The position in the parent element relative to which this element is positioned.
+        ///     The size of the UI element.
         /// </summary>
-        protected AnchorPosition _anchorPos;
+        public Point Size { get; set; }
 
         /// <summary>
         ///     Is the UI Element visible?
@@ -73,136 +106,65 @@ namespace Orbis.UI
         public bool Visible { get; set; }
 
         /// <summary>
-        ///     A rectangle with the absolute on-screen position and size of the element.
+        ///     The game window.
         /// </summary>
-        public Rectangle AbsoluteRectangle
-        {
-            get
-            {
-                return GetNewAbsoluteRect(_relativeRect);
-            }
-        }
+        public GameWindow Window { get; }
 
         /// <summary>
-        ///     The size of the element and location relative to the parent.
+        ///     Create a new <see cref="UIElement"/>.
         /// </summary>
-        public Rectangle RelativeRectangle
-        {
-            get
+        public UIElement(Game game) {
+            if (game == null)
             {
-                return _relativeRect;
+                throw new ArgumentNullException();
             }
-            set
-            {
-                // Prevent pointless checks by only changing if the value is actually different.
-                if (_relativeRect != value)
-                {
-                    if (Parent != null)
-                    {
-                        // The rectangle is relative to the parent, so it should be calculated based on the parent.
-                        Rectangle newAbsoluteRect = GetNewAbsoluteRect(value);
 
-                        CheckElementBoundaries(newAbsoluteRect, Parent.AbsoluteRectangle);
-                    }
+            AnchorPosition = AnchorPosition.TopLeft;
 
-                    _relativeRect = value;
-                    UpdateLayout();
-                }
-            }
-        }
+            _childElements = new List<IBasicElement>();
+            _updatables = new List<IUpdatableElement>();
+            _isInvalidated = true;
 
-        /// <summary>
-        ///     The size of the UI Element.
-        /// </summary>
-        /// <exception cref="OrbisUIException" />
-        public Point Size
-        {
-            get
-            {
-                return _relativeRect.Size;
-            }
-            set
-            {
-                // Prevent pointless checks by only changing if the value is actually different.
-                if (_relativeRect.Size != value)
-                {
-                    // Negative sizes don't work for drawing.
-                    if (value.X < 0 || value.Y < 0)
-                    {
-                        throw new OrbisUIException("Element size can not be negative.");
-                    }
-
-                    // To prevent issues, elements are not allowed exceed the boundaries of their parent.
-                    if (Parent != null)
-                    {
-                        Rectangle parentRect = Parent.AbsoluteRectangle;
-                        Rectangle newAbsoluteRect = GetNewAbsoluteRect(new Rectangle(_relativeRect.Location, value));
-
-                        CheckElementBoundaries(newAbsoluteRect, parentRect);
-                    }
-                    
-                    _relativeRect.Size = value;
-                    UpdateLayout();
-                }
-            }
-        }
-
-        /// <summary>
-        ///     The location of the element relative to its parent.
-        /// </summary>
-        /// <exception cref="OrbisUIException" />
-        public Point RelativeLocation
-        {
-            get
-            {
-                return _relativeRect.Location;
-            }
-            set
-            {
-                // Prevent pointless checks by only changing when the value is different from the current one.
-                if (_relativeRect.Location != value)
-                {
-                    if (Parent != null)
-                    {
-                        Rectangle parentRect = Parent.AbsoluteRectangle;
-                        Rectangle newAbsoluteRect = GetNewAbsoluteRect(new Rectangle(value, Size));
-
-                        CheckElementBoundaries(newAbsoluteRect, parentRect);
-                    }
-
-                    _relativeRect.Location = value;
-                    UpdateLayout();
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Represents the relative position and size of the UI Element.
-        /// </summary>
-        protected Rectangle _relativeRect;
-
-        /// <summary>
-        ///     Base constructor for UI elements.
-        /// </summary>
-        public UIElement() {
-            Parent = null;
-            _relativeRect = Rectangle.Empty;
-            _anchorPos = AnchorPosition.TopLeft;
+            
+            Window = game.Window;
+            RelativePosition = Point.Zero;
+            Size = Point.Zero;
             Visible = true;
+        }
+
+        /// <summary>
+        ///     Rerender the UI Element.
+        /// </summary>
+        protected virtual void Rerender(SpriteBatch spriteBatch)
+        {
+            // Prepare the graphics device for drawing the element texture to a new render target.
+            GraphicsDevice graphicsDevice = spriteBatch.GraphicsDevice;
+            var prevRenderTargets = graphicsDevice.GetRenderTargets();
+            RenderTarget2D renderTarget = new RenderTarget2D(graphicsDevice, Size.X, Size.Y);
+            graphicsDevice.SetRenderTarget(renderTarget);
+
+            graphicsDevice.Clear(Color.Transparent);
+            spriteBatch.End();
+            spriteBatch.Begin();
+            foreach (IBasicElement child in _childElements)
+            {
+                child.Render(spriteBatch);
+            }
+            spriteBatch.End();
+            spriteBatch.Begin();
+            graphicsDevice.SetRenderTargets(prevRenderTargets);
+
+            _elementTexture = renderTarget;
         }
 
         /// <summary>
         ///     Perform the update for this frame.
         /// </summary>
-        /// 
-        /// <param name="gameTime">
-        ///     The game loop's current game time.
-        /// </param>
-        public virtual void Update(GameTime gameTime)
+        public virtual void Update()
         {
-            foreach (UIElement child in Children)
+            foreach (IUpdatableElement child in _updatables)
             {
-                child.Update(gameTime);
+                child.Update();
             }
         }
 
@@ -213,145 +175,23 @@ namespace Orbis.UI
         /// <param name="spriteBatch">
         ///     The SpriteBatch to use for drawing textures.
         /// </param>
-        /// <param name="gameTime">
-        ///     The game loop's current game time.
-        /// </param>
-        public virtual void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+        public virtual void Draw(SpriteBatch spriteBatch)
         {
-            foreach (UIElement child in Children)
+            if (_isInvalidated)
             {
-                child.Draw(spriteBatch, gameTime);
-            }
-        }
-
-        /// <summary>
-        ///     Update the layout of the element and all of its children.
-        /// </summary>
-        public virtual void UpdateLayout()
-        {
-            foreach (UIElement child in Children)
-            {
-                child.UpdateLayout();
-            }
-        }
-
-        /// <summary>
-        ///     Add a child to the UI Element.
-        /// </summary>
-        /// 
-        /// <param name="child">
-        ///     The child to add.
-        /// </param>
-        /// 
-        /// <exception cref="OrbisUIException" />
-        public virtual void AddChild(UIElement child)
-        {
-            child.Parent = this;
-            child.LayerDepth = LayerDepth - 0.001F;
-
-            UpdateLayout();
-
-            CheckElementBoundaries(child.AbsoluteRectangle, this.AbsoluteRectangle);
-        }
-
-        /// <summary>
-        ///     Replace one of the element's children.
-        /// </summary>
-        /// 
-        /// <param name="childIndex">
-        ///     The index of the child to replace.
-        /// </param>
-        /// <param name="newChild">
-        ///     The child to replace it with.
-        /// </param>
-        /// 
-        /// <exception cref="OrbisUIException" />
-        public virtual void ReplaceChild(int childIndex, UIElement newChild)
-        {
-            newChild.Parent = this;
-            newChild.LayerDepth = LayerDepth - 0.001F;
-            
-            UpdateLayout();
-
-            CheckElementBoundaries(newChild.AbsoluteRectangle, this.AbsoluteRectangle);
-        }
-
-        /// <summary>
-        ///     Check if the given absolute rectangle fits within the given parent rectangle
-        ///     and throw an appropriate exception if it doesn't.
-        /// </summary>
-        /// 
-        ///<param name="absoluteRect">
-        ///     The absolute rectangle to check.
-        ///</param>
-        ///<param name="parentRect">
-        ///     The rect within which the absoluterect needs to exist.
-        ///</param>
-        ///
-        ///<exception cref="OrbisUIException" />
-        protected void CheckElementBoundaries(Rectangle absoluteRect, Rectangle parentRect)
-        {
-            if (parentRect.Width != 0 && parentRect.Height != 0)
-            {
-                if (!parentRect.Contains(absoluteRect.Location))
-                {
-                    throw new OrbisUIException("Element location can not be outside the parent boundaries.");
-                }
-
-                if (absoluteRect.Width > parentRect.Width
-                    || absoluteRect.Height > parentRect.Height)
-                {
-                    throw new OrbisUIException("Element can not expand beyond the parent.");
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Get the absolute rectangle for a relative rectangle based on the parent.
-        /// </summary>
-        /// 
-        /// <param name="relativeRect">
-        ///     The relative rectangle.
-        /// </param>
-        /// 
-        /// <returns>
-        ///     The new absolute rectangle
-        /// </returns>
-        protected Rectangle GetNewAbsoluteRect(Rectangle relativeRect)
-        {
-            var absoluteRect = new Rectangle(relativeRect.Location, relativeRect.Size);
-
-            // If the element has a parent, the absolute position needs to e converted to a relative one.
-            if (Parent != null)
-            {
-                Rectangle parentRect = Parent.AbsoluteRectangle;
-
-                // Anchor positions decide what point of the parent the element is relative to.
-                if (_anchorPos == AnchorPosition.TopLeft)
-                {
-                    absoluteRect.Location = absoluteRect.Location + parentRect.Location;
-                }
-                else if (_anchorPos == AnchorPosition.TopRight)
-                {
-                    Point parentTopRight = new Point(parentRect.Right, parentRect.Top);
-                    absoluteRect.Location = absoluteRect.Location + parentTopRight;
-                }
-                else if (_anchorPos == AnchorPosition.Center)
-                {
-                    absoluteRect.Location = absoluteRect.Location + parentRect.Center;
-                }
-                else if (_anchorPos == AnchorPosition.BottomLeft)
-                {
-                    absoluteRect.Y += parentRect.Bottom;
-                }
-                else if (_anchorPos == AnchorPosition.BottomRight)
-                {
-                    Point parentBottomRight = new Point(parentRect.Right, parentRect.Bottom);
-                    absoluteRect.Location = absoluteRect.Location + parentBottomRight;
-                }
+                Rerender(spriteBatch);
+                _isInvalidated = false;
             }
 
-            return absoluteRect;
+            spriteBatch.Draw(
+                _elementTexture,
+                new Rectangle(ScreenPosition, Size),
+                null,
+                Color.White,
+                0F,
+                Vector2.Zero,
+                SpriteEffects.None,
+                0F);
         }
     }
 }
