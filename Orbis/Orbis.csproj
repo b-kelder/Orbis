@@ -105,6 +105,8 @@
     <Compile Include="Engine\AudioManager.cs" />
     <Compile Include="Engine\InputHandler.cs" />
     <Compile Include="Engine\Perlin.cs" />
+    <Compile Include="Events\Log.cs" />
+    <Compile Include="Events\Logger.cs" />
     <Compile Include="GamePage.xaml.cs">
       <DependentUpon>GamePage.xaml</DependentUpon>
     </Compile>

@@ -57,6 +57,10 @@ namespace Orbis
         {
             AudioManager.Initialize();
 
+            Events.Logger log = new Events.Logger();
+            log.AddLog("The kingdom of idk has fallen");
+            log.AddLog("WAT MOET JE DAN");
+
             this.IsFixedTimeStep = false;
             graphics.SynchronizeWithVerticalRetrace = false;
             graphics.ApplyChanges();
