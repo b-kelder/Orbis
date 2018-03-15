@@ -54,7 +54,7 @@ namespace Orbis
             };
             Components.Add(sceneRenderer);
 
-            input = new InputHandler();
+            input = InputHandler.GetInstance();
             UI = new UI.UIRenderer(this)
             {
                 DrawOrder = 1
