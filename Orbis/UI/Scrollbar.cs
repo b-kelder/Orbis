@@ -60,7 +60,7 @@ namespace Orbis.UI
         /// <summary>
         ///     Create a new <see cref="Scrollbar"/>.
         /// </summary>
-        public Scrollbar()
+        public Scrollbar() : base()
         {
             HandlePosition = 0F;
         }

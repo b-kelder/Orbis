@@ -31,7 +31,8 @@ namespace Orbis.UI
         /// <summary>
         ///     Create a new <see cref="Panel"/>.
         /// </summary>
-        public Panel() : base() {
+        public Panel() : base()
+        {
             _children = new List<UIElement>();
         }
 

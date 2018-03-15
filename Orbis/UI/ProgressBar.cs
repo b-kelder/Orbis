@@ -85,7 +85,7 @@ namespace Orbis.UI
         /// <summary>
         ///     Create a new <see cref="ProgressBar"/>.
         /// </summary>
-        public ProgressBar()
+        public ProgressBar() : base()
         {
             Message = "Loading";
             MessageColor = Color.Black;

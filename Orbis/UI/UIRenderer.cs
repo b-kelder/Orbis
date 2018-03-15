@@ -77,7 +77,63 @@ namespace Orbis.UI
 
             RootElement.AddChild(bar);
 
-            TextBox box = new TextBox()
+            //TextBox box = new TextBox()
+            //{
+            //    AnchorPosition = AnchorPosition.TopRight,
+            //    BackgroundTexture = barBack,
+            //    TextFont = messageFont,
+            //    GraphicsDevice = GraphicsDevice,
+            //    RelativeLocation = new Point(-420, 20),
+            //    Size = new Point(400, 100)
+            //};
+
+            Texture2D red = new Texture2D(GraphicsDevice, 1, 1);
+            red.SetData(new Color[] { Color.Red });
+            Texture2D green = new Texture2D(GraphicsDevice, 1, 1);
+            green.SetData(new Color[] { Color.Green });
+
+            //box.Scrollbar.BackgroundTexture = redRect;
+            //box.Scrollbar.ButtonTexture = green;
+            //box.Scrollbar.HandleTexture = red;
+
+            //box.AppendLine("Test line meme test");
+            //box.AppendLine("Test line meme test meme test line meme line test.");
+            //box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
+            //box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
+            //box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
+            //box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
+            //box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
+            //box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
+            //box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
+            //box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
+            //box.AppendLine("hottentottententententoonstellingsverzekeringsmaatschappij.");
+
+            //RootElement.AddChild(box);
+
+            //Button button = new Button()
+            //{
+            //    AnchorPosition = AnchorPosition.Center,
+            //    BackgroundTexture = barBack,
+            //    Text = "Click Me!",
+            //    TextFont = messageFont,
+            //    RelativeLocation = new Point(-50, -25),
+            //    Size = new Point(100, 50),
+            //    OnClick = () =>
+            //    {
+            //        if (box.Visible)
+            //        {
+            //            box.Visible = false;
+            //        }
+            //        else
+            //        {
+            //            box.Visible = true;
+            //        }
+            //    }
+            //};
+
+            //RootElement.AddChild(button);
+
+            InputTextBox kekBox = new InputTextBox()
             {
                 AnchorPosition = AnchorPosition.TopRight,
                 BackgroundTexture = barBack,
@@ -87,52 +143,13 @@ namespace Orbis.UI
                 Size = new Point(400, 100)
             };
 
-            Texture2D red = new Texture2D(GraphicsDevice, 1, 1);
-            red.SetData(new Color[] { Color.Red });
-            Texture2D green = new Texture2D(GraphicsDevice, 1, 1);
-            green.SetData(new Color[] { Color.Green });
+            kekBox.Scrollbar.BackgroundTexture = redRect;
+            kekBox.Scrollbar.ButtonTexture = green;
+            kekBox.Scrollbar.HandleTexture = red;
 
-            box.Scrollbar.BackgroundTexture = redRect;
-            box.Scrollbar.ButtonTexture = green;
-            box.Scrollbar.HandleTexture = red;
+            Game.Window.TextInput += kekBox.Window_TextInput;
 
-            box.AppendLine("Test line meme test");
-            box.AppendLine("Test line meme test meme test line meme line test.");
-            box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
-            box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
-            box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
-            box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
-            box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
-            box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
-            box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
-            box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
-            box.AppendLine("hottentottententententoonstellingsverzekeringsmaatschappij.");
-
-            RootElement.AddChild(box);
-
-            Button button = new Button()
-            {
-                AnchorPosition = AnchorPosition.Center,
-                BackgroundTexture = barBack,
-                Text = "Click Me!",
-                TextFont = messageFont,
-                RelativeLocation = new Point(-50, -25),
-                Size = new Point(100, 50),
-                OnClick = () =>
-                {
-                    if (box.Visible)
-                    {
-                        box.Visible = false;
-                    }
-                    else
-                    {
-                        box.Visible = true;
-                    }
-                }
-            };
-
-            RootElement.AddChild(button);
-
+            RootElement.AddChild(kekBox);
 
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
 

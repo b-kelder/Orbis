@@ -81,7 +81,7 @@ namespace Orbis.UI
         /// <summary>
         ///     Create a new <see cref="Button"/>.
         /// </summary>
-        public Button()
+        public Button() : base()
         {
             Text = "";
             TextColor = Color.Black;
@@ -152,6 +152,8 @@ namespace Orbis.UI
                         fits = true;
                     }
                 } while (!fits);
+
+
             }
             // No base UpdateLayout needed; buttons have no children.
         }

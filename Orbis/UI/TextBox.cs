@@ -35,20 +35,14 @@ namespace Orbis.UI
         {
             get
             {
-                string textString = (_stringBuilder != null) ? _stringBuilder.ToString() : "";
-                return textString;   
+                return _text.ToString();   
             }
         }
 
         /// <summary>
         ///     A stringBuilder used for formatting text in the textbox.
         /// </summary>
-        private StringBuilder _stringBuilder;
-
-        /// <summary>
-        ///     The lines in the textbox, does allow for "lines" to be multiline.
-        /// </summary>
-        public List<string> Lines { get; set; }
+        protected StringBuilder _text;
 
         /// <summary>
         ///     The font used for drawing the text.
@@ -83,11 +77,10 @@ namespace Orbis.UI
         /// <summary>
         ///     Create a new <see cref="TextBox"/>.
         /// </summary>
-        public TextBox()
+        public TextBox() : base()
         {
-            _stringBuilder = new StringBuilder();
+            _text = new StringBuilder();
             _viewPort = new Rectangle(0, 0, Size.X - 25, Size.Y);
-            Lines = new List<string>();
             TextColor = Color.Black;
             Scrollbar = new Scrollbar()
             {
@@ -99,7 +92,7 @@ namespace Orbis.UI
 
         public override void Update(GameTime gameTime)
         {
-            if (Scrollbar.Visible)
+            if (Scrollbar.Visible && _fulltext != null)
             {
                 _viewPort.Y = (int)Math.Floor((_fulltext.Height - _viewPort.Height) * (Scrollbar.HandlePosition / 100));
             }
@@ -137,7 +130,7 @@ namespace Orbis.UI
                 }
 
                 // Only draw the text if there is any and if the font has been specified.
-                if (TextFont != null && Lines.Count > 0 && _fulltext != null)
+                if (TextFont != null && _fulltext != null)
                 {
                     Rectangle absoluteRect = new Rectangle(AbsoluteRectangle.X,
                         AbsoluteRectangle.Y,
@@ -194,7 +187,7 @@ namespace Orbis.UI
         public override void UpdateLayout()
         {
             // Don't bother processing when the required resources aren't set or when there are no lines.
-            if (GraphicsDevice != null && TextFont != null && Lines.Count > 0 && Size.Y > 0)
+            if (GraphicsDevice != null && TextFont != null && Size.Y > 0)
             {
                 WrapLines();
             }
@@ -235,24 +228,28 @@ namespace Orbis.UI
         private void WrapLines()
         {
             List<string> wrappedLines = new List<string>();
-            _stringBuilder = new StringBuilder();
+            StringBuilder builder = new StringBuilder();
             float spaceWidth = TextFont.MeasureString(" ").X;
 
-            foreach (string line in Lines)
+            // Gets the lines in the stringbuilder.
+            string[] delimiters = new string[2] { Environment.NewLine, "\n" };
+            string[] lines = _text.ToString().Split(delimiters, StringSplitOptions.None);
+
+            foreach (string line in lines)
             {
                 // The line is wrapped to fit within the text box.
                 string wrappedLine = WrapLine(line, spaceWidth, Size.X - 25);
-                wrappedLines.Add(_stringBuilder.ToString());
+                wrappedLines.Add(builder.ToString());
             }
 
-            _stringBuilder.Clear();
+            builder.Clear();
             foreach (string wrappedLine in wrappedLines)
             {
-                _stringBuilder.AppendLine(wrappedLine);
+                builder.AppendLine(wrappedLine);
             }
 
             // The text is drawn to a RenderTarget2D so it can be scrolled through.
-            Vector2 finalSize = TextFont.MeasureString(_stringBuilder);
+            Vector2 finalSize = TextFont.MeasureString(builder);
             RenderTarget2D fulltextRenderTarget = new RenderTarget2D(GraphicsDevice,
                 Size.X - 25,
                 (int)Math.Ceiling(finalSize.Y));
@@ -262,10 +259,12 @@ namespace Orbis.UI
 
             textBatch.Begin();
             GraphicsDevice.Clear(Color.Transparent);
-            textBatch.DrawString(TextFont, _stringBuilder, new Vector2(4, 4), TextColor);
+            textBatch.DrawString(TextFont, builder, new Vector2(4, 4), TextColor);
             textBatch.End();
 
             GraphicsDevice.SetRenderTarget(null);
+
+            _text = builder;
 
             _fulltext = fulltextRenderTarget;
         }
@@ -289,8 +288,8 @@ namespace Orbis.UI
         /// </returns>
         private string WrapLine(string line, float spaceWidth, float maxWidth)
         {
+            StringBuilder lineBuilder = new StringBuilder();
             float lineWidth = 0F;
-            _stringBuilder.Clear();
             string[] words = line.Split(' ');
             foreach (string word in words)
             {
@@ -298,7 +297,7 @@ namespace Orbis.UI
 
                 if (Math.Ceiling(lineWidth + wordWidth) < maxWidth)
                 {
-                    _stringBuilder.Append(word + " ");
+                    lineBuilder.Append(word + " ");
                     lineWidth += wordWidth + spaceWidth;
                 }
                 else
@@ -319,22 +318,22 @@ namespace Orbis.UI
                                 partWidth = TextFont.MeasureString(part).X;
                             } while (Math.Ceiling(partWidth) > maxWidth);
 
-                            _stringBuilder.Append(part + "\n");
+                            lineBuilder.Append(part + "\n");
                             remainderWidth = TextFont.MeasureString(remainder).X;
 
                         } while (Math.Ceiling(remainderWidth) > maxWidth);
-                        _stringBuilder.Append(remainder + " ");
+                        lineBuilder.Append(remainder + " ");
                     }
                     else
                     {
                         // Add the word on a new line.
-                        _stringBuilder.Append("\n" + word + " ");
+                        lineBuilder.Append("\n" + word + " ");
                         lineWidth = spaceWidth;
                     }
                 }
             }
 
-            return _stringBuilder.ToString();
+            return lineBuilder.ToString();
         }
 
         /// <summary>
@@ -346,7 +345,7 @@ namespace Orbis.UI
         /// </param>
         public void AppendLine(string text)
         {
-            Lines.Add(text);
+            _text.AppendLine(text);
 
             UpdateLayout();
         }
