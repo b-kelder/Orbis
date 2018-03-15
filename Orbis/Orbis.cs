@@ -18,7 +18,7 @@ namespace Orbis
     /// </summary>
     public class Orbis : Game
     {
-        public static readonly int TEST_SEED = 19450513;
+        public static readonly int TEST_SEED = 913279214;
         public static readonly int TEST_CIVS = 22;
         public static readonly int TEST_RADIUS = 128;
         public static readonly int TEST_TICKS = 10000;
@@ -64,13 +64,13 @@ namespace Orbis
             base.Initialize();
         }
 
-        private void GenerateWorld(int seed)
+        private void GenerateWorld(int seed, XMLModel.WorldSettings worldSettings, BiomeCollection biomeCollection)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             // Generate world
             Debug.WriteLine("Generating world for seed " + seed);
-            scene = new Scene(seed);
+            scene = new Scene(seed, worldSettings, biomeCollection);
             var generator = new WorldGenerator(scene);
             generator.GenerateWorld(TEST_RADIUS);
             generator.GenerateCivs(TEST_CIVS);
@@ -96,9 +96,13 @@ namespace Orbis
             AudioManager.LoadContent(Content);
             AudioManager.PlaySong("DEV_TEST");
 
+            XMLModel.WorldSettings worldSettings = Content.Load<XMLModel.WorldSettings>("Config/WorldSettings");
             fontDebug = Content.Load<SpriteFont>("DebugFont");
 
-            GenerateWorld(TEST_SEED);
+            // Biome table test
+            var biomeData = Content.Load<XMLModel.BiomeCollection>("Config/Biomes");
+            var biomeCollection = new BiomeCollection(biomeData, Content);
+            GenerateWorld(TEST_SEED, worldSettings, biomeCollection);
         }
 
         /// <summary>
