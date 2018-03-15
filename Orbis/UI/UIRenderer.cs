@@ -106,6 +106,7 @@ namespace Orbis.UI
             box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
             box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
             box.AppendLine("This is a test line, do not pay attention to the line behind the curtain.");
+            box.AppendLine("hottentottententententoonstellingsverzekeringsmaatschappij.");
 
             RootElement.AddChild(box);
 

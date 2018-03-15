@@ -86,7 +86,7 @@ namespace Orbis.UI
         public TextBox()
         {
             _stringBuilder = new StringBuilder();
-            _viewPort = new Rectangle(0, 0, AbsoluteRectangle.Width - 23, AbsoluteRectangle.Height);
+            _viewPort = new Rectangle(0, 0, Size.X - 25, Size.Y);
             Lines = new List<string>();
             TextColor = Color.Black;
             Scrollbar = new Scrollbar()
@@ -101,7 +101,7 @@ namespace Orbis.UI
         {
             if (Scrollbar.Visible)
             {
-                _viewPort.Y = (int)Math.Floor(_fulltext.Height * (Scrollbar.HandlePosition / 100));
+                _viewPort.Y = (int)Math.Floor((_fulltext.Height - _viewPort.Height) * (Scrollbar.HandlePosition / 100));
             }
             Scrollbar.Update(gameTime);
             // No base update needed; textboxes do not have children.
@@ -141,7 +141,7 @@ namespace Orbis.UI
                 {
                     Rectangle absoluteRect = new Rectangle(AbsoluteRectangle.X,
                         AbsoluteRectangle.Y,
-                        AbsoluteRectangle.Width,
+                        AbsoluteRectangle.Width - 25,
                         AbsoluteRectangle.Height);
 
                     if (_viewPort.Height < absoluteRect.Height)
@@ -157,6 +157,8 @@ namespace Orbis.UI
                         Vector2.Zero,
                         SpriteEffects.None,
                         LayerDepth - 0.001F);
+
+                    System.Diagnostics.Debug.WriteLine(Text);
                 }
 
                 if (Scrollbar != null && Scrollbar.Visible)
@@ -192,14 +194,14 @@ namespace Orbis.UI
         public override void UpdateLayout()
         {
             // Don't bother processing when the required resources aren't set or when there are no lines.
-            if (GraphicsDevice != null && TextFont != null && Lines.Count > 0)
+            if (GraphicsDevice != null && TextFont != null && Lines.Count > 0 && Size.Y > 0)
             {
                 WrapLines();
             }
 
             if (_fulltext != null)
             {
-                if (AbsoluteRectangle.Height > _fulltext.Height)
+                if (Size.Y  > _fulltext.Height)
                 {
                     if (Scrollbar.Visible)
                     {
@@ -213,9 +215,9 @@ namespace Orbis.UI
                     {
                         Scrollbar.Visible = true;
                     }
-                    _viewPort.Height = AbsoluteRectangle.Height;
+                    _viewPort.Height = Size.Y;
                 }
-                _viewPort.Width = AbsoluteRectangle.Width;
+                _viewPort.Width = Size.X - 25;
             }
 
             if (Scrollbar.Visible)
@@ -235,12 +237,11 @@ namespace Orbis.UI
             List<string> wrappedLines = new List<string>();
             _stringBuilder = new StringBuilder();
             float spaceWidth = TextFont.MeasureString(" ").X;
-            Rectangle absoluteRect = AbsoluteRectangle;
 
             foreach (string line in Lines)
             {
                 // The line is wrapped to fit within the text box.
-                string wrappedLine = WrapLine(line, spaceWidth, absoluteRect.Width - 23);
+                string wrappedLine = WrapLine(line, spaceWidth, Size.X - 25);
                 wrappedLines.Add(_stringBuilder.ToString());
             }
 
@@ -253,7 +254,7 @@ namespace Orbis.UI
             // The text is drawn to a RenderTarget2D so it can be scrolled through.
             Vector2 finalSize = TextFont.MeasureString(_stringBuilder);
             RenderTarget2D fulltextRenderTarget = new RenderTarget2D(GraphicsDevice,
-                (int)Math.Ceiling(finalSize.X),
+                Size.X - 25,
                 (int)Math.Ceiling(finalSize.Y));
 
             GraphicsDevice.SetRenderTarget(fulltextRenderTarget);
@@ -305,16 +306,16 @@ namespace Orbis.UI
                     if (Math.Ceiling(wordWidth) > maxWidth)
                     {
                         // Wrap words that don't fit in their entirety.
-                        string remainder = word;
+                        string remainder = "";
                         float remainderWidth;
                         do
                         {
                             float partWidth;
-                            string part = remainder;
+                            string part = word;
                             do
                             {
+                                remainder = part.Substring(part.Length - 1) + remainder;
                                 part = part.Substring(0, part.Length - 1);
-                                remainder = part.Substring(part.Length - 2);
                                 partWidth = TextFont.MeasureString(part).X;
                             } while (Math.Ceiling(partWidth) > maxWidth);
 

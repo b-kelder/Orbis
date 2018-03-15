@@ -62,7 +62,7 @@ namespace Orbis.UI
         /// </summary>
         public Scrollbar()
         {
-            HandlePosition = 50F;
+            HandlePosition = 0F;
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace Orbis.UI
             {
                 if (input.IsMouseHold(MouseButton.Left))
                 {
-                    HandlePosition = MathHelper.Clamp(HandlePosition - 0.5F, 0, 100);
+                    HandlePosition = MathHelper.Clamp(HandlePosition - 1F, 0, 100);
                     UpdateLayout();
                 }
             }
@@ -89,7 +89,7 @@ namespace Orbis.UI
             {
                 if (input.IsMouseHold(MouseButton.Left))
                 {
-                    HandlePosition = MathHelper.Clamp(HandlePosition + 0.5F, 0, 100);
+                    HandlePosition = MathHelper.Clamp(HandlePosition + 1F, 0, 100);
                     UpdateLayout();
                 }
             }
