@@ -135,7 +135,7 @@ namespace Orbis
 
             base.Update(gameTime);
 
-            UI.bar.Progress = (float)simulator.CurrentTick / TEST_TICKS; ;
+            //UI.bar.Progress = (float)simulator.CurrentTick / TEST_TICKS; ;
 
             // Update renderer if we can
             if (sceneRenderer.ReadyForUpdate)

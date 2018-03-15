@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Orbis.UI.BasicElements;
+using Orbis.UI.Utility;
 
 namespace Orbis.UI
 {
@@ -14,8 +16,15 @@ namespace Orbis.UI
     /// </summary>
     public class UIRenderer : DrawableGameComponent
     {
+        /// <summary>
+        ///     A factory for creating and managing basic single-color textures.
+        /// </summary>
+        public BasicTextureFactory BasicTextureFactory { get; private set; }
+
         // TEST
         public ProgressBar bar;
+
+        public IBasicElement kek;
 
         /// <summary>
         ///     Gets the size of the window.
@@ -55,27 +64,39 @@ namespace Orbis.UI
 
         public override void Initialize()
         {
+            BasicTextureFactory = new BasicTextureFactory(Game.GraphicsDevice);
+
             WindowSize = Game.Window.ClientBounds.Size;
             RootElement.Size = WindowSize;
 
-            Texture2D barBack = new Texture2D(Game.GraphicsDevice, 1, 1);
-            barBack.SetData(new Color[] { Color.WhiteSmoke });
-            Texture2D redRect = new Texture2D(Game.GraphicsDevice, 1, 1);
-            redRect.SetData(new Color[] { Color.Blue });
+            Texture2D whiteSmokeTexture = BasicTextureFactory.CreateBasicTexture(Color.WhiteSmoke);
             SpriteFont messageFont = Game.Content.Load<SpriteFont>("DebugFont");
 
-            bar = new ProgressBar()
+            kek = new Button(whiteSmokeTexture, messageFont, "Willem kees helmina banaan")
             {
-                AnchorPosition = AnchorPosition.BottomLeft,
-                BackgroundTexture = barBack,
-                BarTexture = redRect,
-                Message = "Simulating",
-                MessageFont = messageFont,
-                RelativeLocation = new Point(20, -70),
-                Size = new Point(WindowSize.X - 40, 50)
+                Position = new Point(400, 400),
+                Size = new Point(100, 50),
+                SceenPosition = new Rectangle(new Point(400,400), new Point(100,50)),
+                LayerDepth = 1F
             };
 
-            RootElement.AddChild(bar);
+            //Texture2D barBack = new Texture2D(Game.GraphicsDevice, 1, 1);
+            //barBack.SetData(new Color[] { Color.WhiteSmoke });
+            //Texture2D redRect = new Texture2D(Game.GraphicsDevice, 1, 1);
+            //redRect.SetData(new Color[] { Color.Blue });
+
+            //bar = new ProgressBar()
+            //{
+            //    AnchorPosition = AnchorPosition.BottomLeft,
+            //    BackgroundTexture = barBack,
+            //    BarTexture = redRect,
+            //    Message = "Simulating",
+            //    MessageFont = messageFont,
+            //    RelativeLocation = new Point(20, -70),
+            //    Size = new Point(WindowSize.X - 40, 50)
+            //};
+
+            //RootElement.AddChild(bar);
 
             //TextBox box = new TextBox()
             //{
@@ -87,10 +108,10 @@ namespace Orbis.UI
             //    Size = new Point(400, 100)
             //};
 
-            Texture2D red = new Texture2D(GraphicsDevice, 1, 1);
-            red.SetData(new Color[] { Color.Red });
-            Texture2D green = new Texture2D(GraphicsDevice, 1, 1);
-            green.SetData(new Color[] { Color.Green });
+            //Texture2D red = new Texture2D(GraphicsDevice, 1, 1);
+            //red.SetData(new Color[] { Color.Red });
+            //Texture2D green = new Texture2D(GraphicsDevice, 1, 1);
+            //green.SetData(new Color[] { Color.Green });
 
             //box.Scrollbar.BackgroundTexture = redRect;
             //box.Scrollbar.ButtonTexture = green;
@@ -133,23 +154,23 @@ namespace Orbis.UI
 
             //RootElement.AddChild(button);
 
-            InputTextBox kekBox = new InputTextBox()
-            {
-                AnchorPosition = AnchorPosition.TopRight,
-                BackgroundTexture = barBack,
-                TextFont = messageFont,
-                GraphicsDevice = GraphicsDevice,
-                RelativeLocation = new Point(-420, 20),
-                Size = new Point(400, 100)
-            };
+            //InputTextBox kekBox = new InputTextBox()
+            //{
+            //    AnchorPosition = AnchorPosition.TopRight,
+            //    BackgroundTexture = barBack,
+            //    TextFont = messageFont,
+            //    GraphicsDevice = GraphicsDevice,
+            //    RelativeLocation = new Point(-420, 20),
+            //    Size = new Point(400, 100)
+            //};
 
-            kekBox.Scrollbar.BackgroundTexture = redRect;
-            kekBox.Scrollbar.ButtonTexture = green;
-            kekBox.Scrollbar.HandleTexture = red;
+            //kekBox.Scrollbar.BackgroundTexture = redRect;
+            //kekBox.Scrollbar.ButtonTexture = green;
+            //kekBox.Scrollbar.HandleTexture = red;
 
-            Game.Window.TextInput += kekBox.Window_TextInput;
+            //Game.Window.TextInput += kekBox.Window_TextInput;
 
-            RootElement.AddChild(kekBox);
+            //RootElement.AddChild(kekBox);
 
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
 
@@ -184,7 +205,11 @@ namespace Orbis.UI
         public override void Draw(GameTime gameTime)
         {
             _spriteBatch.Begin(SpriteSortMode.BackToFront);
-            RootElement.Draw(_spriteBatch, gameTime);
+            //RootElement.Draw(_spriteBatch, gameTime);
+            if (kek != null)
+            {
+                kek.Render(_spriteBatch);
+            }
             _spriteBatch.End();
 
             base.Draw(gameTime);
