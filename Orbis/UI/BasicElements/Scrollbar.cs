@@ -215,7 +215,7 @@ namespace Orbis.UI.BasicElements
         private void UpdateHandlePosition()
         {
             // Handle is positioned at the rounded relative value of the scroll position.
-            _handle.Position = Position + new Point(0, (int)Math.Floor((Size.Y - 30) * (ScrollPosition / 100)) + 20);
+            _handle.Position = Position + new Point(0, (int)Math.Floor((_background.Size.Y - 20) * (ScrollPosition / 100)) + 15);
         }
 
         /// <summary>

@@ -53,7 +53,6 @@ namespace Orbis.UI
             {
                 Position = new Point(800, 200),
                 LayerDepth = 1F,
-                ScrollPosition = 50F,
                 ScreenArea = new Rectangle(800, 200, 15, 500),
                 Size = new Point(15, 500)
             };
