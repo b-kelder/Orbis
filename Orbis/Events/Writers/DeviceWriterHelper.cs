@@ -12,6 +12,7 @@ namespace Orbis.Events.Writers
 
         private StorageFolder storageFolder;
         private StorageFile currentfile;
+        private static bool folderPickerActive = false;
 
         /// <summary>
         /// Create a folder in the DocumentsLibrary
@@ -19,8 +20,18 @@ namespace Orbis.Events.Writers
         /// <returns>Operation success</returns>
         public async Task<bool> PickFolder()
         {
-            StorageApplicationPermissions.FutureAccessList.Clear();
-            // No need to repick file if file is already picked
+            // Prevent the folder picker from being called multiple times
+            if (folderPickerActive)
+            {
+                // Keep busy and wait till folder picker becomes available
+                while (folderPickerActive)
+                {
+                    await Task.Delay(1000);
+                }
+            }
+            folderPickerActive = true;
+
+            // Current folder cache. No need to repick folder if in cache
             if (StorageApplicationPermissions.FutureAccessList.ContainsItem(FOLDER_TOKEN))
             {
                 storageFolder = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync(FOLDER_TOKEN);
@@ -32,18 +43,19 @@ namespace Orbis.Events.Writers
                 // Create a Picker
                 var folderPicker = new Windows.Storage.Pickers.FolderPicker()
                 {
-                    SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop,
+                    SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
                 };
                 folderPicker.FileTypeFilter.Add("*");
 
-                // Pick the folder
+                // Pick the folder and make sure one returned
                 StorageFolder folder = await folderPicker.PickSingleFolderAsync();
                 if (folder != null)
                 {
                     // Application now has read/write access to all contents in the picked folder (including other sub-folder contents)
                     StorageApplicationPermissions.FutureAccessList.AddOrReplace(FOLDER_TOKEN, folder);
 
-                    storageFolder = folder;
+                    storageFolder       = folder;
+                    folderPickerActive  = false;
                     return true;
                 }
             }
@@ -105,6 +117,14 @@ namespace Orbis.Events.Writers
             {
                 await WriteToFile(currentfile, text);
             }
+        }
+
+        /// <summary>
+        /// Clear the current folder cash (folder needs to be re-picked)
+        /// </summary>
+        public void ClearCurrentFolderCache()
+        {
+            StorageApplicationPermissions.FutureAccessList.Clear();
         }
     }
 }
