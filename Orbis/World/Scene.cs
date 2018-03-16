@@ -18,11 +18,13 @@ namespace Orbis.World
         public BiomeCollection BiomeCollection { get; private set; }
 
         public XMLModel.WorldSettings Settings { get; private set; }
+        public XMLModel.DecorationCollection DecorationSettings { get; private set; }
 
-        public Scene(int seed, XMLModel.WorldSettings settings, BiomeCollection biomeCollection)
+        public Scene(int seed, XMLModel.WorldSettings settings, XMLModel.DecorationCollection decorationCollection, BiomeCollection biomeCollection)
         {
             Seed = seed;
             Settings = settings;
+            DecorationSettings = decorationCollection;
             BiomeCollection = biomeCollection;
         }
     }

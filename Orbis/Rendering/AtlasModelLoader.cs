@@ -28,8 +28,8 @@ namespace Orbis.Rendering
 
         public AtlasModelLoader(int atlasWidth, int atlasHeight, Effect shader, ContentManager contentManager)
         {
-            atlas = new AutoAtlas(atlasWidth, atlasHeight);
-            colorAtlas = new AutoAtlas(atlasWidth, atlasHeight);
+            atlas = new AutoAtlas(atlasWidth, atlasHeight, 32);
+            colorAtlas = new AutoAtlas(atlasWidth, atlasHeight, 32);
             this.shader = shader;
             this.contentManager = contentManager;
             this.material = new Material(shader);

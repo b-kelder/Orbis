@@ -67,6 +67,8 @@ namespace Orbis.Rendering
         private AtlasModelLoader modelLoader;
         private DecorationManager decorationManager;
 
+        private Random random;
+
         public bool ReadyForUpdate { get {
                 return renderedScene != null && cellMappedData != null && cellMeshes != null && meshUpdateQueue.Count == 0;
             } }
@@ -103,6 +105,7 @@ namespace Orbis.Rendering
             basicShader = Game.Content.Load<Effect>("Shaders/BasicColorMapped");
             basicShader.CurrentTechnique = basicShader.Techniques["DefaultTechnique"];
             basicShader.Parameters["ColorMapTexture"].SetValue(black);
+            basicShader.Parameters["ColorInfluence"].SetValue(1.0f);
 
             modelLoader = new AtlasModelLoader(2048, 2048, basicShader, Game.Content);
             // Decoration test
@@ -125,7 +128,6 @@ namespace Orbis.Rendering
             // Set up shader textures
             basicShader.Parameters["MainTexture"].SetValue(modelLoader.Material.Texture);
             basicShader.Parameters["ColorMapTexture"].SetValue(modelLoader.Material.ColorMap);
-
 
             base.LoadContent();
         }
@@ -328,6 +330,7 @@ namespace Orbis.Rendering
         public async void OnNewWorldGenerated(Scene scene, int seed)
         {
             renderedScene = scene;
+            random = new Random(seed);
 
             var colorRandom = new Random(seed);
             civColors = new Dictionary<Civilization, Color>();
@@ -456,6 +459,19 @@ namespace Orbis.Rendering
                 }
                 updatedMeshes.Add(mesh);
                 updatedCells++;
+
+                if(cell.population >= renderedScene.DecorationSettings.LargePopulationThreshold)
+                {
+                    SetCellDecoration(cell, data, decorationManager.GetDecorationMesh("Large Settlement"));
+                }
+                else if(cell.population >= renderedScene.DecorationSettings.MediumPopulationThreshold)
+                {
+                    SetCellDecoration(cell, data, decorationManager.GetDecorationMesh("Medium Settlement"));
+                }
+                else if(cell.population >= renderedScene.DecorationSettings.SmallPopulationThreshold)
+                {
+                    SetCellDecoration(cell, data, decorationManager.GetDecorationMesh("Small Settlement"));
+                }
             }
 
             //stopwatch.Stop();
@@ -513,14 +529,17 @@ namespace Orbis.Rendering
                 cellMappedData.Decoration = new RenderInstance
                 {
                     mesh = mesh,
-                    matrix = Matrix.CreateTranslation(new Vector3(TopographyHelper.HexToWorld(cell.Coordinates), (float)cell.Elevation)),
+                    matrix = Matrix.CreateRotationZ((float)(random.NextDouble() * Math.PI * 2.01)) *
+                    Matrix.CreateTranslation(new Vector3(TopographyHelper.HexToWorld(cell.Coordinates), (float)cell.Elevation)),
                 };
                 renderInstances.Add(cellMappedData.Decoration);
             }
-            else
+            else if(cellMappedData.Decoration.mesh != mesh)
             {
                 // Update the instance
                 cellMappedData.Decoration.mesh = mesh;
+                cellMappedData.Decoration.matrix = Matrix.CreateRotationZ((float)(random.NextDouble() * Math.PI * 2.01)) *
+                    Matrix.CreateTranslation(new Vector3(TopographyHelper.HexToWorld(cell.Coordinates), (float)cell.Elevation));
             }
         }
     }

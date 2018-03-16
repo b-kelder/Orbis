@@ -19,16 +19,18 @@ namespace Orbis.Rendering
         private int width;
         private int height;
 
+        private int border;
         private int currentFreeX;
         private int currentFreeY;
         private int nextFreeRowY;
 
         public Texture2D Texture { get { return atlas; } }
 
-        public AutoAtlas(int width, int height)
+        public AutoAtlas(int width, int height, int border)
         {
             this.width = width;
             this.height = height;
+            this.border = border;
             textureUVOffset = new Dictionary<Texture2D, Matrix>();
             textureAtlasOffset = new Dictionary<Texture2D, Point>();
         }
@@ -48,9 +50,12 @@ namespace Orbis.Rendering
 
         private bool TryAddTexture(Texture2D texture)
         {
-            if(currentFreeX + texture.Width <= width)
+            int texWidth = texture.Width + border * 2;
+            int texHeight = texture.Height + border * 2;
+
+            if(currentFreeX + texWidth <= width)
             {
-                if(currentFreeY + texture.Height <= height)
+                if(currentFreeY + texHeight <= height)
                 {
                     // fits!
                     AddTexForCurrent(texture);
@@ -67,7 +72,7 @@ namespace Orbis.Rendering
                 // Try next row
                 currentFreeX = 0;
                 currentFreeY = nextFreeRowY;
-                if (currentFreeY + texture.Height <= height)
+                if (currentFreeY + texHeight <= height)
                 {
                     // fits!
                     AddTexForCurrent(texture);
@@ -84,17 +89,20 @@ namespace Orbis.Rendering
 
         private void AddTexForCurrent(Texture2D texture)
         {
+            int texWidth = texture.Width + border * 2;
+            int texHeight = texture.Height + border * 2;
+
             textureAtlasOffset.Add(texture, new Point(currentFreeX, currentFreeY));
 
             var matrix = Matrix.CreateScale((float)texture.Width / width, (float)texture.Height / height, 1) *
-                Matrix.CreateTranslation((float)currentFreeX / width, (float)currentFreeY / height, 0);
+                Matrix.CreateTranslation((float)(currentFreeX + border) / width, (float)(currentFreeY + border) / height, 0);
             textureUVOffset.Add(texture, matrix);
 
-            if (currentFreeY + texture.Height > nextFreeRowY)
+            if (currentFreeY + texHeight > nextFreeRowY)
             {
-                nextFreeRowY = currentFreeY + texture.Height;
+                nextFreeRowY = currentFreeY + texHeight;
             }
-            currentFreeX += texture.Width;
+            currentFreeX += texWidth;
         }
 
         public Matrix GetOffset(Texture2D texture)
@@ -132,10 +140,11 @@ namespace Orbis.Rendering
             }
         }
 
-        private VertexPositionColorTexture[] CreateQuad()
+        private VertexPositionColorTexture[] CreateQuad(float borderSize)
         {
-            var floorVerts = new VertexPositionColorTexture[6];
-
+            var floorVerts = new VertexPositionColorTexture[6 * 5];
+            #region Quad data
+            // Center quad
             floorVerts[0].Position = new Vector3(0, 0, 0);
             floorVerts[1].Position = new Vector3(0, 1, 0);
             floorVerts[2].Position = new Vector3(1, 0, 0);
@@ -152,6 +161,74 @@ namespace Orbis.Rendering
             floorVerts[4].TextureCoordinate = new Vector2(1, 1);
             floorVerts[5].TextureCoordinate = floorVerts[2].TextureCoordinate;
 
+            // Top border quad
+            floorVerts[6].Position = floorVerts[1].Position;
+            floorVerts[7].Position = floorVerts[1].Position + new Vector3(-borderSize, borderSize, 0);
+            floorVerts[8].Position = floorVerts[4].Position;
+
+            floorVerts[9].Position = floorVerts[4].Position;
+            floorVerts[10].Position = floorVerts[7].Position;
+            floorVerts[11].Position = floorVerts[4].Position + new Vector3(borderSize, borderSize, 0);
+
+            floorVerts[6].TextureCoordinate = floorVerts[1].TextureCoordinate;
+            floorVerts[7].TextureCoordinate = floorVerts[1].TextureCoordinate;
+            floorVerts[8].TextureCoordinate = floorVerts[4].TextureCoordinate;
+
+            floorVerts[9].TextureCoordinate = floorVerts[4].TextureCoordinate;
+            floorVerts[10].TextureCoordinate = floorVerts[7].TextureCoordinate;
+            floorVerts[11].TextureCoordinate = floorVerts[4].TextureCoordinate;
+
+            // Right border quad
+            floorVerts[12].Position = floorVerts[4].Position;
+            floorVerts[13].Position = floorVerts[11].Position;
+            floorVerts[14].Position = floorVerts[2].Position;
+
+            floorVerts[15].Position = floorVerts[2].Position;
+            floorVerts[16].Position = floorVerts[11].Position;
+            floorVerts[17].Position = floorVerts[2].Position + new Vector3(borderSize, -borderSize, 0);
+
+            floorVerts[12].TextureCoordinate = floorVerts[4].TextureCoordinate;
+            floorVerts[13].TextureCoordinate = floorVerts[11].TextureCoordinate;
+            floorVerts[14].TextureCoordinate = floorVerts[2].TextureCoordinate;
+
+            floorVerts[15].TextureCoordinate = floorVerts[2].TextureCoordinate;
+            floorVerts[16].TextureCoordinate = floorVerts[11].TextureCoordinate;
+            floorVerts[17].TextureCoordinate = floorVerts[2].TextureCoordinate;
+
+            // Bottom border quad
+            floorVerts[18].Position = floorVerts[2].Position;
+            floorVerts[19].Position = floorVerts[17].Position;
+            floorVerts[20].Position = floorVerts[0].Position;
+
+            floorVerts[21].Position = floorVerts[0].Position;
+            floorVerts[22].Position = floorVerts[17].Position;
+            floorVerts[23].Position = floorVerts[0].Position + new Vector3(-borderSize, -borderSize, 0);
+
+            floorVerts[18].TextureCoordinate = floorVerts[2].TextureCoordinate;
+            floorVerts[19].TextureCoordinate = floorVerts[17].TextureCoordinate;
+            floorVerts[20].TextureCoordinate = floorVerts[0].TextureCoordinate;
+
+            floorVerts[21].TextureCoordinate = floorVerts[0].TextureCoordinate;
+            floorVerts[22].TextureCoordinate = floorVerts[17].TextureCoordinate;
+            floorVerts[23].TextureCoordinate = floorVerts[0].TextureCoordinate;
+
+            // Left border quad
+            floorVerts[24].Position = floorVerts[0].Position;
+            floorVerts[25].Position = floorVerts[23].Position;
+            floorVerts[26].Position = floorVerts[1].Position;
+
+            floorVerts[27].Position = floorVerts[1].Position;
+            floorVerts[28].Position = floorVerts[23].Position;
+            floorVerts[29].Position = floorVerts[7].Position;
+
+            floorVerts[24].TextureCoordinate = floorVerts[0].TextureCoordinate;
+            floorVerts[25].TextureCoordinate = floorVerts[23].TextureCoordinate;
+            floorVerts[26].TextureCoordinate = floorVerts[1].TextureCoordinate;
+
+            floorVerts[27].TextureCoordinate = floorVerts[1].TextureCoordinate;
+            floorVerts[28].TextureCoordinate = floorVerts[23].TextureCoordinate;
+            floorVerts[29].TextureCoordinate = floorVerts[7].TextureCoordinate;
+            #endregion
             return floorVerts;
         }
 
@@ -178,10 +255,9 @@ namespace Orbis.Rendering
 
             // Set up render target
             var renderTarget = new RenderTarget2D(device, width, height);
-            var quad = CreateQuad();
             device.SetRenderTarget(renderTarget);
 
-            device.Clear(Color.Magenta);
+            device.Clear(Color.Black);
 
             // Now render a quad per texture
             foreach(var data in textureUVOffset)
@@ -190,11 +266,13 @@ namespace Orbis.Rendering
                 shader.TextureEnabled = true;
                 shader.World = data.Value;
 
+                var quad = CreateQuad(border / (float)data.Key.Width);
+
                 foreach (var pass in shader.CurrentTechnique.Passes)
                 {
                     pass.Apply();
 
-                    device.DrawUserPrimitives(PrimitiveType.TriangleList, quad, 0, 2);
+                    device.DrawUserPrimitives(PrimitiveType.TriangleList, quad, 0, quad.Length / 3);
                 }
             }
 

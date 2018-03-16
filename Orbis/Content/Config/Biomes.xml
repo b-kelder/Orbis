@@ -70,7 +70,7 @@
 					<Texture>hex_woodland</Texture>
 					<ColorTexture>hex_c</ColorTexture>
 				</HexModel>
-				<DefaultDecoration></DefaultDecoration>
+				<DefaultDecoration>Temperate Trees</DefaultDecoration>
 			</Item>
 			<Item>
 				<Name>Tundra</Name>
