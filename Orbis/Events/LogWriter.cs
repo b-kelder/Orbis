@@ -14,16 +14,17 @@ namespace Orbis.Events
         }
 
         /// <summary>
-        /// Write a log to configuered format
+        /// Write a list of logs
         /// </summary>
-        /// <param name="log"></param>
-        public void Write(Log log)
+        /// <param name="logs"></param>
+        public void Write(List<Log> logs)
         {
+            // Make sure we have something to write to
             if (writers != null && writers.Count > 0)
             {
                 foreach (ILogWriter writer in writers)
                 {
-                    writer.Write(log);
+                    writer.Write(logs);
                 }
             }
             else
@@ -33,15 +34,15 @@ namespace Orbis.Events
         }
 
         /// <summary>
-        /// Write a list of logs
+        /// Write a log to configuered format
         /// </summary>
-        /// <param name="logs"></param>
-        public void WriteLog(List<Log> logs)
+        /// <param name="log"></param>
+        public void Write(Log log)
         {
-            foreach (Log log in logs)
-            {
-                Write(log);
-            }
+            Write
+            (
+                new List<Log> { log }
+            );
         }
 
         /// <summary>
@@ -50,7 +51,10 @@ namespace Orbis.Events
         /// <param name="writer"></param>
         public void AddWriter(ILogWriter writer)
         {
-            writers.Add(writer);
+            if (!writers.Contains(writer))
+            {
+                writers.Add(writer);
+            }
         }
 
         /// <summary>

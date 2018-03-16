@@ -1,15 +1,12 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Diagnostics;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
 using Microsoft.Xna.Framework.Input;
+
 using Orbis.Engine;
 using Orbis.Rendering;
 using Orbis.Simulation;
 using Orbis.World;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace Orbis
 {
@@ -102,6 +99,7 @@ namespace Orbis
             // Create logger and write text to log
             Events.Logger logger = new Events.Logger();
             logger.AddLog("The kingdom of the idk Tribe has fallen!");
+            logger.AddLog("WANT WAAROM NIET");
 
             // Create a fileWriter
             Events.Writers.FileWriter fileWriter = new Events.Writers.FileWriter();
@@ -111,8 +109,11 @@ namespace Orbis
             logWriter.AddWriter(fileWriter);
 
             // Write the log
-            logWriter.Write(logger.GetLog()[0]);
+            logWriter.Write(logger.GetLog());
             //---  END LOG TEST
+
+            logger.AddLog("special test");
+            logWriter.Write(logger.GetLog()[2]);
 
             GenerateWorld(TEST_SEED);
         }

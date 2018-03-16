@@ -7,15 +7,13 @@ namespace Orbis.Events.Writers
 {
     abstract class DeviceWriterHelper
     {
-        private const string ORBIS_FOLDER = "Orbis Simulation Logs";
-
         private StorageFolder storageFolder;
         private StorageFile currentfile;
 
         /// <summary>
         /// Create a folder in the DocumentsLibrary
         /// </summary>
-        /// <param name="folder">The name of the folder</param>
+        /// <returns>Operation success</returns>
         public async Task<bool> PickFolder()
         {
             try
@@ -48,16 +46,18 @@ namespace Orbis.Events.Writers
         }
 
         /// <summary>
-        /// Create a file in the DocumentsLibrary
+        /// Create a file in the picked folder
         /// </summary>
         /// <param name="name">The name of the file</param>
-        /// <param name="extension">The extension of the file</param>
+        /// <param name="extension">Extension of the file</param>
+        /// <returns>Operation success</returns>
         public async Task<bool> CreateFile(string name, string extension = "txt")
         {
             try
             {
                 string fileName = name + "." + extension;
-                currentfile = await storageFolder.CreateFileAsync(fileName, CreationCollisionOption.GenerateUniqueName);
+                currentfile = await storageFolder.CreateFileAsync(fileName, CreationCollisionOption.OpenIfExists);
+
                 return true;
             }
             catch(Exception ex)
@@ -68,15 +68,15 @@ namespace Orbis.Events.Writers
         }
 
         /// <summary>
-        /// Write to a file
+        /// Write to file
         /// </summary>
-        /// <param name="file">The file to write to</param>
+        /// <param name="file">File to write to</param>
         /// <param name="text">The text to write</param>
         public async void WriteToFile(StorageFile file, string text)
         {
             try
             {
-                await FileIO.WriteTextAsync(file, text);
+                await FileIO.AppendTextAsync(file, text);
             }
             catch(Exception ex)
             {
@@ -87,10 +87,13 @@ namespace Orbis.Events.Writers
         /// <summary>
         /// Write to the current known file
         /// </summary>
-        /// <param name="text"></param>
+        /// <param name="text">The text to write</param>
         public void WriteToCurrentFile(string text)
         {
-            WriteToFile(currentfile, text);
+            if (currentfile != null)
+            {
+                WriteToFile(currentfile, text);
+            }
         }
     }
 }
