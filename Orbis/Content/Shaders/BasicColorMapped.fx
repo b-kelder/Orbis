@@ -7,6 +7,7 @@
 	#define PS_SHADERMODEL ps_4_0_level_9_1
 #endif
 
+uniform float ColorInfluence;
 uniform matrix WorldViewProjection;
 uniform Texture2D MainTexture;
 uniform Texture2D ColorMapTexture;
@@ -54,7 +55,7 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
 	float4 diffuse = tex2D(DiffuseSampler, input.UV).rgba;
-	float4 color = float4(tex2D(ColorSampler, input.UV2).rgb, 0);
+	float4 color = mul(float4(tex2D(ColorSampler, input.UV2).rgb, 0), ColorInfluence);
 	return lerp(diffuse, input.Color, color);
 }
 
