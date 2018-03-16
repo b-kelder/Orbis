@@ -6,7 +6,7 @@ using Windows.Storage.Streams;
 
 namespace Orbis.Events.Writers
 {
-    class XMLWriter : DeviceWriterHelper, ILogWriter
+    class XMLFileWriter : DeviceWriterHelper, ILogWriter
     {
         public async void Write(List<Log> logs)
         {

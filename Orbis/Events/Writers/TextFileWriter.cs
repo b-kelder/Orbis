@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Orbis.Events.Writers
 {
-    class FileWriter : DeviceWriterHelper, ILogWriter
+    class TextFileWriter : DeviceWriterHelper, ILogWriter
     {
         public async void Write(List<Log> logs)
         {
