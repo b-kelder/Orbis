@@ -10,11 +10,45 @@ using Microsoft.Xna.Framework.Input;
 namespace Orbis.UI
 {
     /// <summary>
-    ///     A textbox in the Orbis UI that the user can enter text into.
+    ///     A text field in the Orbis UI that the user can enter text into.
     /// </summary>
     /// <author>Kaj van der Veen</author>
-    public class InputTextBox : TextBox
+    public class InputTextField : UIElement
     {
+        private StringBuilder _stringBuilder;
+
+        /// <summary>
+        ///     The maximum length of the user input.
+        /// </summary>
+        public int CharacterLimit { get; set; }
+
+        /// <summary>
+        ///     Create a new <see cref="InputTextField"/>
+        /// </summary>
+        /// 
+        /// <param name="game"></param>
+        public InputTextField(Game game) : base(game)
+        {
+            game.Window.TextInput += Window_TextInput;
+            _stringBuilder = new StringBuilder();
+        }
+
+        /// <summary>
+        ///     Process the window's buffered text input.
+        /// </summary>
+        /// <param name="sender">The window that fired the event.</param>
+        /// <param name="e">The text input event data.</param>
+        private void Window_TextInput(object sender, TextInputEventArgs e)
+        {
+            char character = e.Character;
+            if (Char.IsLetterOrDigit(character))
+            {
+
+            }
+            _stringBuilder.Append(e.Character);
+            _isInvalidated = true;
+            throw new NotImplementedException();
+        }
         ///// <summary>
         /////     Enables or disables multiline editing.
         ///// </summary>

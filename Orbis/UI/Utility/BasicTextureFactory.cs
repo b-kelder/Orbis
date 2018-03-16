@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Content;
 
 namespace Orbis.UI.Utility
 {
@@ -16,21 +17,57 @@ namespace Orbis.UI.Utility
     ///     This is essentially a debug class and shouldn't be included in the final project,
     ///     as it is just a utility for easy placeholder texture creation.
     /// </remarks>
-    public class BasicTextureFactory : IDisposable
+    public class BasicTextureFactory
     {
+        // Keeps track of existing colors.
+        private Dictionary<Color, Texture2D> _loadedColors;
+
+        // Global instance.
+        private static BasicTextureFactory _instance;
+
         // Used for creating textures.
         private GraphicsDevice _graphicsDevice;
 
-        // Keeps track of existing colors.
-        private Dictionary<Color, Texture2D> _colors;
-
         /// <summary>
-        ///     Static constructor for the <see cref="BasicTextureFactory"/>.
+        ///     Create the <see cref="BasicTextureFactory"/>.
         /// </summary>
-        public BasicTextureFactory(GraphicsDevice graphicsDevice)
+        private BasicTextureFactory(GraphicsDevice graphicsDevice)
         {
             _graphicsDevice = graphicsDevice;
-            _colors = new Dictionary<Color, Texture2D>();
+            _loadedColors = new Dictionary<Color, Texture2D>();
+        }
+
+        /// <summary>
+        ///     Attempt to get the instance for the <see cref="BasicTextureFactory"/>.
+        /// </summary>
+        /// 
+        /// <param name="instance">
+        ///     The instance that will be retrieved.
+        /// </param>
+        /// 
+        /// <returns>
+        ///     A boolean indicatint the success of retrieval.
+        /// </returns>
+        public static bool TryGetInstance(out BasicTextureFactory instance)
+        {
+            instance = _instance;
+
+            return (instance != null) ? true : false;
+        }
+
+        /// <summary>
+        ///     Create the global instance of the <see cref="BasicTextureFactory"/>.
+        /// </summary>
+        /// 
+        /// <param name="graphicsDevice">
+        ///     The graphicsDevice that will be used for creating textures.
+        /// </param>
+        /// 
+        /// <exception cref="ArgumentNullException" />
+        public static void CreateInstance(GraphicsDevice graphicsDevice)
+        {
+            _instance = (_instance == null) ? new BasicTextureFactory(graphicsDevice)
+                : throw new InvalidOperationException("Instance already exists.");
         }
 
         /// <summary>
@@ -46,11 +83,11 @@ namespace Orbis.UI.Utility
         public Texture2D CreateBasicTexture(Color color)
         {
 
-            if (!_colors.TryGetValue(color, out Texture2D texture))
+            if (!_loadedColors.TryGetValue(color, out Texture2D texture))
             {
                 texture = new Texture2D(_graphicsDevice, 1, 1);
                 texture.SetData(new Color[] { color });
-                _colors.Add(color, texture);
+                _loadedColors.Add(color, texture);
             }
 
             return texture;
@@ -59,13 +96,13 @@ namespace Orbis.UI.Utility
         /// <summary>
         ///     Clean up all resources used by the <see cref="BasicTextureFactory"/>.
         /// </summary>
-        public void Dispose()
+        public void UnloadAll()
         {
-            foreach (KeyValuePair<Color, Texture2D> entry in _colors)
+            foreach (KeyValuePair<Color, Texture2D> entry in _loadedColors)
             {
                 entry.Value.Dispose();
             }
-            _colors.Clear();
+            _loadedColors.Clear();
         }
     }
 }

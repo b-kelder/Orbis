@@ -113,13 +113,13 @@
     <Compile Include="UI\BasicElements\IUpdatableElement.cs" />
     <Compile Include="UI\BasicElements\PositionedText.cs" />
     <Compile Include="UI\BasicElements\Button.cs" />
-    <Compile Include="UI\InputTextBox.cs" />
+    <Compile Include="UI\InputTextField.cs" />
     <Compile Include="UI\BasicElements\IRenderableElement.cs" />
     <Compile Include="UI\BasicElements\PositionedTexture.cs" />
+    <Compile Include="UI\MainMenu.cs" />
     <Compile Include="UI\ProgressBar.cs" />
     <Compile Include="UI\BasicElements\Scrollbar.cs" />
     <Compile Include="UI\AnchorPosition.cs" />
-    <Compile Include="UI\TextBox.cs" />
     <Compile Include="UI\UIElement.cs" />
     <Compile Include="UI\UIRenderer.cs" />
     <Compile Include="Rendering\AtlasModelLoader.cs" />
@@ -139,7 +139,7 @@
     <Compile Include="Simulation\Civilization.cs" />
     <Compile Include="Simulation\War.cs" />
     <Compile Include="TopographyHelper.cs" />
-    <Compile Include="UI\Utility\UITextureManager.cs" />
+    <Compile Include="UI\Utility\UIContentManager.cs" />
     <Compile Include="UI\Utility\BasicTextureFactory.cs" />
     <Compile Include="UI\SpriteDefinition.cs" />
     <Compile Include="UI\Utility\TextHelper.cs" />

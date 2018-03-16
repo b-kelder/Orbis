@@ -19,7 +19,7 @@ namespace Orbis.UI
         protected Texture2D _elementTexture;
 
         // Used to indicate that element needs to be rerendered the next frame.
-        private bool _isInvalidated;
+        protected bool _isInvalidated;
 
         // Used to keep track of children that can be updated.
         protected List<IUpdatableElement> _updatables;
@@ -135,26 +135,25 @@ namespace Orbis.UI
         /// <summary>
         ///     Rerender the UI Element.
         /// </summary>
-        protected virtual void Rerender(SpriteBatch spriteBatch)
+        public virtual void Rerender(SpriteBatch spriteBatch)
         {
-            // Prepare the graphics device for drawing the element texture to a new render target.
-            GraphicsDevice graphicsDevice = spriteBatch.GraphicsDevice;
-            var prevRenderTargets = graphicsDevice.GetRenderTargets();
-            RenderTarget2D renderTarget = new RenderTarget2D(graphicsDevice, Size.X, Size.Y);
-            graphicsDevice.SetRenderTarget(renderTarget);
-
-            graphicsDevice.Clear(Color.Transparent);
-            spriteBatch.End();
-            spriteBatch.Begin();
-            foreach (IRenderableElement child in _childElements)
+            if (_isInvalidated)
             {
-                child.Render(spriteBatch);
-            }
-            spriteBatch.End();
-            spriteBatch.Begin();
-            graphicsDevice.SetRenderTargets(prevRenderTargets);
+                // Prepare the graphics device for drawing the element texture to a new render target.
+                GraphicsDevice graphicsDevice = spriteBatch.GraphicsDevice;
+                var prevRenderTargets = graphicsDevice.GetRenderTargets();
+                RenderTarget2D renderTarget = new RenderTarget2D(graphicsDevice, Size.X, Size.Y);
+                graphicsDevice.SetRenderTarget(renderTarget);
 
-            _elementTexture = renderTarget;
+                graphicsDevice.Clear(Color.Transparent);
+                foreach (IRenderableElement child in _childElements)
+                {
+                    child.Render(spriteBatch);
+                }
+                graphicsDevice.SetRenderTargets(prevRenderTargets);
+
+                _elementTexture = renderTarget;
+            }
         }
 
         /// <summary>
@@ -177,12 +176,6 @@ namespace Orbis.UI
         /// </param>
         public virtual void Draw(SpriteBatch spriteBatch)
         {
-            if (_isInvalidated)
-            {
-                Rerender(spriteBatch);
-                _isInvalidated = false;
-            }
-
             spriteBatch.Draw(
                 _elementTexture,
                 new Rectangle(ScreenPosition, Size),

@@ -133,7 +133,9 @@ namespace Orbis.UI.BasicElements
         /// </param>
         public void Render(SpriteBatch spriteBatch)
         {
-            spriteBatch.DrawString(Font,
+            if (!string.IsNullOrWhiteSpace(Text))
+            {
+                spriteBatch.DrawString(Font,
                 Text,
                 _position,
                 TextColor,
@@ -142,6 +144,7 @@ namespace Orbis.UI.BasicElements
                 1F,
                 SpriteEffects,
                 LayerDepth);
+            }
         }
     }
 }

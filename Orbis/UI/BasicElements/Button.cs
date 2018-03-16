@@ -12,6 +12,9 @@ namespace Orbis.UI.BasicElements
     /// <author>Kaj van der Veen</author>
     public class Button : IRenderableElement, IUpdatableElement
     {
+        // Does the button have text?
+        private Boolean _hasText;
+
         // Used to draw the background of the button.
         private PositionedTexture _texture;
 
@@ -36,7 +39,21 @@ namespace Orbis.UI.BasicElements
         /// <summary>
         ///     The font to use for the button text.
         /// </summary>
-        public SpriteFont Font { get => _text.Font; set => _text.Font = value; }
+        public SpriteFont Font
+        {
+            get
+            {
+                return (_hasText) ? _text.Font : null;
+            }
+            set
+            {
+                if (_hasText)
+                {
+                    _text.Font = value;
+                }
+            }
+        }
+
 
         /// <summary>
         ///     Is the button focused?.
@@ -60,7 +77,11 @@ namespace Orbis.UI.BasicElements
             set
             {
                 _texture.LayerDepth = value;
-                _text.LayerDepth = value - 0.001F;
+
+                if (_hasText)
+                {
+                    _text.LayerDepth = value - 0.001F;
+                }
             }
         }
 
@@ -86,7 +107,11 @@ namespace Orbis.UI.BasicElements
             set
             {
                 _texture.SpriteEffects = value;
-                _text.SpriteEffects = value;
+
+                if (_hasText)
+                {
+                    _text.SpriteEffects = value;
+                }
             }
         }
 
@@ -98,7 +123,20 @@ namespace Orbis.UI.BasicElements
         /// <summary>
         ///     The color of the button text.
         /// </summary>
-        public Color TextColor { get => _text.TextColor; set => _text.TextColor = value; }
+        public Color TextColor
+        {
+            get
+            {
+                return (_hasText) ? _text.TextColor : Color.White;
+            }
+            set
+            {
+                if (_hasText)
+                {
+                    _text.TextColor = value;
+                }
+            }
+        }
 
         /// <summary>
         ///     The sprite to use for drawing the button.
@@ -118,11 +156,19 @@ namespace Orbis.UI.BasicElements
         /// </summary>
         /// 
         /// <exception cref="ArgumentNullException" />
-        public Button(SpriteDefinition spriteDefinition, SpriteFont font)
+        public Button(SpriteDefinition spriteDefinition, SpriteFont font = null)
         {
             _texture = new PositionedTexture(spriteDefinition);
-            _text = new PositionedText(font);
-            IsFocused = true;
+            if (font != null)
+            {
+                _text = new PositionedText(font);
+                _hasText = true;
+            }
+            else
+            {
+                _hasText = false;
+            }
+            IsFocused = false;
             ScreenArea = Rectangle.Empty;
         }
 
@@ -134,7 +180,7 @@ namespace Orbis.UI.BasicElements
         {
             _texture.Render(spriteBatch);
 
-            if (_textString != null)
+            if (_hasText &&_textString != null)
             {
                 // Do some work to center the text in the button.
                 int maxWidth = Size.X - 8;
