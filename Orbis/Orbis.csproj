@@ -109,9 +109,9 @@
     <Compile Include="Events\Logger.cs" />
     <Compile Include="Events\Writers\ILogWriter.cs" />
     <Compile Include="Events\LogWriter.cs" />
-    <Compile Include="Events\Writers\DeviceWriterHelper.cs" />
-    <Compile Include="Events\Writers\FileWriter.cs" />
-    <Compile Include="Events\Writers\XMLWriter.cs" />
+    <Compile Include="Events\Helpers\DeviceWriterHelper.cs" />
+    <Compile Include="Events\Writers\TextFileWriter.cs" />
+    <Compile Include="Events\Writers\XMLFileWriter.cs" />
     <Compile Include="GamePage.xaml.cs">
       <DependentUpon>GamePage.xaml</DependentUpon>
     </Compile>

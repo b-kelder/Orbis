@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
 
-namespace Orbis.Events.Writers
+namespace Orbis.Events.Helpers
 {
     abstract class DeviceWriterHelper
     {
@@ -34,7 +34,8 @@ namespace Orbis.Events.Writers
             // Current folder cache. No need to repick folder if in cache
             if (StorageApplicationPermissions.FutureAccessList.ContainsItem(FOLDER_TOKEN))
             {
-                storageFolder = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync(FOLDER_TOKEN);
+                storageFolder       = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync(FOLDER_TOKEN);
+                folderPickerActive  = false;
                 return true;
             }
 
@@ -63,6 +64,7 @@ namespace Orbis.Events.Writers
             {
                 Debug.WriteLine(ex);
             }
+            folderPickerActive = false;
             return false;
         }
 
