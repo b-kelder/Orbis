@@ -21,7 +21,7 @@ namespace Orbis.Events
 
         public override string ToString()
         {
-            return Timestamp + ":" + " Type: " + Type + ", " + Item;
+            return Timestamp + ":" + " (" + Type + ") > " + Item;
         }
     }
 }
