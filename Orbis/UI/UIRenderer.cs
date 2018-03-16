@@ -42,6 +42,7 @@ namespace Orbis.UI
         public override void Initialize()
         {
             BasicTextureFactory = new BasicTextureFactory(Game.GraphicsDevice);
+            UIContentManager.CreateInstance(Game.Services);
 
             WindowSize = Game.Window.ClientBounds.Size;
 

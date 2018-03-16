@@ -8,7 +8,7 @@ namespace Orbis.UI.BasicElements
     /// </summary>
     /// 
     /// <author>Kaj van der Veen</author>
-    public interface IBasicElement
+    public interface IRenderableElement
     {
         /// <summary>
         ///     The combination of position and size for the element.
@@ -30,11 +30,6 @@ namespace Orbis.UI.BasicElements
         ///     The position of the element.
         /// </summary>
         Point Position { get; set; }
-
-        /// <summary>
-        ///     Effects to use for drawing the element..
-        /// </summary>
-        SpriteEffects SpriteEffects { get; set; }
 
         /// <summary>
         ///     Render the UI Element using the given spriteBatch.

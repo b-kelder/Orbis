@@ -7,7 +7,7 @@ namespace Orbis.UI.BasicElements
     /// <summary>
     ///     Text with a fixed position.
     /// </summary>
-    public class PositionedText : IBasicElement
+    public class PositionedText : IRenderableElement
     {
         /// <summary>
         ///     The combination of position and size for the text.

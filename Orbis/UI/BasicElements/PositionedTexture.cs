@@ -7,7 +7,7 @@ namespace Orbis.UI.BasicElements
     /// <summary>
     ///     A texture with a fixed position and dimensions.
     /// </summary>
-    public class PositionedTexture : IBasicElement
+    public class PositionedTexture : IRenderableElement
     {
         /// <summary>
         ///     The combination of position and size for the texture.
@@ -29,7 +29,7 @@ namespace Orbis.UI.BasicElements
         /// </remarks>
         /// 
         /// <exception cref="ArgumentOutOfRangeException" />
-        public virtual float LayerDepth
+        public float LayerDepth
         {
             get
             {
@@ -46,12 +46,12 @@ namespace Orbis.UI.BasicElements
         /// <summary>
         ///     The position of the texture.
         /// </summary>
-        public virtual Point Position { get; set; }
+        public Point Position { get; set; }
 
         /// <summary>
         ///     The dimensions of the texture.
         /// </summary>
-        public virtual Point Size { get; set; }
+        public Point Size { get; set; }
 
         /// <summary>
         ///     Effects to use for drawing the texture.
@@ -59,31 +59,32 @@ namespace Orbis.UI.BasicElements
         public SpriteEffects SpriteEffects { get; set; }
 
         /// <summary>
-        ///     The texture that will be drawn.
+        ///     The sprite used for drawing the texture.
         /// </summary>
         /// 
         /// <exception cref="ArgumentNullException" />
-        public Texture2D Texture
+        public SpriteDefinition SpriteDefinition
         {
             get
             {
-                return _Texture;
+                return _spriteDef;
             }
             set
             {
-                _Texture = value ?? throw new ArgumentNullException();
+                // SpriteDefinitions without sprites are not allowed.
+                _spriteDef = (value.SpriteSheet != null) ? value : throw new ArgumentNullException();
             }
         }
-        private Texture2D _Texture;
+        private SpriteDefinition _spriteDef;
 
         /// <summary>
         ///     Create a new <see cref="PositionedTexture"/>.
         /// </summary>
         /// 
         /// <exception cref="ArgumentNullException" />
-        public PositionedTexture(Texture2D texture)
+        public PositionedTexture(SpriteDefinition spriteDef)
         {
-            Texture = texture;
+            SpriteDefinition = spriteDef;
             LayerDepth = 0F;
             Position = Point.Zero;
             Size = Point.Zero;
@@ -97,11 +98,11 @@ namespace Orbis.UI.BasicElements
         /// <param name="spriteBatch">
         ///     The spritebatch to use for drawing.
         /// </param>
-        public virtual void Render(SpriteBatch spriteBatch)
+        public void Render(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Texture,
+            spriteBatch.Draw(SpriteDefinition.SpriteSheet,
                 Bounds,
-                null,
+                SpriteDefinition.SourceRectangle,
                 Color.White,
                 0F,
                 Vector2.Zero,

@@ -10,12 +10,38 @@ namespace Orbis.UI.BasicElements
     ///     A button in the Orbis UI.
     /// </summary>
     /// <author>Kaj van der Veen</author>
-    public class Button : PositionedTexture, IUpdatableElement
+    public class Button : IRenderableElement, IUpdatableElement
     {
+        // Used to draw the background of the button.
+        private PositionedTexture _texture;
+
+        // Used to draw the text on the button.
+        private PositionedText _text;
+
         /// <summary>
-        ///     Fires when the button has been clicked.
+        ///     The bounds of the button.
         /// </summary>
-        public event EventHandler ButtonClickedEvent;
+        public Rectangle Bounds { get => _texture.Bounds; }
+
+        /// <summary>
+        ///     Fires when the area was clicked.
+        /// </summary>
+        public event EventHandler Click;
+
+        /// <summary>
+        ///     Fires when the mouse is held down over the area.
+        /// </summary>
+        public event EventHandler Hold;
+
+        /// <summary>
+        ///     The font to use for the button text.
+        /// </summary>
+        public SpriteFont Font { get => _text.Font; set => _text.Font = value; }
+
+        /// <summary>
+        ///     Is the button focused?.
+        /// </summary>
+        public bool IsFocused { get; set; }
 
         /// <summary>
         ///     The layer depth of the button.
@@ -26,136 +52,122 @@ namespace Orbis.UI.BasicElements
         /// </remarks>
         /// 
         /// <exception cref="ArgumentOutOfRangeException" />
-        public override float LayerDepth
-        {
+        public float LayerDepth {
             get
             {
-                return base.LayerDepth;
+                return _texture.LayerDepth;
             }
             set
             {
-                base.LayerDepth = value;
-
-                if (_text != null)
-                {
-                    // Place the text above the background.
-                    _text.LayerDepth = LayerDepth - 0.001F;
-                }
+                _texture.LayerDepth = value;
+                _text.LayerDepth = value - 0.001F;
             }
         }
 
         /// <summary>
-        ///     The onscreen position to check for mouse input.
+        ///     The relative position of the button.
         /// </summary>
-        public Rectangle SceenPosition { get; set; }
+        public Point Position { get => _texture.Position; set => _texture.Position = value; }
 
         /// <summary>
-        ///     The size of the button.
+        ///     The dimensions of the button.
         /// </summary>
-        public override Point Size
+        public Point Size { get => _texture.Size; set => _texture.Size = value; }
+
+        /// <summary>
+        ///     The effects to use when drawing the button.
+        /// </summary>
+        public SpriteEffects SpriteEffects
         {
             get
             {
-                return base.Size;
+                return _texture.SpriteEffects;
             }
             set
             {
-                base.Size = value;
+                _texture.SpriteEffects = value;
+                _text.SpriteEffects = value;
             }
         }
+
+        /// <summary>
+        ///     The on-screen area filled by the button.
+        /// </summary>
+        public Rectangle ScreenArea { get; set; }
+
+        /// <summary>
+        ///     The color of the button text.
+        /// </summary>
+        public Color TextColor { get => _text.TextColor; set => _text.TextColor = value; }
+
+        /// <summary>
+        ///     The sprite to use for drawing the button.
+        /// </summary>
+        /// 
+        /// <exception cref="ArgumentNullException" />
+        public SpriteDefinition SpriteDefinition { get => _texture.SpriteDefinition; set => _texture.SpriteDefinition = value; }
 
         /// <summary>
         ///     The text displayed on the button.
         /// </summary>
-        public string Text
-        {
-            get
-            {
-                return (_text != null) ? _textString : "";
-            }
-            set
-            {
-                if (_text != null)
-                {
-                    _textString = value;
-                }
-            }
-        }
+        public string Text { get => _textString; set => _textString = value; }
         private string _textString;
-        private PositionedText _text;
-
-        /// <summary>
-        ///     The color of the text to draw in the button.
-        /// </summary>
-        public Color TextColor
-        {
-            get
-            {
-                return (_text != null) ? _text.TextColor : Color.Transparent;
-            }
-            set
-            {
-                if (_text != null)
-                {
-                    _text.TextColor = value;
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Perform the button's update for this frame.
-        /// </summary>
-        public void Update()
-        {
-            InputHandler input = InputHandler.GetInstance();
-            Point mousePosition = Mouse.GetState().Position;
-            if (SceenPosition.Contains(mousePosition) && input.IsMouseReleased(MouseButton.Left))
-            {
-                ButtonClickedEvent.Invoke(this, null);
-            }
-        }
 
         /// <summary>
         ///     Create a new <see cref="Button"/>.
         /// </summary>
-        public Button(Texture2D texture) : base(texture)
+        /// 
+        /// <exception cref="ArgumentNullException" />
+        public Button(SpriteDefinition spriteDefinition, SpriteFont font)
         {
-            // No action required.
-        }
-
-        /// <summary>
-        ///     Create a new <see cref="Button"/> with text.
-        /// </summary>
-        /// <param name="texture"></param>
-        /// <param name="font"></param>
-        /// <param name="text"></param>
-        public Button(Texture2D texture, SpriteFont font, string text) : base(texture)
-        {
-            // Create text slightly in front of the background.
+            _texture = new PositionedTexture(spriteDefinition);
             _text = new PositionedText(font);
-            Text = text;
+            IsFocused = true;
+            ScreenArea = Rectangle.Empty;
         }
 
         /// <summary>
         ///     Render the button with the given spriteBatch.
         /// </summary>
         /// <param name="spriteBatch"></param>
-        public override void Render(SpriteBatch spriteBatch)
+        public void Render(SpriteBatch spriteBatch)
         {
-            base.Render(spriteBatch);
+            _texture.Render(spriteBatch);
 
             if (_text != null)
             {
-                int maxWidth = (int)Size.X - 8;
-                SpriteFont font = _text.Font;
-                string clippedString = Utility.TextHelper.ClipText(font, Text, maxWidth);
-                Vector2 textSize = font.MeasureString(clippedString);
+                // Do some work to center the text in the button.
+                int maxWidth = Size.X - 8;
+                string clippedString = Utility.TextHelper.ClipText(Font, Text, maxWidth);
+                Vector2 textSize = Font.MeasureString(clippedString);
 
                 Point center = Bounds.Center;
                 _text.Position = new Point((int)Math.Floor(center.X - textSize.X / 2), (int)Math.Floor(center.Y - textSize.Y / 2));
                 _text.Text = clippedString;
 
                 _text.Render(spriteBatch);
+            }
+        }
+
+        /// <summary>
+        ///     Update the button, making it check for click and hold events.
+        /// </summary>
+        public void Update()
+        {
+            // Non-focused buttons don't update.
+            if (IsFocused)
+            {
+                InputHandler input = InputHandler.GetInstance();
+                Point mousePos = Mouse.GetState().Position;
+
+                if (ScreenArea.Contains(mousePos) && input.IsMouseReleased(MouseButton.Left))
+                {
+                    Click.Invoke(this, null);
+                }
+                else if (ScreenArea.Contains(mousePos) && input.IsMouseHold(MouseButton.Left))
+                {
+                    Hold.Invoke(this, null);
+                }
             }
         }
     }
