@@ -104,7 +104,6 @@ namespace Orbis.Rendering
         public int VertexCount { get { return Vertices.Length; } }
         public int TriangleCount { get { return Triangles.Length / 3; } }
         public bool Dirty { get { return dirtyFlag; } }
-        public RenderableMesh RenderableMesh { get; set; }
 
         /// <summary>
         /// Creates a new, empty mesh.

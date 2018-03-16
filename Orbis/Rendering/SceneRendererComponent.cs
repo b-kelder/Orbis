@@ -96,6 +96,9 @@ namespace Orbis.Rendering
 
         private Random random;
 
+        private bool atlasDebugEnabled;
+        private RenderInstance atlasDebugInstance;
+
         /// <summary>
         /// Returns true if the renderer is ready to accept simulation updates.
         /// </summary>
@@ -114,6 +117,7 @@ namespace Orbis.Rendering
             orbis = game;
             cellColorMode = CellColorMode.OwnerColor;
             enableDecorations = true;
+            atlasDebugEnabled = false;
         }
 
         public override void Initialize()
@@ -156,6 +160,22 @@ namespace Orbis.Rendering
             // Set up shader textures
             basicShader.Parameters["MainTexture"].SetValue(modelLoader.Material.Texture);
             basicShader.Parameters["ColorMapTexture"].SetValue(modelLoader.Material.ColorMap);
+
+            if (atlasDebugEnabled)
+            {
+                // Atlas texture debugging
+                Mesh mesh = null;
+                using (var stream = TitleContainer.OpenStream("Content/Meshes/quad_up.obj"))
+                {
+                    mesh = ObjParser.FromStream(stream);
+                }
+                atlasDebugInstance = new RenderInstance
+                {
+                    mesh = new RenderableMesh(GraphicsDevice, mesh),
+                    matrix = Matrix.CreateScale(10) * Matrix.CreateTranslation(0, 0, 30),
+                };
+                basicShader.Parameters["ColorMapTexture"].SetValue(black);
+            }
 
             base.LoadContent();
         }
@@ -326,6 +346,13 @@ namespace Orbis.Rendering
                     meshBatches.Add(instance.mesh, new List<RenderInstance>());
                 }
                 meshBatches[instance.mesh].Add(instance);
+            }
+            if (atlasDebugEnabled)
+            {
+                meshBatches[atlasDebugInstance.mesh] = new List<RenderInstance>()
+                {
+                    atlasDebugInstance,
+                };
             }
 
             // Draw batches
