@@ -26,12 +26,10 @@ namespace Orbis.Events.Helpers
                 // Keep busy and wait till folder picker becomes available
                 while (folderPickerActive)
                 {
-                    Debug.WriteLine("tick");
                     await Task.Delay(1000);
                 }
             }
             folderPickerActive = true;
-            Debug.WriteLine("continue process");
 
             // Current folder cache. No need to repick folder if in cache
             if (StorageApplicationPermissions.FutureAccessList.ContainsItem(FOLDER_TOKEN))
