@@ -6,13 +6,6 @@ using System.Threading.Tasks;
 
 namespace XMLModel
 {
-    public enum DecorationType
-    {
-        Default,
-        SmallPopulation,
-        MediumPopulation,
-        LargePopulation,
-    }
     /// <summary>
     /// A collection of decorations and some extra data
     /// </summary>
@@ -29,7 +22,6 @@ namespace XMLModel
     public class Decoration
     {
         public string Name { get; set; }
-        public DecorationType Type { get; set; }
         public Model Model { get; set; }
     }
 }
