@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Orbis.Rendering
 {
+    /// <summary>
+    /// Combines arbitrary meshes into 1 or more meshes.
+    /// </summary>
     class MeshCombiner
     {
         private List<Mesh> combinedMeshes;
@@ -38,6 +41,10 @@ namespace Orbis.Rendering
             return index;
         }
 
+        /// <summary>
+        /// Returns the combined meshes.
+        /// </summary>
+        /// <returns>List of combined meshes</returns>
         public List<Mesh> GetCombinedMeshes()
         {
             if(instances.Count > 0)

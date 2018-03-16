@@ -10,8 +10,14 @@ using System.Threading.Tasks;
 
 namespace Orbis.Rendering
 {
+    /// <summary>
+    /// Renders a 3d representation of the scene, allowing the user to move a camera to view it.
+    /// </summary>
     class SceneRendererComponent : DrawableGameComponent
     {
+        /// <summary>
+        /// Mode used to determine cell vertex colors.
+        /// </summary>
         enum CellColorMode
         {
             OwnerColor,
@@ -21,19 +27,43 @@ namespace Orbis.Rendering
         }
 
         /// <summary>
-        /// Internal render data mapped to a cell
+        /// Render data mapped to a specific cell.
         /// </summary>
         class CellMappedData
         {
-            public int meshIndex;
-            public List<int> vertexIndexes;
+            /// <summary>
+            /// Index into cellMeshes to the mesh containing this cell's vertices.
+            /// </summary>
+            public int MeshIndex { get; set; }
+            /// <summary>
+            /// Indexes of this cell's vertices in the mesh.
+            /// </summary>
+            public List<int> VertexIndexes { get; set; }
+            /// <summary>
+            /// Reference to the RenderInstance that represents this cell's decoration.
+            /// Can be null when no decoration is present.
+            /// </summary>
+            public RenderInstance Decoration { get; set; }
         }
 
+        /// <summary>
+        /// Render data mapped to a specific biome.
+        /// </summary>
         class BiomeMappedData
         {
-            public Model hexModel;
+            /// <summary>
+            /// Mesh to use for a hex in this biome.
+            /// </summary>
+            public Mesh HexMesh { get; set; }
+            /// <summary>
+            /// Mesh to use for default cell decorations in this biome.
+            /// </summary>
+            public RenderableMesh DefaultDecoration { get; set; }
         }
 
+        /// <summary>
+        /// Used for returning the result of GenerateMeshesFromScene.
+        /// </summary>
         struct MeshGenerationResult
         {
             public List<Mesh> rawMeshes;
@@ -41,43 +71,53 @@ namespace Orbis.Rendering
             public Dictionary<Cell, CellMappedData> cellData;
         }
 
-        private CellColorMode cellColorMode;
-
-        private Dictionary<string, BiomeMappedData> biomeMappedData;
-        private Dictionary<Cell, CellMappedData> cellMappedData;
         private Orbis orbis;
 
+        private Dictionary<string, BiomeMappedData> biomeMappedData = new Dictionary<string, BiomeMappedData>();
+        private Dictionary<Cell, CellMappedData> cellMappedData = new Dictionary<Cell, CellMappedData>();
+        private Dictionary<Civilization, Color> civColors = new Dictionary<Civilization, Color>();
+        private List<RenderableMesh> cellMeshes = new List<RenderableMesh>();
+        private List<RenderInstance> renderInstances = new List<RenderInstance>();
+
         private Effect basicShader;
-        private Texture2D black;
-        private Dictionary<Civilization, Color> civColors;
-        Camera camera;
+        private CellColorMode cellColorMode;
+        private bool enableDecorations;
 
-        private List<RenderableMesh> cellMeshes;
-
-        List<RenderInstance> renderInstances;
-
+        private Camera camera;
         private float rotation;
         private float distance;
         private float angle;
 
-        private Queue<RenderableMesh> meshUpdateQueue;
+        private Queue<RenderableMesh> meshUpdateQueue = new Queue<RenderableMesh>();
         private Task<MeshGenerationResult> meshTask;
         private Scene renderedScene;
         private AtlasModelLoader modelLoader;
+        private DecorationManager decorationManager;
 
-        public bool IsUpdatingMesh { get { return meshTask != null && meshTask.Status != TaskStatus.RanToCompletion; } }
+        private Random random;
+
+        private bool atlasDebugEnabled;
+        private RenderInstance atlasDebugInstance;
+
+        /// <summary>
+        /// Returns true if the renderer is ready to accept simulation updates.
+        /// </summary>
         public bool ReadyForUpdate { get {
-                return renderedScene != null && cellMappedData != null && cellMeshes != null && meshUpdateQueue.Count == 0;
+                return renderedScene != null && cellMappedData.Count > 0 && cellMeshes.Count > 0 && meshUpdateQueue.Count == 0;
             } }
 
+        /// <summary>
+        /// Maximum time we can spend in Update updating meshes.
+        /// </summary>
         public float MaxUpdateTime { get; set; }
 
         public SceneRendererComponent(Orbis game) : base(game)
         {
-            this.meshUpdateQueue = new Queue<RenderableMesh>();
             MaxUpdateTime = 3;
-            this.orbis = game;
+            orbis = game;
             cellColorMode = CellColorMode.OwnerColor;
+            enableDecorations = true;
+            atlasDebugEnabled = false;
         }
 
         public override void Initialize()
@@ -86,36 +126,56 @@ namespace Orbis.Rendering
             rotation = 0;
             distance = 20;
             angle = -60;
-
             camera = new Camera();
-            //camera.Mode = CameraMode.Orthographic;
-
-            renderInstances = new List<RenderInstance>();
 
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
-            // Load shaders, set up shared settings
-            black = Game.Content.Load<Texture2D>("black");
+            // Load shader, set up settings
+            var black = Game.Content.Load<Texture2D>("Textures/black");
             basicShader = Game.Content.Load<Effect>("Shaders/BasicColorMapped");
             basicShader.CurrentTechnique = basicShader.Techniques["DefaultTechnique"];
             basicShader.Parameters["ColorMapTexture"].SetValue(black);
+            basicShader.Parameters["ColorInfluence"].SetValue(1.0f);
 
+            // Load models, decoration and biome data
             modelLoader = new AtlasModelLoader(2048, 2048, basicShader, Game.Content);
-            // Load biome data
+            var decorationData = orbis.Content.Load<XMLModel.DecorationCollection>("Config/Decorations");
+            decorationManager = new DecorationManager(decorationData, modelLoader, GraphicsDevice);
             var biomeData = orbis.Content.Load<XMLModel.BiomeCollection>("Config/Biomes");
             biomeMappedData = new Dictionary<string, BiomeMappedData>();
             foreach (var biome in biomeData.Biomes)
             {
                 biomeMappedData.Add(biome.Name, new BiomeMappedData
                 {
-                    hexModel = modelLoader.LoadModel(biome.HexModel.Name, biome.HexModel.Texture, biome.HexModel.ColorTexture)
+                    HexMesh = modelLoader.LoadModel(biome.HexModel.Name, biome.HexModel.Texture, biome.HexModel.ColorTexture).Mesh,
+                    DefaultDecoration = decorationManager.GetDecorationMesh(biome.DefaultDecoration),
                 });
             }
 
             modelLoader.FinializeLoading(GraphicsDevice);
+
+            // Set up shader textures
+            basicShader.Parameters["MainTexture"].SetValue(modelLoader.Material.Texture);
+            basicShader.Parameters["ColorMapTexture"].SetValue(modelLoader.Material.ColorMap);
+
+            if (atlasDebugEnabled)
+            {
+                // Atlas texture debugging
+                Mesh mesh = null;
+                using (var stream = TitleContainer.OpenStream("Content/Meshes/quad_up.obj"))
+                {
+                    mesh = ObjParser.FromStream(stream);
+                }
+                atlasDebugInstance = new RenderInstance
+                {
+                    mesh = new RenderableMesh(GraphicsDevice, mesh),
+                    matrix = Matrix.CreateScale(10) * Matrix.CreateTranslation(0, 0, 30),
+                };
+                basicShader.Parameters["ColorMapTexture"].SetValue(black);
+            }
 
             base.LoadContent();
         }
@@ -130,13 +190,16 @@ namespace Orbis.Rendering
             // Check if new meshes have been generated by task
             if (meshTask != null && meshTask.Status == TaskStatus.RanToCompletion)
             {
-                // ALWAYS dispose of RenderMesh objects that won't be used anymore to reclaim
-                // the VertexBuffer and IndexBuffer memory they use
-                // Currently none of them will be reused so we dispose all of them
-                foreach (var instance in this.renderInstances)
+                // Just in case this isn't the first map generated we must remove all cell decorations and existing terrain hex meshes
+                // Terrain meshes must be disposed since they won't be used again
+                foreach(var cellMesh in this.cellMeshes)
                 {
-                    instance.mesh.Dispose();
+                    cellMesh.Dispose();
                 }
+                // Cell decorations are in cellMappedData, so they will be overwritten. Their meshes will be reused so MUST NOT be disposed
+                // Reset renderinstances
+                this.renderInstances = new List<RenderInstance>();
+                // Update main data sets
                 var meshData = meshTask.Result;
                 this.cellMappedData = meshData.cellData;
                 this.cellMeshes = meshData.renderableMeshes;
@@ -145,14 +208,41 @@ namespace Orbis.Rendering
                     renderInstances.Add(new RenderInstance
                     {
                         mesh = mesh,
-                        material = modelLoader.Material,
                         matrix = Matrix.Identity
                     });
                 }
+                // Set cell decorations
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+                foreach(var cell in this.cellMappedData)
+                {
+                    var biomeData = biomeMappedData[cell.Key.Biome.Name];
+                    if(biomeData.DefaultDecoration != null)
+                    {
+                        SetCellDecoration(cell.Key, cell.Value, biomeData.DefaultDecoration);
+                    }
+                }
+                stopwatch.Stop();
+                Debug.WriteLine("Took " + stopwatch.Elapsed.TotalMilliseconds + "ms to set decorations");
                 meshTask = null;
             }
 
-            // TODO: Camera movement overhaul
+
+            // Update some vertex buffers if we have to without impact framerate too much
+            if(meshUpdateQueue.Count > 0)
+            {
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+                do
+                {
+                    var mesh = meshUpdateQueue.Dequeue();
+                    mesh.UpdateVertexBuffer();
+                } while(meshUpdateQueue.Count > 0 && stopwatch.Elapsed.TotalMilliseconds <= this.MaxUpdateTime);
+
+                stopwatch.Stop();
+            }
+
+            // Camera movement
             var camMoveDelta = Vector3.Zero;
             float movementSpeed = 100 * (float)gameTime.ElapsedGameTime.TotalSeconds * (distance / 10);
             float rotationSpeed = 100 * (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -227,20 +317,6 @@ namespace Orbis.Rendering
 
             camera.Position = Vector3.Transform(Vector3.Zero, camMatrix) + camera.LookTarget;
 
-            // Update some vertex buffers if we have to without impact framerate too much
-            if(meshUpdateQueue.Count > 0)
-            {
-                var stopwatch = new Stopwatch();
-                stopwatch.Start();
-                do
-                {
-                    var mesh = meshUpdateQueue.Dequeue();
-                    mesh.UpdateVertexBuffer(orbis.GraphicsDevice);
-                } while (meshUpdateQueue.Count > 0 && stopwatch.Elapsed.TotalMilliseconds <= this.MaxUpdateTime);
-
-                stopwatch.Stop();
-                //Debug.WriteLine("Took " + stopwatch.Elapsed.TotalMilliseconds + " ms to update vertex buffers");
-            }
             base.Update(gameTime);
         }
 
@@ -250,10 +326,10 @@ namespace Orbis.Rendering
 
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
             GraphicsDevice.Clear(Color.Aqua);
 
-            // Required when using SpriteBatch as well
+            // Required because SpriteBatch resets these
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.BlendState = BlendState.Opaque;
 
@@ -261,31 +337,35 @@ namespace Orbis.Rendering
             Matrix viewMatrix = camera.CreateViewMatrix();
             Matrix projectionMatrix = camera.CreateProjectionMatrix(aspectRatio);
 
-            // Create batches sorted by material?
-            var materialBatches = new Dictionary<Material, List<RenderInstance>>();
+            // Create batches sorted by mesh, minimizes buffer switching?
+            var meshBatches = new Dictionary<RenderableMesh, List<RenderInstance>>();
             foreach (var instance in renderInstances)
             {
-                if (!materialBatches.ContainsKey(instance.material))
+                if (!meshBatches.ContainsKey(instance.mesh))
                 {
-                    materialBatches.Add(instance.material, new List<RenderInstance>());
+                    meshBatches.Add(instance.mesh, new List<RenderInstance>());
                 }
-                materialBatches[instance.material].Add(instance);
+                meshBatches[instance.mesh].Add(instance);
+            }
+            if (atlasDebugEnabled)
+            {
+                meshBatches[atlasDebugInstance.mesh] = new List<RenderInstance>()
+                {
+                    atlasDebugInstance,
+                };
             }
 
             // Draw batches
-            foreach (var batch in materialBatches)
+            foreach (var batch in meshBatches)
             {
-                var effect = batch.Key.Effect;
-                effect.Parameters["MainTexture"].SetValue(batch.Key.Texture);
-                effect.Parameters["ColorMapTexture"].SetValue(batch.Key.ColorMap != null ? batch.Key.ColorMap : black);
+                graphics.GraphicsDevice.Indices = batch.Key.IndexBuffer;
+                graphics.GraphicsDevice.SetVertexBuffer(batch.Key.VertexBuffer);
 
                 foreach (var instance in batch.Value)
                 {
-                    effect.Parameters["WorldViewProjection"].SetValue(instance.matrix * viewMatrix * projectionMatrix);
+                    basicShader.Parameters["WorldViewProjection"].SetValue(instance.matrix * viewMatrix * projectionMatrix);
 
-                    graphics.GraphicsDevice.Indices = instance.mesh.IndexBuffer;
-                    graphics.GraphicsDevice.SetVertexBuffer(instance.mesh.VertexBuffer);
-                    foreach (var pass in effect.CurrentTechnique.Passes)
+                    foreach (var pass in basicShader.CurrentTechnique.Passes)
                     {
                         pass.Apply();
 
@@ -308,6 +388,7 @@ namespace Orbis.Rendering
         public async void OnNewWorldGenerated(Scene scene, int seed)
         {
             renderedScene = scene;
+            random = new Random(seed);
 
             var colorRandom = new Random(seed);
             civColors = new Dictionary<Civilization, Color>();
@@ -359,11 +440,10 @@ namespace Orbis.Rendering
                         worldPoint,
                         (float)cell.Elevation);
                     // Cell color
-                    // TODO: This doesn't work because the combiner doesn't combine immediately. Ensure that it does or add color to MeshInstance?
                     var color = GetCellColor(cell);
-                    var mesh = biomeMappedData[cell.Biome.Name].hexModel.Mesh;
+                    var mesh = biomeMappedData[cell.Biome.Name].HexMesh;
 
-                    // Temporary way to make sea actually level
+                    // Make sea actually level
                     if (cell.IsWater && cell.Elevation < scene.Settings.SeaLevel)
                     {
                         position.Z = scene.Settings.SeaLevel;
@@ -373,16 +453,17 @@ namespace Orbis.Rendering
                     {
                         mesh = mesh,
                         matrix = Matrix.CreateTranslation(position),
-                        pos = new Point(p, q),
+                        tag = new Point(p, q),
                         color = color,
                         useColor = true,
                     });
 
                     // Register partial cell mapped data
-                    cellData[cell] = new CellMappedData
+                    var cellMappedData = new CellMappedData
                     {
-                        meshIndex = meshIndex
+                        MeshIndex = meshIndex
                     };
+                    cellData[cell] = cellMappedData;
                 }
             }
 
@@ -398,8 +479,8 @@ namespace Orbis.Rendering
             // Finish cell mapped data
             foreach(var cell in cellData)
             {
-                var mesh = meshList[cell.Value.meshIndex];
-                cell.Value.vertexIndexes = mesh.TagIndexMap[cell.Key.Coordinates];
+                var mesh = meshList[cell.Value.MeshIndex];
+                cell.Value.VertexIndexes = mesh.TagIndexMap[cell.Key.Coordinates];
             }
 
             stopwatch.Stop();
@@ -428,13 +509,26 @@ namespace Orbis.Rendering
             {
                 if(cell == null) { continue; }
                 var data = cellMappedData[cell];
-                var mesh = cellMeshes[data.meshIndex];
-                foreach(var i in data.vertexIndexes)
+                var mesh = cellMeshes[data.MeshIndex];
+                foreach(var i in data.VertexIndexes)
                 {
                     mesh.VertexData[i].Color = GetCellColor(cell);
                 }
                 updatedMeshes.Add(mesh);
                 updatedCells++;
+
+                if(cell.population >= renderedScene.DecorationSettings.LargePopulationThreshold)
+                {
+                    SetCellDecoration(cell, data, decorationManager.GetDecorationMesh("Large Settlement"));
+                }
+                else if(cell.population >= renderedScene.DecorationSettings.MediumPopulationThreshold)
+                {
+                    SetCellDecoration(cell, data, decorationManager.GetDecorationMesh("Medium Settlement"));
+                }
+                else if(cell.population >= renderedScene.DecorationSettings.SmallPopulationThreshold)
+                {
+                    SetCellDecoration(cell, data, decorationManager.GetDecorationMesh("Small Settlement"));
+                }
             }
 
             //stopwatch.Stop();
@@ -445,6 +539,9 @@ namespace Orbis.Rendering
             }
         }
 
+        /// <summary>
+        /// Returns the vertex color a cell should have.
+        /// </summary>
         private Color GetCellColor(Cell cell)
         {
             Color color;
@@ -472,6 +569,44 @@ namespace Orbis.Rendering
                     break;
             }
             return color;
+        }
+
+        /// <summary>
+        /// Sets the decoration for a specific cell
+        /// </summary>
+        /// <param name="cell">The cell to set for</param>
+        /// <param name="cellMappedData">The cell's mapped data</param>
+        /// <param name="mesh">The decoration mesh</param>
+        private void SetCellDecoration(Cell cell, CellMappedData cellMappedData, RenderableMesh mesh)
+        {
+            if(cellMappedData.Decoration == null && mesh == null || !enableDecorations)
+            {
+                return;
+            }
+            if (cellMappedData.Decoration != null && mesh == null)
+            {
+                // Remove instance from active render list
+                renderInstances.Remove(cellMappedData.Decoration);
+                cellMappedData.Decoration = null;
+            }
+            else if (cellMappedData.Decoration == null && mesh != null)
+            {
+                // Add new instance to render list
+                cellMappedData.Decoration = new RenderInstance
+                {
+                    mesh = mesh,
+                    matrix = Matrix.CreateRotationZ((float)(random.NextDouble() * Math.PI * 2.01)) *
+                    Matrix.CreateTranslation(new Vector3(TopographyHelper.HexToWorld(cell.Coordinates), (float)cell.Elevation)),
+                };
+                renderInstances.Add(cellMappedData.Decoration);
+            }
+            else if(cellMappedData.Decoration.mesh != mesh)
+            {
+                // Update the instance
+                cellMappedData.Decoration.mesh = mesh;
+                cellMappedData.Decoration.matrix = Matrix.CreateRotationZ((float)(random.NextDouble() * Math.PI * 2.01)) *
+                    Matrix.CreateTranslation(new Vector3(TopographyHelper.HexToWorld(cell.Coordinates), (float)cell.Elevation));
+            }
         }
     }
 }

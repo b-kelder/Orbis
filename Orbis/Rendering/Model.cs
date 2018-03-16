@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Orbis.Rendering
 {
+    /// <summary>
+    /// Combination of Mesh and Material.
+    /// </summary>
     class Model
     {
         public Mesh Mesh { get; set; }
