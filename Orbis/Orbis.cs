@@ -95,25 +95,6 @@ namespace Orbis
 
             fontDebug = Content.Load<SpriteFont>("DebugFont");
 
-            //--- LOG TEST
-            // Create logger and write text to log
-            Events.Logger logger = new Events.Logger();
-            logger.AddLog("The kingdom of the idk Tribe has fallen!");
-            logger.AddLog("WANT WAAROM NIET");
-
-            // Create a fileWriter
-            Events.Writers.FileWriter fileWriter = new Events.Writers.FileWriter();
-            Events.Writers.XMLWriter xmlWriter = new Events.Writers.XMLWriter();
-
-            // Create a logWriter
-            Events.LogWriter logWriter = new Events.LogWriter();
-            logWriter.AddWriter(fileWriter);
-            logWriter.AddWriter(xmlWriter);
-
-            // Write the log
-            logWriter.Write(logger.GetLog());
-            //---  END LOG TEST
-
             GenerateWorld(TEST_SEED);
         }
 
