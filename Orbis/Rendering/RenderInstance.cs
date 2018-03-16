@@ -8,10 +8,9 @@ using System.Threading.Tasks;
 
 namespace Orbis.Rendering
 {
-    struct RenderInstance
+    class RenderInstance
     {
         public RenderableMesh mesh;
-        public Material material;
         public Matrix matrix;
     }
 }

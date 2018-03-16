@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:ns="Microsoft.Xna.Framework">
+	<Asset Type="XMLModel.DecorationCollection">
+		<SmallPopulationThreshold>1000</SmallPopulationThreshold>
+		<MediumPopulationThreshold>2000</MediumPopulationThreshold>
+		<LargePopulationThreshold>3000</LargePopulationThreshold>
+		<Decorations>
+			<Item>
+				<Name>Boreal Trees</Name>
+				<Type>Default</Type>
+				<Model>
+					<Name>trees1</Name>
+					<Texture>trees1</Texture>
+					<ColorTexture>black</ColorTexture>
+				</Model>
+			</Item>
+			<Item>
+				<Name>Small Settlement</Name>
+				<Type>SmallPopulation</Type>
+				<Model>
+					<Name>house1</Name>
+					<Texture>house1</Texture>
+					<ColorTexture>black</ColorTexture>
+				</Model>
+			</Item>
+		</Decorations>
+	</Asset>
+</XnaContent>

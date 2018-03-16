@@ -70,11 +70,7 @@ namespace Orbis.Rendering
             {
                 throw new Exception("Need both a color and diffuse texture!");
             }
-            if(diffuseTexture.Width != colorTexture.Width || diffuseTexture.Height != colorTexture.Height)
-            {
-                throw new Exception("Color and diffuse texture must be the same size!");
-            }
-            // These should stay in sync if the resolution is the same
+            // Color and Diffuse UVs are seperate
             atlas.AddTexture(diffuseTexture);
             colorAtlas.AddTexture(colorTexture);
             atlas.UpdateMeshUVs(mesh, diffuseTexture, 0);

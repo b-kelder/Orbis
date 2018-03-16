@@ -27,11 +27,13 @@ namespace Orbis.Rendering
         {
             public int meshIndex;
             public List<int> vertexIndexes;
+            public RenderInstance decoration;
         }
 
         class BiomeMappedData
         {
             public Model hexModel;
+            public RenderableMesh defaultDecoration;
         }
 
         struct MeshGenerationResult
@@ -65,7 +67,8 @@ namespace Orbis.Rendering
         private Scene renderedScene;
         private AtlasModelLoader modelLoader;
 
-        public bool IsUpdatingMesh { get { return meshTask != null && meshTask.Status != TaskStatus.RanToCompletion; } }
+        private DecorationManager decorationManager;
+
         public bool ReadyForUpdate { get {
                 return renderedScene != null && cellMappedData != null && cellMeshes != null && meshUpdateQueue.Count == 0;
             } }
@@ -98,12 +101,15 @@ namespace Orbis.Rendering
         protected override void LoadContent()
         {
             // Load shaders, set up shared settings
-            black = Game.Content.Load<Texture2D>("black");
+            black = Game.Content.Load<Texture2D>("Textures/black");
             basicShader = Game.Content.Load<Effect>("Shaders/BasicColorMapped");
             basicShader.CurrentTechnique = basicShader.Techniques["DefaultTechnique"];
             basicShader.Parameters["ColorMapTexture"].SetValue(black);
 
             modelLoader = new AtlasModelLoader(2048, 2048, basicShader, Game.Content);
+            // Decoration test
+            var decorationData = orbis.Content.Load<XMLModel.DecorationCollection>("Config/Decorations");
+            decorationManager = new DecorationManager(decorationData, modelLoader, GraphicsDevice);
             // Load biome data
             var biomeData = orbis.Content.Load<XMLModel.BiomeCollection>("Config/Biomes");
             biomeMappedData = new Dictionary<string, BiomeMappedData>();
@@ -111,11 +117,17 @@ namespace Orbis.Rendering
             {
                 biomeMappedData.Add(biome.Name, new BiomeMappedData
                 {
-                    hexModel = modelLoader.LoadModel(biome.HexModel.Name, biome.HexModel.Texture, biome.HexModel.ColorTexture)
+                    hexModel = modelLoader.LoadModel(biome.HexModel.Name, biome.HexModel.Texture, biome.HexModel.ColorTexture),
+                    defaultDecoration = decorationManager.GetDecorationMesh(biome.DefaultDecoration),
                 });
             }
 
             modelLoader.FinializeLoading(GraphicsDevice);
+
+            // Set up shader textures
+            basicShader.Parameters["MainTexture"].SetValue(modelLoader.Material.Texture);
+            basicShader.Parameters["ColorMapTexture"].SetValue(modelLoader.Material.ColorMap);
+
 
             base.LoadContent();
         }
@@ -133,10 +145,11 @@ namespace Orbis.Rendering
                 // ALWAYS dispose of RenderMesh objects that won't be used anymore to reclaim
                 // the VertexBuffer and IndexBuffer memory they use
                 // Currently none of them will be reused so we dispose all of them
-                foreach (var instance in this.renderInstances)
+                /*foreach (var instance in this.renderInstances)
                 {
+                    throw new Exception("Time to handle this case properly!");
                     instance.mesh.Dispose();
-                }
+                }*/
                 var meshData = meshTask.Result;
                 this.cellMappedData = meshData.cellData;
                 this.cellMeshes = meshData.renderableMeshes;
@@ -145,7 +158,6 @@ namespace Orbis.Rendering
                     renderInstances.Add(new RenderInstance
                     {
                         mesh = mesh,
-                        material = modelLoader.Material,
                         matrix = Matrix.Identity
                     });
                 }
@@ -261,31 +273,28 @@ namespace Orbis.Rendering
             Matrix viewMatrix = camera.CreateViewMatrix();
             Matrix projectionMatrix = camera.CreateProjectionMatrix(aspectRatio);
 
-            // Create batches sorted by material?
-            var materialBatches = new Dictionary<Material, List<RenderInstance>>();
+            // Create batches sorted by mesh, minimizes buffer switching?
+            var meshBatches = new Dictionary<RenderableMesh, List<RenderInstance>>();
             foreach (var instance in renderInstances)
             {
-                if (!materialBatches.ContainsKey(instance.material))
+                if (!meshBatches.ContainsKey(instance.mesh))
                 {
-                    materialBatches.Add(instance.material, new List<RenderInstance>());
+                    meshBatches.Add(instance.mesh, new List<RenderInstance>());
                 }
-                materialBatches[instance.material].Add(instance);
+                meshBatches[instance.mesh].Add(instance);
             }
 
             // Draw batches
-            foreach (var batch in materialBatches)
+            foreach (var batch in meshBatches)
             {
-                var effect = batch.Key.Effect;
-                effect.Parameters["MainTexture"].SetValue(batch.Key.Texture);
-                effect.Parameters["ColorMapTexture"].SetValue(batch.Key.ColorMap != null ? batch.Key.ColorMap : black);
+                graphics.GraphicsDevice.Indices = batch.Key.IndexBuffer;
+                graphics.GraphicsDevice.SetVertexBuffer(batch.Key.VertexBuffer);
 
                 foreach (var instance in batch.Value)
                 {
-                    effect.Parameters["WorldViewProjection"].SetValue(instance.matrix * viewMatrix * projectionMatrix);
+                    basicShader.Parameters["WorldViewProjection"].SetValue(instance.matrix * viewMatrix * projectionMatrix);
 
-                    graphics.GraphicsDevice.Indices = instance.mesh.IndexBuffer;
-                    graphics.GraphicsDevice.SetVertexBuffer(instance.mesh.VertexBuffer);
-                    foreach (var pass in effect.CurrentTechnique.Passes)
+                    foreach (var pass in basicShader.CurrentTechnique.Passes)
                     {
                         pass.Apply();
 
@@ -379,10 +388,18 @@ namespace Orbis.Rendering
                     });
 
                     // Register partial cell mapped data
-                    cellData[cell] = new CellMappedData
+                    var cellMappedData = new CellMappedData
                     {
                         meshIndex = meshIndex
                     };
+                    cellData[cell] = cellMappedData;
+
+                    // Decoration test
+                    var biomeData = biomeMappedData[cell.Biome.Name];
+                    if(biomeData.defaultDecoration != null)
+                    {
+                        SetCellDecoration(cell, cellMappedData, biomeData.defaultDecoration);
+                    }
                 }
             }
 
@@ -472,6 +489,35 @@ namespace Orbis.Rendering
                     break;
             }
             return color;
+        }
+
+        private void SetCellDecoration(Cell cell, CellMappedData cellMappedData, RenderableMesh mesh)
+        {
+            if(cellMappedData.decoration == null && mesh == null)
+            {
+                return;
+            }
+            if (cellMappedData.decoration != null && mesh == null)
+            {
+                // Remove instance from active render list
+                renderInstances.Remove(cellMappedData.decoration);
+                cellMappedData.decoration = null;
+            }
+            else if (cellMappedData.decoration == null && mesh != null)
+            {
+                // Add new instance to render list
+                cellMappedData.decoration = new RenderInstance
+                {
+                    mesh = mesh,
+                    matrix = Matrix.CreateTranslation(new Vector3(TopographyHelper.HexToWorld(cell.Coordinates), 0)),
+                };
+                renderInstances.Add(cellMappedData.decoration);
+            }
+            else
+            {
+                // Update the instance
+                cellMappedData.decoration.mesh = mesh;
+            }
         }
     }
 }
