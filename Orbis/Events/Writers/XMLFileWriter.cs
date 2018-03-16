@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Orbis.Events.Helpers;
 
 namespace Orbis.Events.Writers
 {
