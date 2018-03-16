@@ -1,21 +1,15 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace Orbis.UI.BasicElements
+namespace Orbis.UI
 {
     /// <summary>
-    ///     A basic element in the Orbis UI that can be drawn.
+    ///     Interface for elements that can be rendered.
     /// </summary>
     /// 
     /// <author>Kaj van der Veen</author>
     public interface IRenderableElement
     {
-        /// <summary>
-        ///     The combination of position and size for the element.
-        /// </summary>
-        Rectangle Bounds { get; }
-
         /// <summary>
         ///     The layer depth of the element.
         /// </summary>
@@ -26,11 +20,6 @@ namespace Orbis.UI.BasicElements
         /// 
         /// <exception cref="ArgumentOutOfRangeException" />
         float LayerDepth { get; set; }
-
-        /// <summary>
-        ///     The position of the element.
-        /// </summary>
-        Point Position { get; set; }
 
         /// <summary>
         ///     Render the UI Element using the given spriteBatch.

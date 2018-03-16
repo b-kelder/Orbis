@@ -7,19 +7,8 @@ namespace Orbis.UI.BasicElements
     /// <summary>
     ///     A texture with a fixed position and dimensions.
     /// </summary>
-    public class PositionedTexture : IRenderableElement
+    public class RelativeTexture : RelativeElement, IRenderableElement
     {
-        /// <summary>
-        ///     The combination of position and size for the texture.
-        /// </summary>
-        public Rectangle Bounds
-        {
-            get
-            {
-                return new Rectangle(Position, Size);
-            }
-        }
-
         /// <summary>
         ///     The layer depth of the texture.
         /// </summary>
@@ -42,11 +31,6 @@ namespace Orbis.UI.BasicElements
             }
         }
         private float _layerDepth;
-
-        /// <summary>
-        ///     The position of the texture.
-        /// </summary>
-        public Point Position { get; set; }
 
         /// <summary>
         ///     The dimensions of the texture.
@@ -78,15 +62,14 @@ namespace Orbis.UI.BasicElements
         private SpriteDefinition _spriteDef;
 
         /// <summary>
-        ///     Create a new <see cref="PositionedTexture"/>.
+        ///     Create a new <see cref="RelativeTexture"/>.
         /// </summary>
         /// 
         /// <exception cref="ArgumentNullException" />
-        public PositionedTexture(SpriteDefinition spriteDef)
+        public RelativeTexture( IPositionedElement parent, SpriteDefinition spriteDef) : base(parent)
         {
             SpriteDefinition = spriteDef;
             LayerDepth = 0F;
-            Position = Point.Zero;
             Size = Point.Zero;
             SpriteEffects = SpriteEffects.None;
         }
@@ -108,6 +91,18 @@ namespace Orbis.UI.BasicElements
                 Vector2.Zero,
                 SpriteEffects,
                 LayerDepth);
+        }
+
+        /// <summary>
+        ///     Gets the size of the texture.
+        /// </summary>
+        /// 
+        /// <returns>
+        ///     The size of the texture.
+        /// </returns>
+        protected override Point GetSize()
+        {
+            return Size;
         }
     }
 }

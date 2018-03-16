@@ -8,30 +8,19 @@ namespace Orbis.UI.BasicElements
     /// <summary>
     ///     Represents a scrollbar that can be used by UI Elements.
     /// </summary>
-    public class Scrollbar : IRenderableElement, IUpdatableElement
+    public class Scrollbar : RelativeElement, IUpdatableElement
     {
         // Used to display the background.
-        private PositionedTexture _background;
+        private RelativeTexture _background;
 
         // Used for moving the scrollbar down.
         private Button _downButton;
 
         // Used to display the handle;
-        private PositionedTexture _handle;
+        private RelativeTexture _handle;
 
         // Used for moving the scrollbar up.
         private Button _upButton;
-
-        /// <summary>
-        ///     The bounds of the scrollbar.
-        /// </summary>
-        public Rectangle Bounds
-        {
-            get
-            {
-                return new Rectangle(Position, Size);
-            }
-        }
 
         /// <summary>
         ///     The layer depth of the scrollbar.
@@ -60,25 +49,6 @@ namespace Orbis.UI.BasicElements
         }
 
         /// <summary>
-        ///     The position of the scrollbar.
-        /// </summary>
-        public Point Position
-        {
-            get
-            {
-                return _background.Position + new Point(0, -15);
-            }
-            set
-            {
-                _background.Position = value + new Point(0, 15);
-
-                // Encapsulated into functions because of reuse.
-                UpdateButtonPositions();
-                UpdateHandlePosition();
-            }
-        }
-
-        /// <summary>
         ///     The on-screen area that contains the scrollbar.
         /// </summary>
         public Rectangle ScreenArea
@@ -90,9 +60,6 @@ namespace Orbis.UI.BasicElements
             set
             {
                 _screenArea = value;
-
-                _upButton.ScreenArea = new Rectangle(value.X, value.Y, value.Width, 15);
-                _downButton.ScreenArea = new Rectangle(value.Left, value.Bottom - 15, value.Width, 15);
             }
         }
         private Rectangle _screenArea;
@@ -132,7 +99,6 @@ namespace Orbis.UI.BasicElements
                 _background.Size = (value.X == 15) ? value + new Point(0, -30)
                     : throw new ArgumentOutOfRangeException("Scrollbar can not be wider than 15px.");
 
-                UpdateButtonPositions();
                 UpdateHandlePosition();
             }
         }
@@ -142,15 +108,13 @@ namespace Orbis.UI.BasicElements
         /// </summary>
         /// 
         /// <exception cref="Exception" />
-        public Scrollbar()
+        public Scrollbar(IPositionedElement parent) : base(parent)
         {   
             // Before the scrollbar items can be created, the required resources need to be created.
             Texture2D scrollbarSheet;
-            SpriteFont defaultFont;
             if (UIContentManager.TryGetInstance(out UIContentManager manager))
             {
                 scrollbarSheet = manager.GetTexture("UI\\Scrollbar");
-                defaultFont = manager.GetFont("DebugFont");
             }
             else
             {
@@ -168,39 +132,26 @@ namespace Orbis.UI.BasicElements
             SpriteDefinition backgroundDef = new SpriteDefinition(scrollbarSheet, backgroundRect);
 
             // Finally, the items themselves can be created.
-            _upButton = new Button(buttonDef, defaultFont)
+            _upButton = new Button(this, buttonDef)
             {
                 Size = new Point(15, 15)
             };
-            _downButton = new Button(buttonDef, defaultFont)
+            _downButton = new Button(this, buttonDef)
             {
                 Size = new Point(15, 15),
                 // Down button uses same texture but flipped.
                 SpriteEffects = SpriteEffects.FlipVertically
             };
-            _handle = new PositionedTexture(handleDef)
+            _handle = new RelativeTexture(this, handleDef)
             {
                 Size = new Point(15, 20)
             };
-            _background = new PositionedTexture(backgroundDef);
+            _background = new RelativeTexture(this, backgroundDef);
 
             _downButton.Hold += _downButton_Hold;
             _upButton.Hold += _upButton_Hold;
 
             ScrollPosition = 0F;
-        }
-
-        /// <summary>
-        ///     Update the position of the buttons.
-        /// </summary>
-        /// 
-        /// <remarks>
-        ///     Encapsulated into a function because of reuse.
-        /// </remarks>
-        private void UpdateButtonPositions()
-        {
-            _upButton.Position = Position;
-            _downButton.Position = Position + new Point(0, Size.Y - 15);
         }
 
         /// <summary>
@@ -213,7 +164,7 @@ namespace Orbis.UI.BasicElements
         private void UpdateHandlePosition()
         {
             // Handle is positioned at the rounded relative value of the scroll position.
-            _handle.Position = Position + new Point(0, (int)Math.Floor((_background.Size.Y - 20) * (ScrollPosition / 100)) + 15);
+            _handle.RelativePosition = new Point(0, (int)Math.Floor((_background.Size.Y - 20) * (ScrollPosition / 100)) + 15);
         }
 
         /// <summary>

@@ -7,21 +7,8 @@ namespace Orbis.UI.BasicElements
     /// <summary>
     ///     Text with a fixed position.
     /// </summary>
-    public class PositionedText : IRenderableElement
+    public class RelativeText : RelativeElement, IRenderableElement
     {
-        /// <summary>
-        ///     The combination of position and size for the text.
-        /// </summary>
-        public Rectangle Bounds
-        {
-            get
-            {
-                Vector2 measuredSize = Font.MeasureString(Text);
-                Point size = new Point((int)Math.Ceiling(measuredSize.X), (int)Math.Ceiling(measuredSize.Y));
-                return new Rectangle(Position, size);
-            }
-        }
-
         /// <summary>
         ///     The font to use for drawing the text.
         /// </summary>
@@ -64,22 +51,6 @@ namespace Orbis.UI.BasicElements
         private float _layerDepth;
 
         /// <summary>
-        ///     The position of the text;
-        /// </summary>
-        public Point Position
-        {
-            get
-            {
-                return new Point((int)_position.X, (int)_position.Y);
-            }
-            set
-            {
-                _position = new Vector2(value.X, value.Y);
-            }
-        }
-        private Vector2 _position;
-
-        /// <summary>
         ///     Effects to use for drawing the text.
         /// </summary>
         public SpriteEffects SpriteEffects { get; set; }
@@ -108,20 +79,32 @@ namespace Orbis.UI.BasicElements
         private string _text;
 
         /// <summary>
-        ///     Create a new <see cref="PositionedText"/>.
+        ///     Create a new <see cref="RelativeText"/>.
         /// </summary>
         /// 
         /// <param name="font">
         ///     The font to use for drawing the text.
         /// </param>
-        public PositionedText(SpriteFont font)
+        public RelativeText(IPositionedElement parent, SpriteFont font) : base(parent)
         {
             Font = font;
             Text = "";
             TextColor = Color.Black;
             LayerDepth = 0F;
-            Position = Point.Zero;
             SpriteEffects = SpriteEffects.None;
+        }
+
+        /// <summary>
+        ///     Get the size of the text.
+        /// </summary>
+        /// <returns></returns>
+        public override Point Size
+        {
+            get
+            {
+                Vector2 measuredSize = Font.MeasureString(Text);
+                return new Point((int)Math.Ceiling(measuredSize.X), (int)Math.Ceiling(measuredSize.Y));
+            }
         }
 
         /// <summary>
@@ -137,7 +120,7 @@ namespace Orbis.UI.BasicElements
             {
                 spriteBatch.DrawString(Font,
                 Text,
-                _position,
+                new Vector2(Position.X, Position.Y),
                 TextColor,
                 0F,
                 Vector2.Zero,

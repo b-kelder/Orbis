@@ -13,7 +13,7 @@ namespace Orbis.UI
     public abstract class UIElement
     {
         // Used to save the basic elements making up this element.
-        protected List<IRenderableElement> _childElements;
+        //protected List<IUIElement> _childElements;
 
         // Used to draw the element.
         protected Texture2D _elementTexture;
@@ -121,7 +121,7 @@ namespace Orbis.UI
 
             AnchorPosition = AnchorPosition.TopLeft;
 
-            _childElements = new List<IRenderableElement>();
+            //_childElements = new List<IUIElement>();
             _updatables = new List<IUpdatableElement>();
             _isInvalidated = true;
 
@@ -133,9 +133,9 @@ namespace Orbis.UI
         }
 
         /// <summary>
-        ///     Rerender the UI Element.
+        ///     Prerender the static elements in the 
         /// </summary>
-        public virtual void Rerender(SpriteBatch spriteBatch)
+        public virtual void PreRerender(SpriteBatch spriteBatch)
         {
             if (_isInvalidated)
             {
@@ -146,10 +146,10 @@ namespace Orbis.UI
                 graphicsDevice.SetRenderTarget(renderTarget);
 
                 graphicsDevice.Clear(Color.Transparent);
-                foreach (IRenderableElement child in _childElements)
-                {
-                    child.Render(spriteBatch);
-                }
+                //foreach (IUIElement child in _childElements)
+                //{
+                //    child.Render(spriteBatch);
+                //}
                 graphicsDevice.SetRenderTargets(prevRenderTargets);
 
                 _elementTexture = renderTarget;

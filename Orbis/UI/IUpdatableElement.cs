@@ -1,4 +1,4 @@
-﻿namespace Orbis.UI.BasicElements
+﻿namespace Orbis.UI
 {
     /// <summary>
     ///     Interface for basicElements that can be updated.

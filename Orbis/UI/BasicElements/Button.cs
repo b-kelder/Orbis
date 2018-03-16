@@ -10,21 +10,16 @@ namespace Orbis.UI.BasicElements
     ///     A button in the Orbis UI.
     /// </summary>
     /// <author>Kaj van der Veen</author>
-    public class Button : IRenderableElement, IUpdatableElement
+    public class Button : RelativeElement, IUpdatableElement
     {
         // Does the button have text?
         private Boolean _hasText;
 
         // Used to draw the background of the button.
-        private PositionedTexture _texture;
+        private RelativeTexture _texture;
 
         // Used to draw the text on the button.
-        private PositionedText _text;
-
-        /// <summary>
-        ///     The bounds of the button.
-        /// </summary>
-        public Rectangle Bounds { get => _texture.Bounds; }
+        private RelativeText _text;
 
         /// <summary>
         ///     Fires when the area was clicked.
@@ -85,10 +80,10 @@ namespace Orbis.UI.BasicElements
             }
         }
 
-        /// <summary>
-        ///     The relative position of the button.
-        /// </summary>
-        public Point Position { get => _texture.Position; set => _texture.Position = value; }
+        ///// <summary>
+        /////     The relative position of the button.
+        ///// </summary>
+        //public Point Position { get => _texture.Position; set => _texture = value; }
 
         /// <summary>
         ///     The dimensions of the button.
@@ -156,12 +151,15 @@ namespace Orbis.UI.BasicElements
         /// </summary>
         /// 
         /// <exception cref="ArgumentNullException" />
-        public Button(SpriteDefinition spriteDefinition, SpriteFont font = null)
+        public Button(IPositionedElement parent, SpriteDefinition spriteDefinition, SpriteFont font = null) : base(parent)
         {
-            _texture = new PositionedTexture(spriteDefinition);
+            _texture = new RelativeTexture(this, spriteDefinition);
             if (font != null)
             {
-                _text = new PositionedText(font);
+                _text = new RelativeText(this, font)
+                {
+                    AnchorPosition = AnchorPosition.Center
+                };
                 _hasText = true;
             }
             else
@@ -188,7 +186,7 @@ namespace Orbis.UI.BasicElements
                 Vector2 textSize = Font.MeasureString(clippedString);
 
                 Point center = Bounds.Center;
-                _text.Position = new Point((int)Math.Floor(center.X - textSize.X / 2), (int)Math.Floor(center.Y - textSize.Y / 2));
+                _text.RelativePosition = new Point((int)Math.Floor(center.X - textSize.X / 2), (int)Math.Floor(center.Y - textSize.Y / 2));
                 _text.Text = clippedString;
 
                 _text.Render(spriteBatch);
