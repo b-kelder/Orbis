@@ -80,15 +80,10 @@ namespace Orbis.UI.BasicElements
             }
         }
 
-        ///// <summary>
-        /////     The relative position of the button.
-        ///// </summary>
-        //public Point Position { get => _texture.Position; set => _texture = value; }
-
         /// <summary>
         ///     The dimensions of the button.
         /// </summary>
-        public Point Size { get => _texture.Size; set => _texture.Size = value; }
+        public override Point Size { get => _texture.Size; set => _texture.Size = value; }
 
         /// <summary>
         ///     The effects to use when drawing the button.
@@ -109,11 +104,6 @@ namespace Orbis.UI.BasicElements
                 }
             }
         }
-
-        /// <summary>
-        ///     The on-screen area filled by the button.
-        /// </summary>
-        public Rectangle ScreenArea { get; set; }
 
         /// <summary>
         ///     The color of the button text.
@@ -167,7 +157,6 @@ namespace Orbis.UI.BasicElements
                 _hasText = false;
             }
             IsFocused = false;
-            ScreenArea = Rectangle.Empty;
         }
 
         /// <summary>
@@ -204,14 +193,14 @@ namespace Orbis.UI.BasicElements
                 InputHandler input = InputHandler.GetInstance();
                 Point mousePos = Mouse.GetState().Position;
 
-                if (ScreenArea.Contains(mousePos) && input.IsMouseReleased(MouseButton.Left))
+                if (Bounds.Contains(mousePos) && input.IsMouseReleased(MouseButton.Left))
                 {
                     if (Click != null)
                     {
                         Click.Invoke(this, null);
                     }
                 }
-                else if (ScreenArea.Contains(mousePos) && input.IsMouseHold(MouseButton.Left))
+                else if (Bounds.Contains(mousePos) && input.IsMouseHold(MouseButton.Left))
                 {
                     if (Hold != null)
                     {

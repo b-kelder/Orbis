@@ -8,14 +8,9 @@ namespace Orbis.UI
     /// <summary>
     ///     A UI Window responsible for drawing the GUI and managing UI Elements.
     /// </summary>
-    public class UIRenderer : DrawableGameComponent
+    public class UIRenderer : DrawableGameComponent, IPositionedElement
     {
-        private Texture2D _BackgroundTexture;
-
-        /// <summary>
-        ///     Should the background be shown?
-        /// </summary>
-        public bool ShowBackground { get; set; }
+        Scrollbar test;
 
         /// <summary>
         ///     Gets the size of the window.
@@ -25,6 +20,12 @@ namespace Orbis.UI
             get;
             set;
         }
+
+        public Rectangle Bounds => Game.Window.ClientBounds;
+
+        public Point Position => Point.Zero;
+
+        public Point Size => Game.Window.ClientBounds.Size;
 
         /// <summary>
         ///     The spritebatch used to draw the UI.
@@ -46,6 +47,12 @@ namespace Orbis.UI
 
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
 
+            test = new Scrollbar(this)
+            {
+                AnchorPosition = AnchorPosition.Center,
+                Size = new Point(15, 200)
+            };
+
             base.Initialize();
         }
 
@@ -59,6 +66,8 @@ namespace Orbis.UI
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
+
+            test.Update();
         }
 
         /// <summary>
@@ -68,12 +77,7 @@ namespace Orbis.UI
         public override void Draw(GameTime gameTime)
         {
             _spriteBatch.Begin(SpriteSortMode.BackToFront);
-            
-            if (ShowBackground)
-            {
-                _spriteBatch.Draw(_BackgroundTexture, Game.Window.ClientBounds, Color.White);
-            }
-
+            test.Render(_spriteBatch);
             _spriteBatch.End();
 
             base.Draw(gameTime);

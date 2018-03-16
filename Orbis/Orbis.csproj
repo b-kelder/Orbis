@@ -125,7 +125,6 @@
     <Compile Include="UI\IRenderableElement.cs" />
     <Compile Include="UI\BasicElements\RelativeTexture.cs" />
     <Compile Include="UI\IPositionedElement.cs" />
-    <Compile Include="UI\MainMenu.cs" />
     <Compile Include="UI\ProgressBar.cs" />
     <Compile Include="UI\BasicElements\Scrollbar.cs" />
     <Compile Include="UI\AnchorPosition.cs" />

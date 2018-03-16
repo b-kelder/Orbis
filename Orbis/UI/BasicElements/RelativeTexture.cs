@@ -33,11 +33,6 @@ namespace Orbis.UI.BasicElements
         private float _layerDepth;
 
         /// <summary>
-        ///     The dimensions of the texture.
-        /// </summary>
-        public Point Size { get; set; }
-
-        /// <summary>
         ///     Effects to use for drawing the texture.
         /// </summary>
         public SpriteEffects SpriteEffects { get; set; }
@@ -59,6 +54,7 @@ namespace Orbis.UI.BasicElements
                 _spriteDef = (value.SpriteSheet != null) ? value : throw new ArgumentNullException();
             }
         }
+
         private SpriteDefinition _spriteDef;
 
         /// <summary>
@@ -66,7 +62,7 @@ namespace Orbis.UI.BasicElements
         /// </summary>
         /// 
         /// <exception cref="ArgumentNullException" />
-        public RelativeTexture( IPositionedElement parent, SpriteDefinition spriteDef) : base(parent)
+        public RelativeTexture(IPositionedElement parent, SpriteDefinition spriteDef) : base(parent)
         {
             SpriteDefinition = spriteDef;
             LayerDepth = 0F;
@@ -91,18 +87,6 @@ namespace Orbis.UI.BasicElements
                 Vector2.Zero,
                 SpriteEffects,
                 LayerDepth);
-        }
-
-        /// <summary>
-        ///     Gets the size of the texture.
-        /// </summary>
-        /// 
-        /// <returns>
-        ///     The size of the texture.
-        /// </returns>
-        protected override Point GetSize()
-        {
-            return Size;
         }
     }
 }

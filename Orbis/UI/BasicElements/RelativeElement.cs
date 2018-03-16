@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
 
 namespace Orbis.UI.BasicElements
 {
@@ -18,7 +12,13 @@ namespace Orbis.UI.BasicElements
         /// <summary>
         ///     The combination of absolute position and size of the element.
         /// </summary>
-        public abstract Rectangle Bounds { get; }
+        public Rectangle Bounds
+        {
+            get
+            {
+                return new Rectangle(Position, Size);
+            }
+        }
 
         /// <summary>
         ///     The parent element relative to which the element is placed.
@@ -39,21 +39,23 @@ namespace Orbis.UI.BasicElements
                 {
                     case AnchorPosition.TopRight:
                         position.X += parentBounds.Right;
+                        position.Y += parentBounds.Top;
                         break;
                     case AnchorPosition.Center:
                         position += parentBounds.Center;
                         break;
                     case AnchorPosition.BottomLeft:
+                        position.X += parentBounds.Left;
                         position.Y += parentBounds.Bottom;
                         break;
                     case AnchorPosition.BottomRight:
                         position.X += parentBounds.Right;
                         position.Y += parentBounds.Bottom;
                         break;
-
                     case AnchorPosition.TopLeft:
                     default:
-                        // The top left requires no changes.
+                        position.X += parentBounds.Left;
+                        position.Y += parentBounds.Top;
                         break;
                 }
 
@@ -69,7 +71,7 @@ namespace Orbis.UI.BasicElements
         /// <summary>
         ///     The dimensions of the element.
         /// </summary>
-        public abstract Point Size { get; }
+        public virtual Point Size { get; set; }
 
         /// <summary>
         ///     Create a new <see cref="RelativeElement"/>.

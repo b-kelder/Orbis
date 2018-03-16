@@ -49,22 +49,6 @@ namespace Orbis.UI.BasicElements
         }
 
         /// <summary>
-        ///     The on-screen area that contains the scrollbar.
-        /// </summary>
-        public Rectangle ScreenArea
-        {
-            get
-            {
-                return _screenArea;
-            }
-            set
-            {
-                _screenArea = value;
-            }
-        }
-        private Rectangle _screenArea;
-
-        /// <summary>
         ///     The relative value of the handle's position within the scrollbar.
         /// </summary>
         /// 
@@ -88,7 +72,7 @@ namespace Orbis.UI.BasicElements
         /// <summary>
         ///     The size of the scrollbar.
         /// </summary>
-        public Point Size
+        public override Point Size
         {
             get
             {
@@ -134,19 +118,28 @@ namespace Orbis.UI.BasicElements
             // Finally, the items themselves can be created.
             _upButton = new Button(this, buttonDef)
             {
-                Size = new Point(15, 15)
+                RelativePosition = Point.Zero,
+                Size = new Point(15, 15),
+                IsFocused = true
             };
             _downButton = new Button(this, buttonDef)
             {
+                AnchorPosition = AnchorPosition.BottomLeft,
+                RelativePosition = new Point(0, -15),
                 Size = new Point(15, 15),
-                // Down button uses same texture but flipped.
+                IsFocused = true,
+                // Down button uses same texture as up but flipped.
                 SpriteEffects = SpriteEffects.FlipVertically
             };
             _handle = new RelativeTexture(this, handleDef)
             {
                 Size = new Point(15, 20)
             };
-            _background = new RelativeTexture(this, backgroundDef);
+            _background = new RelativeTexture(this, backgroundDef)
+            {
+                RelativePosition = new Point(0, 15)
+            };
+
 
             _downButton.Hold += _downButton_Hold;
             _upButton.Hold += _upButton_Hold;
@@ -194,7 +187,7 @@ namespace Orbis.UI.BasicElements
         {
             // Updating the buttons is only necessary when the mouse is over the scrollbar.
             Point mousePos = Mouse.GetState().Position;
-            if (ScreenArea.Contains(mousePos))
+            if (Bounds.Contains(mousePos))
             {
                 _upButton.Update();
                 _downButton.Update();
