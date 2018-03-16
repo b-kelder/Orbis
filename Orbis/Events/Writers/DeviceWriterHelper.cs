@@ -74,8 +74,6 @@ namespace Orbis.Events.Writers
         /// <param name="text">The text to write</param>
         public async void WriteToFile(StorageFile file, string text)
         {
-            Debug.WriteLine(text);
-
             try
             {
                 await FileIO.WriteTextAsync(file, text);
