@@ -103,17 +103,16 @@ namespace Orbis
 
             // Create a fileWriter
             Events.Writers.FileWriter fileWriter = new Events.Writers.FileWriter();
+            Events.Writers.XMLWriter xmlWriter = new Events.Writers.XMLWriter();
 
             // Create a logWriter
             Events.LogWriter logWriter = new Events.LogWriter();
             logWriter.AddWriter(fileWriter);
+            logWriter.AddWriter(xmlWriter);
 
             // Write the log
             logWriter.Write(logger.GetLog());
             //---  END LOG TEST
-
-            logger.AddLog("special test");
-            logWriter.Write(logger.GetLog()[2]);
 
             GenerateWorld(TEST_SEED);
         }

@@ -111,6 +111,7 @@
     <Compile Include="Events\LogWriter.cs" />
     <Compile Include="Events\Writers\DeviceWriterHelper.cs" />
     <Compile Include="Events\Writers\FileWriter.cs" />
+    <Compile Include="Events\Writers\XMLWriter.cs" />
     <Compile Include="GamePage.xaml.cs">
       <DependentUpon>GamePage.xaml</DependentUpon>
     </Compile>

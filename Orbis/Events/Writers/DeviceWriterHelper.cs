@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.AccessCache;
 
 namespace Orbis.Events.Writers
 {
@@ -16,6 +17,12 @@ namespace Orbis.Events.Writers
         /// <returns>Operation success</returns>
         public async Task<bool> PickFolder()
         {
+            if (StorageApplicationPermissions.FutureAccessList.ContainsItem("PickedFolderToken"))
+            {
+                storageFolder = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync("PickedFolderToken");
+                return true;
+            }
+
             try
             {
                 // Create a Picker
@@ -31,8 +38,7 @@ namespace Orbis.Events.Writers
                 if (folder != null)
                 {
                     // Application now has read/write access to all contents in the picked folder (including other sub-folder contents)
-                    Windows.Storage.AccessCache.StorageApplicationPermissions.
-                    FutureAccessList.AddOrReplace("PickedFolderToken", folder);
+                    StorageApplicationPermissions.FutureAccessList.AddOrReplace("PickedFolderToken", folder);
 
                     storageFolder = folder;
                     return true;
@@ -51,20 +57,20 @@ namespace Orbis.Events.Writers
         /// <param name="name">The name of the file</param>
         /// <param name="extension">Extension of the file</param>
         /// <returns>Operation success</returns>
-        public async Task<bool> CreateFile(string name, string extension = "txt")
+        public async Task<StorageFile> CreateFile(string name, string extension = "txt")
         {
             try
             {
                 string fileName = name + "." + extension;
                 currentfile = await storageFolder.CreateFileAsync(fileName, CreationCollisionOption.OpenIfExists);
 
-                return true;
+                return currentfile;
             }
             catch(Exception ex)
             {
                 Debug.WriteLine(ex);
             }
-            return false;
+            return null;
         }
 
         /// <summary>
