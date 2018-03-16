@@ -107,6 +107,10 @@
     <Compile Include="Engine\Perlin.cs" />
     <Compile Include="Events\Log.cs" />
     <Compile Include="Events\Logger.cs" />
+    <Compile Include="Events\Writers\ILogWriter.cs" />
+    <Compile Include="Events\LogWriter.cs" />
+    <Compile Include="Events\Writers\DeviceWriterHelper.cs" />
+    <Compile Include="Events\Writers\FileWriter.cs" />
     <Compile Include="GamePage.xaml.cs">
       <DependentUpon>GamePage.xaml</DependentUpon>
     </Compile>
