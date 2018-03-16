@@ -70,7 +70,8 @@ namespace Orbis.Events.Writers
         /// Create a file in the picked folder
         /// </summary>
         /// <param name="name">The name of the file</param>
-        /// <param name="extension">Extension of the file</param>
+        /// <param name="extension">The extension of the file</param>
+        /// <param name="option">Collision option</param>
         /// <returns>Operation success</returns>
         public async Task<StorageFile> CreateFile(string name, string extension = "txt", CreationCollisionOption option = CreationCollisionOption.OpenIfExists)
         {
@@ -91,8 +92,9 @@ namespace Orbis.Events.Writers
         /// <summary>
         /// Write to file
         /// </summary>
-        /// <param name="file">File to write to</param>
+        /// <param name="file">The file to write to</param>
         /// <param name="text">The text to write</param>
+        /// <returns>Operation success</returns>
         public async Task<bool> WriteToFile(StorageFile file, string text)
         {
             try
@@ -108,7 +110,7 @@ namespace Orbis.Events.Writers
         }
 
         /// <summary>
-        /// Write to the current known file
+        /// Write to current cached file
         /// </summary>
         /// <param name="text">The text to write</param>
         public async void WriteToCurrentFile(string text)
