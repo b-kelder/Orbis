@@ -22,6 +22,14 @@
 				</Model>
 			</Item>
 			<Item>
+				<Name>Tropical Trees</Name>
+				<Model>
+					<Name>trees3</Name>
+					<Texture>trees3</Texture>
+					<ColorTexture>black</ColorTexture>
+				</Model>
+			</Item>
+			<Item>
 				<Name>Small Settlement</Name>
 				<Model>
 					<Name>house1</Name>

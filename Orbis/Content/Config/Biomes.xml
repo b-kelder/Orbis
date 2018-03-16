@@ -155,7 +155,7 @@
 					<Texture>hex_rainforest</Texture>
 					<ColorTexture>hex_c</ColorTexture>
 				</HexModel>
-				<DefaultDecoration></DefaultDecoration>
+				<DefaultDecoration>Tropical Trees</DefaultDecoration>
 			</Item>
 		</Biomes>
 	</Asset>

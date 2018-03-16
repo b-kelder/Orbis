@@ -16,7 +16,7 @@ namespace Orbis
     public class Orbis : Game
     {
 
-        public static readonly int TEST_SEED = 0xDDDDDD;
+        public static readonly int TEST_SEED = 0x03;
         public static readonly int TEST_CIVS = 15;
         public static readonly int TEST_RADIUS = 128;
         public static readonly int TEST_TICKS = 10000;
