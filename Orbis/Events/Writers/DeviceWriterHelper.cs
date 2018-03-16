@@ -57,12 +57,12 @@ namespace Orbis.Events.Writers
         /// <param name="name">The name of the file</param>
         /// <param name="extension">Extension of the file</param>
         /// <returns>Operation success</returns>
-        public async Task<StorageFile> CreateFile(string name, string extension = "txt")
+        public async Task<StorageFile> CreateFile(string name, string extension = "txt", CreationCollisionOption option = CreationCollisionOption.OpenIfExists)
         {
             try
             {
                 string fileName = name + "." + extension;
-                currentfile = await storageFolder.CreateFileAsync(fileName, CreationCollisionOption.OpenIfExists);
+                currentfile = await storageFolder.CreateFileAsync(fileName, option);
 
                 return currentfile;
             }

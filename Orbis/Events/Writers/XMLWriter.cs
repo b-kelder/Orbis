@@ -14,7 +14,7 @@ namespace Orbis.Events.Writers
             bool folderPicked = await PickFolder();
             if (folderPicked)
             {
-                StorageFile currentFile = await CreateFile("Orbis Log", "xml");
+                StorageFile currentFile = await CreateFile("Orbis Log", "xml", CreationCollisionOption.GenerateUniqueName);
 
                 using (IRandomAccessStream writeStream = await currentFile.OpenAsync(FileAccessMode.ReadWrite))
                 {
