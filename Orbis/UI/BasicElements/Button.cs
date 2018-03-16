@@ -134,11 +134,11 @@ namespace Orbis.UI.BasicElements
         {
             _texture.Render(spriteBatch);
 
-            if (_text != null)
+            if (_textString != null)
             {
                 // Do some work to center the text in the button.
                 int maxWidth = Size.X - 8;
-                string clippedString = Utility.TextHelper.ClipText(Font, Text, maxWidth);
+                string clippedString = Utility.TextHelper.ClipText(Font, _textString, maxWidth);
                 Vector2 textSize = Font.MeasureString(clippedString);
 
                 Point center = Bounds.Center;
@@ -162,11 +162,17 @@ namespace Orbis.UI.BasicElements
 
                 if (ScreenArea.Contains(mousePos) && input.IsMouseReleased(MouseButton.Left))
                 {
-                    Click.Invoke(this, null);
+                    if (Click != null)
+                    {
+                        Click.Invoke(this, null);
+                    }
                 }
                 else if (ScreenArea.Contains(mousePos) && input.IsMouseHold(MouseButton.Left))
                 {
-                    Hold.Invoke(this, null);
+                    if (Hold != null)
+                    {
+                        Hold.Invoke(this, null);
+                    }
                 }
             }
         }

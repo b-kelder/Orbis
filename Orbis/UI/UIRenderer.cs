@@ -10,7 +10,7 @@ namespace Orbis.UI
     /// </summary>
     public class UIRenderer : DrawableGameComponent
     {
-        private UIElement test;
+        private Scrollbar test;
 
         /// <summary>
         ///     A factory for creating and managing basic single-color textures.
@@ -49,11 +49,13 @@ namespace Orbis.UI
             Texture2D whiteSmokeTexture = BasicTextureFactory.CreateBasicTexture(Color.WhiteSmoke);
             SpriteFont messageFont = Game.Content.Load<SpriteFont>("DebugFont");
 
-            test = new ProgressBar(Game)
+            test = new Scrollbar()
             {
-                Size = new Point(800, 600),
-                AnchorPosition = AnchorPosition.Center,
-                RelativePosition = new Point(-400, -300)
+                Position = new Point(800, 200),
+                LayerDepth = 1F,
+                ScrollPosition = 50F,
+                ScreenArea = new Rectangle(800, 200, 15, 500),
+                Size = new Point(15, 500)
             };
 
             //Texture2D barBack = new Texture2D(Game.GraphicsDevice, 1, 1);
@@ -162,7 +164,7 @@ namespace Orbis.UI
         /// </param>
         public override void Update(GameTime gameTime)
         {
-
+            test.Update();
             base.Update(gameTime);
         }
 
@@ -173,7 +175,7 @@ namespace Orbis.UI
         public override void Draw(GameTime gameTime)
         {
             _spriteBatch.Begin(SpriteSortMode.BackToFront);
-            test.Draw(_spriteBatch);
+            test.Render(_spriteBatch);
             _spriteBatch.End();
 
             base.Draw(gameTime);

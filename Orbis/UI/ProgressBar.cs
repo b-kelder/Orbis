@@ -20,15 +20,15 @@ namespace Orbis.UI
             Texture2D testTexture = new Texture2D(game.GraphicsDevice, 1, 1);
             testTexture.SetData(new Color[] { Color.Red });
 
-            var button = new Button(testTexture)
-            {
-                Position = new Point(200, 400),
-                Size = new Point(80, 40),
-                LayerDepth = 0.999F
-            };
+            //var button = new Button(testTexture)
+            //{
+            //    Position = new Point(200, 400),
+            //    Size = new Point(80, 40),
+            //    LayerDepth = 0.999F
+            //};
 
-            _childElements.Add(button);
-            _updatables.Add(button);
+            //_childElements.Add(button);
+            //_updatables.Add(button);
         }
         ///// <summary>
         /////     Get the progress bar's children (it should have none).

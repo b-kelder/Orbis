@@ -8,7 +8,7 @@ namespace Orbis.UI
     /// <summary>
     ///     Loads and manages textures for the UI.
     /// </summary>
-    public class UIContentManager : IDisposable
+    public class UIContentManager
     {
         // Used to load new textures.
         private ContentManager _contentManager;
@@ -38,7 +38,10 @@ namespace Orbis.UI
                 throw new ArgumentNullException();
             }
 
+            _loadedFonts = new Dictionary<string, SpriteFont>();
+
             _loadedTextures = new Dictionary<string, Texture2D>();
+            
             _contentManager = new ContentManager(provider, "Content");
         }
 
@@ -123,14 +126,19 @@ namespace Orbis.UI
         /// <summary>
         ///     Clean up all resources used by the <see cref="UIContentManager"/>.
         /// </summary>
-        public void Dispose()
+        public void UnloadAll()
         {
-            // The textures are what takes up resources in this class.
+            // The textures are unloaded.
             foreach (KeyValuePair<string, Texture2D> entry in _loadedTextures)
             {
                 entry.Value.Dispose();
             }
             _loadedTextures.Clear();
+
+            _loadedFonts.Clear();
+
+            // Also unload the content manager.
+            _contentManager.Unload();
         }
     }
 }
