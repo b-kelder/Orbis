@@ -21,8 +21,17 @@ namespace Orbis.Rendering
         private ContentManager contentManager;
         private Material material;
 
+        /// <summary>
+        /// Base directory for model file loading.
+        /// </summary>
         public string BaseModelDirectory { get; set; }
+        /// <summary>
+        /// Base directory for texture file loading.
+        /// </summary>
         public string BaseTextureDirectory { get; set; }
+        /// <summary>
+        /// Material used by all models loaded by this loader.
+        /// </summary>
         public Material Material { get { return material; } }
 
 

@@ -11,6 +11,9 @@ using Windows.ApplicationModel;
 
 namespace Orbis.Rendering
 {
+    /// <summary>
+    /// Automated texture atlas for combining textures into a single large one.
+    /// </summary>
     class AutoAtlas
     {
         private Dictionary<Texture2D, Matrix> textureUVOffset;
@@ -26,6 +29,12 @@ namespace Orbis.Rendering
 
         public Texture2D Texture { get { return atlas; } }
 
+        /// <summary>
+        /// Creates a new atlas.
+        /// </summary>
+        /// <param name="width">Width in pixels</param>
+        /// <param name="height">Height in pixels</param>
+        /// <param name="border">Border around a texture in pixels</param>
         public AutoAtlas(int width, int height, int border)
         {
             this.width = width;
@@ -35,6 +44,11 @@ namespace Orbis.Rendering
             textureAtlasOffset = new Dictionary<Texture2D, Point>();
         }
 
+        /// <summary>
+        /// Adds a new texture to the atlas.
+        /// </summary>
+        /// <param name="texture">Texture to add</param>
+        /// <exception cref="Exception">Thrown when atlas is full</exception>
         public void AddTexture(Texture2D texture)
         {
             if(textureUVOffset.ContainsKey(texture))
@@ -93,7 +107,7 @@ namespace Orbis.Rendering
             int texHeight = texture.Height + border * 2;
 
             textureAtlasOffset.Add(texture, new Point(currentFreeX, currentFreeY));
-
+            // Create UV matrix by scaling and offsetting based on texture size and location in atlas
             var matrix = Matrix.CreateScale((float)texture.Width / width, (float)texture.Height / height, 1) *
                 Matrix.CreateTranslation((float)(currentFreeX + border) / width, (float)(currentFreeY + border) / height, 0);
             textureUVOffset.Add(texture, matrix);
@@ -105,6 +119,11 @@ namespace Orbis.Rendering
             currentFreeX += texWidth;
         }
 
+        /// <summary>
+        /// Gets the UV matrix for the given texture inside the atlas.
+        /// </summary>
+        /// <param name="texture"></param>
+        /// <returns></returns>
         public Matrix GetOffset(Texture2D texture)
         {
             Matrix result;
@@ -112,6 +131,12 @@ namespace Orbis.Rendering
             return result;
         }
 
+        /// <summary>
+        /// Updates the UVs of a mesh for the given texture.
+        /// </summary>
+        /// <param name="mesh">The mesh to update</param>
+        /// <param name="texture">Texture to map for</param>
+        /// <param name="uvMapIndex">UV map to modify (0 or 1)</param>
         public void UpdateMeshUVs(Mesh mesh, Texture2D texture, int uvMapIndex)
         {
             var matrix = GetOffset(texture);
@@ -232,6 +257,10 @@ namespace Orbis.Rendering
             return floorVerts;
         }
 
+        /// <summary>
+        /// Creates the atlas using the given graphics device for rendering.
+        /// </summary>
+        /// <param name="device"></param>
         public void Create(GraphicsDevice device)
         {
             // Since GPUs are very good at doing parallel operations we will use it to create our texture atlas
@@ -282,11 +311,14 @@ namespace Orbis.Rendering
             device.BlendState = oldBlendState;
             device.DepthStencilState = oldStencilState;
 
-            //
-            //shader.Dispose();
+            // Clean up a bit
+            shader.Dispose();
             atlas = renderTarget;
         }
 
+        /// <summary>
+        /// Unloads all textures passed to this atlas.
+        /// </summary>
         public void UnloadNonAtlasTextures()
         {
             foreach (var tex in textureUVOffset.Keys)
