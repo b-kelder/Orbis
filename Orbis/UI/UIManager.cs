@@ -1,31 +1,21 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Orbis.UI.BasicElements;
+using Orbis.UI.Windows;
 using Orbis.UI.Utility;
 
 namespace Orbis.UI
 {
     /// <summary>
-    ///     A UI Window responsible for drawing the GUI and managing UI Elements.
+    ///     The game component responsible for drawing the GUI and updating other UI elements.
     /// </summary>
-    public class UIRenderer : DrawableGameComponent, IPositionedElement
+    /// 
+    /// <author>Kaj van der Veen</author>
+    public class UIManager : DrawableGameComponent
     {
-        Scrollbar test;
-
         /// <summary>
-        ///     Gets the size of the window.
+        ///     The current window shown by the UI.
         /// </summary>
-        private Point WindowSize
-        {
-            get;
-            set;
-        }
-
-        public Rectangle Bounds => Game.Window.ClientBounds;
-
-        public Point Position => Point.Zero;
-
-        public Point Size => Game.Window.ClientBounds.Size;
+        public UIWindow CurrentWindow { get; private set; }
 
         /// <summary>
         ///     The spritebatch used to draw the UI.
@@ -36,22 +26,29 @@ namespace Orbis.UI
         ///     Represents the currently shown window.
         /// </summary>
         /// <param name="game"></param>
-        public UIRenderer(Game game) : base(game)
+        public UIManager(Game game) : base(game)
         {
+            
+        }
+
+        /// <summary>
+        ///     Change the current window to a new one.
+        /// </summary>
+        /// <param name="nextWindow">
+        ///     The window to show.
+        /// </param>
+        public void ChangeWindow(UIWindow nextWindow)
+        {
+            CurrentWindow = nextWindow;
         }
 
         public override void Initialize()
         {
-            BasicTextureFactory.CreateInstance(Game.GraphicsDevice);
-            UIContentManager.CreateInstance(Game.Services);
+            UIContentManager.CreateInstance(Game);
 
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
 
-            test = new Scrollbar(this)
-            {
-                AnchorPosition = AnchorPosition.Center,
-                Size = new Point(15, 200)
-            };
+            CurrentWindow = new TestWindow(Game);
 
             base.Initialize();
         }
@@ -66,8 +63,6 @@ namespace Orbis.UI
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
-
-            test.Update();
         }
 
         /// <summary>
@@ -77,7 +72,7 @@ namespace Orbis.UI
         public override void Draw(GameTime gameTime)
         {
             _spriteBatch.Begin(SpriteSortMode.BackToFront);
-            test.Render(_spriteBatch);
+            CurrentWindow.Draw(_spriteBatch);
             _spriteBatch.End();
 
             base.Draw(gameTime);

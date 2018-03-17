@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace Orbis.UI.BasicElements
+namespace Orbis.UI.Elements
 {
     /// <summary>
     ///     Text with a fixed position.

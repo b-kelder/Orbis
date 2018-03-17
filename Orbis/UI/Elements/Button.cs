@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using Orbis.Engine;
 using System;
 
-namespace Orbis.UI.BasicElements
+namespace Orbis.UI.Elements
 {
     /// <summary>
     ///     A button in the Orbis UI.
@@ -46,6 +46,7 @@ namespace Orbis.UI.BasicElements
                 {
                     _text.Font = value;
                 }
+                // Do nothing if the button is not a text button.
             }
         }
 

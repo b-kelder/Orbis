@@ -4,7 +4,7 @@ using System;
 namespace Orbis.UI
 {
     /// <summary>
-    ///     Interface for elements that can be rendered.
+    ///     Interface for UI elements that can be rendered.
     /// </summary>
     /// 
     /// <author>Kaj van der Veen</author>

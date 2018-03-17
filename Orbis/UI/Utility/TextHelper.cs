@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Orbis.UI.Utility
 {
     /// <summary>
     ///     Contains helper functions for text handling.
     /// </summary>
+    /// 
+    /// <author>Kaj van der Veen</author>
     public static class TextHelper
     {
         /// <summary>

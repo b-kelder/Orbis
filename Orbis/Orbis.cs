@@ -8,6 +8,9 @@ using Orbis.Rendering;
 using Orbis.Simulation;
 using Orbis.World;
 
+using Orbis.UI.Windows;
+using Orbis.UI.Elements;
+
 namespace Orbis
 {
     /// <summary>
@@ -16,7 +19,7 @@ namespace Orbis
     public class Orbis : Game
     {
 
-        public static readonly int TEST_SEED = 0x03;
+        public static readonly int TEST_SEED = 0x12;
         public static readonly int TEST_CIVS = 15;
         public static readonly int TEST_RADIUS = 128;
         public static readonly int TEST_TICKS = 10000;
@@ -29,7 +32,7 @@ namespace Orbis
 
         InputHandler input;
 
-        UI.UIRenderer UI;
+        UI.UIManager UI;
 
         private Scene scene;
         private Simulator simulator;
@@ -53,7 +56,7 @@ namespace Orbis
             Components.Add(sceneRenderer);
 
             input = InputHandler.GetInstance();
-            UI = new UI.UIRenderer(this)
+            UI = new UI.UIManager(this)
             {
                 DrawOrder = 1
             };
@@ -159,6 +162,9 @@ namespace Orbis
             {
                 Exit();
             }
+
+            TestWindow test = UI.CurrentWindow as TestWindow;
+            test.TestBar.Progress = ((float)simulator.CurrentTick / TEST_TICKS);
         }
 
         /// <summary>
@@ -172,17 +178,17 @@ namespace Orbis
             spriteBatch.Begin();
 
             spriteBatch.DrawString(fontDebug, "Tick: " + simulator.CurrentTick, new Vector2(10, 50), Color.Red);
-            float y = 80;
-            foreach (var civ in scene.Civilizations)
-            {
-                spriteBatch.DrawString(fontDebug, civ.Name, new Vector2(10, y), Color.Red);
-                spriteBatch.DrawString(fontDebug, "Size: " + civ.Territory.Count, new Vector2(200, y), Color.Red);
-                spriteBatch.DrawString(fontDebug, "Population: " + civ.Population, new Vector2(300, y), Color.Red);
-                spriteBatch.DrawString(fontDebug, "Is Alive: " + civ.IsAlive, new Vector2(500, y), Color.Red);
-                spriteBatch.DrawString(fontDebug, "Wealth: " + civ.TotalWealth, new Vector2(600, y), Color.Red);
-                spriteBatch.DrawString(fontDebug, "Resource: " + civ.TotalResource, new Vector2(800, y), Color.Red);
-                y += 15;
-            }
+            //float y = 80;
+            //foreach (var civ in scene.Civilizations)
+            //{
+            //    spriteBatch.DrawString(fontDebug, civ.Name, new Vector2(10, y), Color.Red);
+            //    spriteBatch.DrawString(fontDebug, "Size: " + civ.Territory.Count, new Vector2(200, y), Color.Red);
+            //    spriteBatch.DrawString(fontDebug, "Population: " + civ.Population, new Vector2(300, y), Color.Red);
+            //    spriteBatch.DrawString(fontDebug, "Is Alive: " + civ.IsAlive, new Vector2(500, y), Color.Red);
+            //    spriteBatch.DrawString(fontDebug, "Wealth: " + civ.TotalWealth, new Vector2(600, y), Color.Red);
+            //    spriteBatch.DrawString(fontDebug, "Resource: " + civ.TotalResource, new Vector2(800, y), Color.Red);
+            //    y += 15;
+            //}
 
             spriteBatch.DrawString(fontDebug, "FPS: " + (1 / gameTime.ElapsedGameTime.TotalSeconds).ToString("##.##"), new Vector2(10, 30), Color.Red);
 

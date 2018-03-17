@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace Orbis.UI.BasicElements
+namespace Orbis.UI.Elements
 {
     /// <summary>
     ///     A texture with a fixed position and dimensions.

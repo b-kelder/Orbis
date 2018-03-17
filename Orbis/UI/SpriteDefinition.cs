@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Orbis.UI
 {
     /// <summary>
-    ///     The definition of a sprite
+    ///     The definition of a sprite within a spritesheet.
     /// </summary>
+    /// 
+    /// <author>Kaj van der Veen</author>
     public struct SpriteDefinition
     {
         /// <summary>

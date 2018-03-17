@@ -1,9 +1,10 @@
-﻿using Microsoft.Xna.Framework.Content;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 
-namespace Orbis.UI
+namespace Orbis.UI.Utility
 {
     /// <summary>
     ///     Loads and manages textures for the UI.
@@ -13,11 +14,17 @@ namespace Orbis.UI
         // Used to load new textures.
         private ContentManager _contentManager;
 
+        // Keeps track of existing color textures.
+        private Dictionary<Color, Texture2D> _loadedColorTextures;
+
         // Used to store already loaded textures.
         private Dictionary<string, SpriteFont> _loadedFonts;
 
         // Used to store already loaded textures.
         private Dictionary<string, Texture2D> _loadedTextures;
+
+        // Used for creating textures.
+        private GraphicsDevice _graphicsDevice;
 
         // Global instance.
         private static UIContentManager _instance;
@@ -26,23 +33,27 @@ namespace Orbis.UI
         ///     Create a new <see cref="UIContentManager"/>.
         /// </summary>
         /// 
-        /// <param name="provider">
-        ///     The serviceprovider to use for creating the content manager.
+        /// <param name="game">
+        ///     The current Game object.
         /// </param>
         /// 
         /// <exception cref="ArgumentNullException" />
-        private UIContentManager(IServiceProvider provider)
+        private UIContentManager(Game game)
         {
-            if (provider == null)
+            if (game == null)
             {
                 throw new ArgumentNullException();
             }
 
+            _graphicsDevice = game.GraphicsDevice;
+
+            _contentManager = new ContentManager(game.Services, "Content");
+
+            _loadedColorTextures = new Dictionary<Color, Texture2D>();
+
             _loadedFonts = new Dictionary<string, SpriteFont>();
 
             _loadedTextures = new Dictionary<string, Texture2D>();
-            
-            _contentManager = new ContentManager(provider, "Content");
         }
 
         /// <summary>
@@ -67,15 +78,38 @@ namespace Orbis.UI
         ///     Create the global instance of the UITextureManager.
         /// </summary>
         /// 
-        /// <param name="serviceProvider">
-        ///     The serviceprovider that will be used for loading content.
+        /// <param name="game">
+        ///     The current Game object.
         /// </param>
         /// 
         /// <exception cref="ArgumentNullException" />
-        public static void CreateInstance(IServiceProvider serviceProvider)
+        public static void CreateInstance(Game game)
         {
-            _instance = (_instance == null) ? new UIContentManager(serviceProvider)
+            _instance = (_instance == null) ? new UIContentManager(game)
                 : throw new InvalidOperationException("Instance already exists.");
+        }
+
+        /// <summary>
+        ///     Create a single color texture with the given color.
+        /// </summary>
+        /// 
+        /// <param name="graphicsDevice">
+        ///     The graphics device to use for creating the texture.
+        /// </param>
+        /// <param name="color">
+        ///     The color to use for the texture.
+        /// </param>
+        public Texture2D GetColorTexture(Color color)
+        {
+
+            if (!_loadedColorTextures.TryGetValue(color, out Texture2D texture))
+            {
+                texture = new Texture2D(_graphicsDevice, 1, 1);
+                texture.SetData(new Color[] { color });
+                _loadedColorTextures.Add(color, texture);
+            }
+
+            return texture;
         }
 
         /// <summary>
@@ -134,6 +168,12 @@ namespace Orbis.UI
                 entry.Value.Dispose();
             }
             _loadedTextures.Clear();
+
+            foreach (KeyValuePair<Color, Texture2D> entry in _loadedColorTextures)
+            {
+                entry.Value.Dispose();
+            }
+            _loadedColorTextures.Clear();
 
             _loadedFonts.Clear();
 

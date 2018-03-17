@@ -1,8 +1,10 @@
 ﻿namespace Orbis.UI
 {
     /// <summary>
-    ///     Interface for basicElements that can be updated.
+    ///     Interface for UI elements that can be updated.
     /// </summary>
+    /// 
+    /// <author>Kaj van der Veen</author>
     public interface IUpdatableElement
     {
         /// <summary>

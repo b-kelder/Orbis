@@ -1,12 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Orbis.UI
 {
+    /// <summary>
+    ///     Interface for UI elements with an absolute on-screen position.
+    /// </summary>
+    /// 
+    /// <author>Kaj van der Veen</author>
     public interface IPositionedElement
     {
         /// <summary>

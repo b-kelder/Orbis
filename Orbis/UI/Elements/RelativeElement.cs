@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace Orbis.UI.BasicElements
+namespace Orbis.UI.Elements
 {
     public abstract class RelativeElement : IPositionedElement
     {

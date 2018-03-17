@@ -1,9 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Orbis.UI.Utility;
 using System;
 
-namespace Orbis.UI.BasicElements
+namespace Orbis.UI.Elements
 {
     /// <summary>
     ///     Represents a scrollbar that can be used by UI Elements.
@@ -128,7 +129,6 @@ namespace Orbis.UI.BasicElements
                 RelativePosition = new Point(0, -15),
                 Size = new Point(15, 15),
                 IsFocused = true,
-                // Down button uses same texture as up but flipped.
                 SpriteEffects = SpriteEffects.FlipVertically
             };
             _handle = new RelativeTexture(this, handleDef)
