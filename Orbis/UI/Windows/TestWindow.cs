@@ -20,7 +20,7 @@ namespace Orbis.UI.Windows
             {
                 AnchorPosition = AnchorPosition.BottomLeft,
                 RelativePosition = new Point(20, -70),
-                Size = new Point(50, _game.Window.ClientBounds.Width - 40)
+                Size = new Point(_game.Window.ClientBounds.Width - 40, 50)
             };
         }
 
