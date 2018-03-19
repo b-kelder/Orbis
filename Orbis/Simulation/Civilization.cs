@@ -54,7 +54,7 @@ namespace Orbis.Simulation
         /// <summary>
         /// The total population of the civ
         /// </summary>
-        public int Population { get; private set; }
+        public int Population { get; set; }
 
         public int TotalHousing { get; set; }
         public double TotalWealth { get; set; }
@@ -78,11 +78,6 @@ namespace Orbis.Simulation
             Wars = new List<War>();
             BorderCivs = new HashSet<Civilization>();
             CivOpinions = new Dictionary<Civilization, int>();
-        }
-
-        public void SetPopulation(int population)
-        {
-            Population = population;
         }
 
         /// <summary>
