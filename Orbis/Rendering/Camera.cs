@@ -13,6 +13,9 @@ namespace Orbis.Rendering
         Orthographic
     }
 
+    /// <summary>
+    /// Represents a camera in a 3d world.
+    /// </summary>
     class Camera
     {
         public Vector3 Position { get; set; }

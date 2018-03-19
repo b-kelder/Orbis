@@ -8,7 +8,14 @@ using System.Threading.Tasks;
 
 namespace Orbis.Rendering
 {
-    class ObjParser
+    /// <summary>
+    /// Basic Wavefront .OBJ file format parser. Currently only supports:
+    /// - 1 object
+    /// - Triangulated faces
+    /// - Vertex position
+    /// - 1 UV channel
+    /// </summary>
+    static class ObjParser
     {
         struct FaceData
         {
@@ -16,6 +23,11 @@ namespace Orbis.Rendering
             public int uvIndex;
         }
 
+        /// <summary>
+        /// Creates a mesh from an OBJ file stream.
+        /// </summary>
+        /// <param name="stream">Input stream</param>
+        /// <returns>Mesh</returns>
         public static Mesh FromStream(System.IO.Stream stream)
         {
             var objVerts = new List<Vector3>();

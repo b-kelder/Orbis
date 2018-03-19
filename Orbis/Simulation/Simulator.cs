@@ -104,6 +104,8 @@ namespace Orbis.Simulation
 
             taskList.Clear();
 
+            ConcurrentQueue<Cell> changedCells = new ConcurrentQueue<Cell>();
+
             for (int i = 0; i < civCount; i++)
             {
                 Civilization civ = Scene.Civilizations[i];
@@ -142,7 +144,13 @@ namespace Orbis.Simulation
                         int birth = 3 * rand.Next(0, cell.population / 5);
                         int death = rand.Next(0, cell.population / 5) + peopleWithNoFood;
 
-                        cell.population += birth - death;
+                        // TEST
+                        if(WentOverPopulationThreshold(cell, MathHelper.Clamp(cell.population + birth - death, 0, cell.MaxHousing + 200)))
+                        {
+                            changedCells.Enqueue(cell);
+                        }
+
+                        cell.population = MathHelper.Clamp(cell.population + birth - death, 0, cell.MaxHousing + 200);
 
                         population += cell.population;
                         civ.TotalResource += roll * 5 * cell.ResourceMod;
@@ -166,6 +174,16 @@ namespace Orbis.Simulation
             Task.WaitAll(taskList.ToArray());
 
             List<Cell> changed = new List<Cell>();
+
+            
+            while(changedCells.Count > 0)
+            {
+                Cell item;
+                if(changedCells.TryDequeue(out item))
+                {
+                    changed.Add(item);
+                }
+            }
 
             foreach (KeyValuePair<Cell, Civilization> ccc in cc)
             {
@@ -240,6 +258,16 @@ namespace Orbis.Simulation
             }
 
             cellsChanged.Enqueue(changed.ToArray());
+        }
+
+        private bool WentOverPopulationThreshold(Cell cell, int newPopulation)
+        {
+            return (cell.population < Scene.DecorationSettings.SmallPopulationThreshold &&
+                newPopulation >= Scene.DecorationSettings.SmallPopulationThreshold) ||
+                (cell.population < Scene.DecorationSettings.MediumPopulationThreshold &&
+                newPopulation >= Scene.DecorationSettings.MediumPopulationThreshold) ||
+                (cell.population < Scene.DecorationSettings.LargePopulationThreshold &&
+                newPopulation >= Scene.DecorationSettings.LargePopulationThreshold);
         }
     }
 }

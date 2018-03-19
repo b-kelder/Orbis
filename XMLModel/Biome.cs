@@ -45,5 +45,9 @@ namespace XMLModel
         /// Model to use for a hex in this biome
         /// </summary>
         public Model HexModel;
+        /// <summary>
+        /// Default cell decoration for this biome, can be null
+        /// </summary>
+        public string DefaultDecoration;
     }
 }

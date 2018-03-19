@@ -21,15 +21,24 @@ namespace Orbis.Rendering
         private ContentManager contentManager;
         private Material material;
 
+        /// <summary>
+        /// Base directory for model file loading.
+        /// </summary>
         public string BaseModelDirectory { get; set; }
+        /// <summary>
+        /// Base directory for texture file loading.
+        /// </summary>
         public string BaseTextureDirectory { get; set; }
+        /// <summary>
+        /// Material used by all models loaded by this loader.
+        /// </summary>
         public Material Material { get { return material; } }
 
 
         public AtlasModelLoader(int atlasWidth, int atlasHeight, Effect shader, ContentManager contentManager)
         {
-            atlas = new AutoAtlas(atlasWidth, atlasHeight);
-            colorAtlas = new AutoAtlas(atlasWidth, atlasHeight);
+            atlas = new AutoAtlas(atlasWidth, atlasHeight, 32);
+            colorAtlas = new AutoAtlas(atlasWidth, atlasHeight, 32);
             this.shader = shader;
             this.contentManager = contentManager;
             this.material = new Material(shader);
@@ -70,11 +79,7 @@ namespace Orbis.Rendering
             {
                 throw new Exception("Need both a color and diffuse texture!");
             }
-            if(diffuseTexture.Width != colorTexture.Width || diffuseTexture.Height != colorTexture.Height)
-            {
-                throw new Exception("Color and diffuse texture must be the same size!");
-            }
-            // These should stay in sync if the resolution is the same
+            // Color and Diffuse UVs are seperate
             atlas.AddTexture(diffuseTexture);
             colorAtlas.AddTexture(colorTexture);
             atlas.UpdateMeshUVs(mesh, diffuseTexture, 0);

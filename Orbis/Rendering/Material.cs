@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Orbis.Rendering
 {
+    /// <summary>
+    /// Bite-sized chunk of textured goodness.
+    /// </summary>
     class Material
     {
         public Texture2D Texture { get; set; }

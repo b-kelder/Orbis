@@ -105,6 +105,13 @@
     <Compile Include="Engine\AudioManager.cs" />
     <Compile Include="Engine\InputHandler.cs" />
     <Compile Include="Engine\Perlin.cs" />
+    <Compile Include="Events\Log.cs" />
+    <Compile Include="Events\Logger.cs" />
+    <Compile Include="Events\Writers\ILogWriter.cs" />
+    <Compile Include="Events\LogWriter.cs" />
+    <Compile Include="Events\Helpers\DeviceWriterHelper.cs" />
+    <Compile Include="Events\Writers\TextFileWriter.cs" />
+    <Compile Include="Events\Writers\XMLFileWriter.cs" />
     <Compile Include="GamePage.xaml.cs">
       <DependentUpon>GamePage.xaml</DependentUpon>
     </Compile>
@@ -114,6 +121,7 @@
     <Compile Include="Rendering\AutoAtlas.cs" />
     <Compile Include="Rendering\Camera.cs" />
     <Compile Include="Rendering\CustomVertexData.cs" />
+    <Compile Include="Rendering\DecorationManager.cs" />
     <Compile Include="Rendering\Material.cs" />
     <Compile Include="Rendering\Mesh.cs" />
     <Compile Include="Rendering\MeshCombiner.cs" />
@@ -143,6 +151,12 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <Content Include="Content\Meshes\quad_up.obj" />
+    <Content Include="Content\Meshes\trees1.obj" />
+    <Content Include="Content\Meshes\house1.obj" />
+    <Content Include="Content\Meshes\house3.obj" />
+    <Content Include="Content\Meshes\house2.obj" />
+    <Content Include="Content\Meshes\trees2.obj" />
+    <Content Include="Content\Meshes\trees3.obj" />
     <None Include="Orbis_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
