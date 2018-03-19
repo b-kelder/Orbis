@@ -34,6 +34,8 @@ namespace Orbis.Simulation
         private List<War> ongoingWars;
         private ConcurrentDictionary<Cell, Civilization> cc;
 
+        private bool pause = false;
+
         public Simulator(Scene scene, int simulationLength)
         {
             Scene = scene;
@@ -50,6 +52,26 @@ namespace Orbis.Simulation
             cc = new ConcurrentDictionary<Cell, Civilization>();
         }
 
+        public void Reset()
+        {
+
+        }
+
+        public bool IsPaused()
+        {
+            return pause;
+        }
+
+        public void Pause()
+        {
+            pause = true;
+        }
+
+        public void Resume()
+        {
+            pause = false;
+        }
+
         public Cell[] GetChangedCells()
         {
             cellsChanged.TryDequeue(out Cell[] cells);
@@ -58,7 +80,7 @@ namespace Orbis.Simulation
 
         public void Update(GameTime gameTime)
         {
-            if (CurrentTick >= maxTick)
+            if (CurrentTick >= maxTick || pause)
             {
                 return;
             }
