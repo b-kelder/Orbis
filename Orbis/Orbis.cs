@@ -143,14 +143,7 @@ namespace Orbis
             }
             if (Input.IsKeyDown(Keys.P))
             {
-                if (simulator.IsPaused())
-                {
-                    simulator.Resume();
-                }
-                else
-                {
-                    simulator.Pause();
-                }
+                simulator.TogglePause();
             }
 
             base.Update(gameTime);

@@ -43,6 +43,8 @@ namespace Orbis.Simulation
         private List<War> ongoingWars;
         private ConcurrentDictionary<Cell, Civilization> removeOwner;
 
+        private bool pause;
+
         /// <summary>
         /// Create a simulator
         /// </summary>
@@ -58,13 +60,23 @@ namespace Orbis.Simulation
 
             // Create a random based on the scene's seed
             rand = new Random(scene.Seed);
-
+            pause = true;
             // Create lists and queues
             actionQueue = new ConcurrentQueue<SimulationAction>();
             taskList = new List<Task>();
             cellsChanged = new ConcurrentQueue<Cell[]>();
             ongoingWars = new List<War>();
             removeOwner = new ConcurrentDictionary<Cell, Civilization>();
+        }
+
+        public void TogglePause()
+        {
+            pause = !pause;
+        }
+
+        public bool IsPaused()
+        {
+            return pause;
         }
 
         /// <summary>
@@ -86,7 +98,7 @@ namespace Orbis.Simulation
         public void Update(GameTime gameTime)
         {
             // Check if the max ticks has been reached
-            if (CurrentTick >= maxTick)
+            if (CurrentTick >= maxTick || pause)
             {
                 return;
             }
