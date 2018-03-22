@@ -62,7 +62,7 @@ namespace Orbis.Simulation
             bool warEnded = false;
             result = new BattleResult();
 
-            if (Attacker.Population == 0 || Defender.Population == 0)
+            if (!Attacker.IsAlive || !Defender.IsAlive)
             {
                 warEnded = true;
             }
