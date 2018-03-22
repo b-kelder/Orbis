@@ -175,6 +175,8 @@ namespace Orbis
 
             TestWindow test = UI.CurrentWindow as TestWindow;
             test.TestBar.Progress = ((float)simulator.CurrentTick / TEST_TICKS);
+
+            base.Update(gameTime);
         }
 
         /// <summary>
