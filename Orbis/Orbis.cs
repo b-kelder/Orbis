@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Input;
 using Orbis.Engine;
 using Orbis.Rendering;
 using Orbis.Simulation;
+using Orbis.States;
 using Orbis.World;
 
 namespace Orbis
@@ -128,6 +129,12 @@ namespace Orbis
         {
             // Update user input
             Input.UpdateInput();
+
+            // Check if the state has changed
+            if (StateManager.GetInstance().IsStateChanged())
+            {
+                StateManager.GetInstance().RunState();
+            }
 
             // Update renderer if we can
             if(sceneRenderer.ReadyForUpdate)
