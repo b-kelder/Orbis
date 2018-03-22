@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Xna.Framework;
 using Orbis.World;
 
 namespace Orbis.Simulation
@@ -16,7 +17,6 @@ namespace Orbis.Simulation
     /// </author>
     class War
     {
-        public int Duration { get; private set; }
         public Civilization Attacker { get; set; }
         public Civilization Defender { get; set; }
 
@@ -24,7 +24,10 @@ namespace Orbis.Simulation
         private int _upperBound;
         private int _lowerBound;
         private Scene _scene;
+        private int _battleBalance;
+        private int _duration;
         
+        // amount of lost battles/ duration of the war / random shit
 
         /// <summary>
         ///  Start a new war between two civs.
@@ -34,12 +37,13 @@ namespace Orbis.Simulation
         public War(Scene scene, Civilization attacker, Civilization defender)
         {
             _random = new Random(scene.Seed);
-            _upperBound = 100;
+            _upperBound = 3;
             _lowerBound = 0;
             _scene = scene;
+            _battleBalance = 0;
+            _duration = 1;
             Attacker = attacker;
             Defender = defender;
-            Duration = 1;
 
             Attacker.Wars.Add(this);
             Defender.Wars.Add(this);
@@ -53,97 +57,100 @@ namespace Orbis.Simulation
         ///     Decides the outcome of a battle tick between two civs.
         /// </summary>
         /// <returns></returns>
-        public Boolean Battle()
+        public bool Battle(out BattleResult result)
         {
             bool warEnded = false;
+            result = new BattleResult();
 
-            // TODO: Add other modifiers to this calculation
-            int attackerScore = (int)Math.Floor(_random.Next(1, 21)
-                + ((double)Attacker.Population / Defender.Population)
-                + ((double)Attacker.TotalWealth / Defender.TotalWealth)
-                + Defender.Wars.Count);
-
-            int defenderScore = (int)Math.Floor(_random.Next(1, 21) 
-                + ((double)Defender.Population / Attacker.Population)
-                + ((double)Defender.TotalWealth / Attacker.TotalWealth)
-                + Attacker.Wars.Count);
-
-            int battleResult = attackerScore - defenderScore;
+            if (!Attacker.IsAlive || !Defender.IsAlive)
+            {
+                warEnded = true;
+            }
+            else
+            {
+                int battleResult = (int)Math.Floor(_random.Next(-2, 3) * (0.3 * _duration) +
+                    + ((double)Attacker.Population / Defender.Population)
+                    + ((double)Attacker.TotalWealth / Defender.TotalWealth)
+                    + ( Defender.Wars.Count - Attacker.Wars.Count));
 
 
                 //+ (0.4 * Attacker.Population + 10 * Attacker.Wars.Count)
                 //- (0.4 * Defender.Population + 10 * Defender.Wars.Count));
 
-            System.Diagnostics.Debug.WriteLine("Battle result for war between {0} and {1}: {2}.",
-                Attacker.Name,
-                Defender.Name,
-                battleResult);
-
-            //Attacker.Population -= (int)Math.Floor((double)battleResult * (5 * Duration));
-            //Defender.Population -= (int)Math.Floor((double)battleResult * (5 * Duration));
-
-            if(battleResult > _upperBound - 5 * Duration)
-            {
-                warEnded = true;
-
-                // TODO: implement GetWarResultCells.
-
-                System.Diagnostics.Debug.WriteLine("The war between {0} ({1}) and {2} ({3}) has been won by {0}.",
+                System.Diagnostics.Debug.WriteLine("Battle result for battle between {0} and {1}: {2}.",
                     Attacker.Name,
-                    Attacker.Population,
                     Defender.Name,
-                    Defender.Population);
-            }
-            else if(battleResult < _lowerBound + 5 * Duration)
-            {
-                warEnded = true;
+                    battleResult);
 
-                System.Diagnostics.Debug.WriteLine("The war between {0} ({1}) and {2} ({3}) has been won by {2}.",
-                    Attacker.Name,
-                    Attacker.Population,
-                    Defender.Name,
-                    Defender.Population);
+                if (battleResult > _upperBound)
+                {
+                    result.Winner = Attacker;
+                    result.OccupiedTerritory = GetOccupiedTerritory(Attacker, Defender);
+
+                    System.Diagnostics.Debug.WriteLine("{0} ({1}) has won a battle against {2} ({3}).",
+                        Attacker.Name,
+                        Attacker.Population,
+                        Defender.Name,
+                        Defender.Population);
+                }
+                else if (battleResult < _lowerBound)
+                {
+                    result.Winner = Defender;
+                    result.OccupiedTerritory = GetOccupiedTerritory(Defender, Attacker);
+
+                    System.Diagnostics.Debug.WriteLine("{2} ({3}) has won a battle against {0} ({1}).",
+                        Attacker.Name,
+                        Attacker.Population,
+                        Defender.Name,
+                        Defender.Population);
+                }
+
+                int endScore = _random.Next(1, 6) - _battleBalance + _duration;
+
+                warEnded = (endScore > 20);
             }
 
             if (warEnded)
             {
+                System.Diagnostics.Debug.WriteLine("The war between {0} ({1}) and {2} ({3}) has ended. (duration: {4}).",
+                        Attacker.Name,
+                        Attacker.Population,
+                        Defender.Name,
+                        Defender.Population,
+                        _duration);
+
+                Attacker.Wars.Remove(this);
+                Defender.Wars.Remove(this);
+
+                // Add real war cooldown for civs.
                 Attacker.BorderCivs.Remove(Defender);
                 Attacker.CivOpinions.Remove(Defender);
-                Attacker.Wars.Remove(this);
 
                 Defender.BorderCivs.Remove(Attacker);
                 Defender.CivOpinions.Remove(Attacker);
-                Defender.Wars.Remove(this);
             }
 
-            Duration++;
+            _duration++;
+
             return warEnded;
         }
 
         /// <summary>
-        ///     Determine the cells that will be transferred by this war.
+        ///     Determine the cells that will be transferred by a battle.
         /// </summary>
-        /// <param name="victory">
-        ///     Whether the attacker or the defender won the war.
+        /// 
+        /// <param name="winner">
+        ///     The winner of the battle.
         /// </param>
+        /// <param name="loser">
+        ///     The loser of the battle.
+        /// </param>
+        /// 
         /// <returns>
         ///     The bordering cells between the two civs.
         /// </returns>
-        public Cell[] GetWarResultCells(bool victory)
+        private Cell[] GetOccupiedTerritory(Civilization winner, Civilization loser)
         {
-            Civilization winner;
-            Civilization loser;
-
-            if (victory)
-            {
-                winner = Attacker;
-                loser = Defender;
-            }
-            else
-            {
-                winner = Defender;
-                loser = Attacker;
-            }
 
             HashSet<Cell> cells = new HashSet<Cell>();
             foreach (Cell cell in winner.Neighbours)

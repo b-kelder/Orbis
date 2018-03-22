@@ -172,6 +172,10 @@ namespace Orbis
             {
                 Exit();
             }
+            if (Input.IsKeyDown(Keys.P))
+            {
+                simulator.TogglePause();
+            }
 
             TestWindow test = UI.CurrentWindow as TestWindow;
             test.TestBar.Progress = ((float)simulator.CurrentTick / TEST_TICKS);

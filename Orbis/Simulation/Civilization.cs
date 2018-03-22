@@ -35,11 +35,13 @@ namespace Orbis.Simulation
         /// <summary>
         /// The current wars for this Civ.
         /// </summary>
-        public List<War> Wars;
+        public List<War> Wars { get; set; }
+
         /// <summary>
         /// The cells owned by this civ
         /// </summary>
         public HashSet<Cell> Territory { get; set; }
+
         /// <summary>
         /// All neighbour cells of the civs territory
         /// </summary>
@@ -52,10 +54,26 @@ namespace Orbis.Simulation
         ///     The opinion this civ has of neighbouring civs.
         /// </summary>
         public Dictionary<Civilization, int> CivOpinions { get; set; }
+
         /// <summary>
         /// The total population of the civ
         /// </summary>
-        public int Population { get; set; }
+        public int Population
+        {
+            get
+            {
+                return _population;
+            }
+            set
+            {
+                _population = value;
+                if (_population <= 0)
+                {
+                    IsAlive = false;
+                }
+            }
+        }
+        private int _population;
 
         public Color Color { get; set; }
 
@@ -94,7 +112,7 @@ namespace Orbis.Simulation
 
             if (AtWar)
             {
-                return action;
+                return null;
             }
 
             double expand = 1, exploit = 1, explore = 1, exterminate = 1;
@@ -148,7 +166,7 @@ namespace Orbis.Simulation
                 }
             }
 
-            return action;
+            return (action.Action != Simulation4XAction.DONOTHING) ? action : null;
         }
 
         public double CalculateCellValue(Cell cell)
@@ -191,31 +209,26 @@ namespace Orbis.Simulation
             }
 
             cell.Owner = null;
+            HashSet<Cell> newNeighbours = new HashSet<Cell>();
 
-            Neighbours.Add(cell);
-
-            List<Cell> a = new List<Cell>();
             foreach (Cell c in cell.Neighbours)
             {
+                Neighbours.Remove(c);
                 if (c.Owner == this)
                 {
                     foreach (Cell cc in c.Neighbours)
                     {
                         if (cc.Owner != this)
                         {
-                            Neighbours.Add(cc);
+                            newNeighbours.Add(cc);
                         }
                     }
                 }
-                else
-                {
-                    a.Add(c);
-                }
             }
 
-            foreach (Cell c in a)
+            foreach(Cell c in newNeighbours)
             {
-                Neighbours.Remove(c);
+                Neighbours.Add(c);
             }
 
             return true;
