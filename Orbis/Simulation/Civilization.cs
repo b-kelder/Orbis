@@ -34,11 +34,13 @@ namespace Orbis.Simulation
         /// <summary>
         /// The current wars for this Civ.
         /// </summary>
-        public List<War> Wars;
+        public List<War> Wars { get; set; }
+
         /// <summary>
         /// The cells owned by this civ
         /// </summary>
         public HashSet<Cell> Territory { get; set; }
+
         /// <summary>
         /// All neighbour cells of the civs territory
         /// </summary>
@@ -51,10 +53,26 @@ namespace Orbis.Simulation
         ///     The opinion this civ has of neighbouring civs.
         /// </summary>
         public Dictionary<Civilization, int> CivOpinions { get; set; }
+
         /// <summary>
         /// The total population of the civ
         /// </summary>
-        public int Population { get; set; }
+        public int Population
+        {
+            get
+            {
+                return _population;
+            }
+            set
+            {
+                _population = value;
+                if (_population <= 0)
+                {
+                    IsAlive = false;
+                }
+            }
+        }
+        private int _population;
 
         public int TotalHousing { get; set; }
         public double TotalWealth { get; set; }

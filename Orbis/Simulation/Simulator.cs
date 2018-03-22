@@ -159,14 +159,14 @@ namespace Orbis.Simulation
                 {
                     // Keep track of some vars
                     bool hasLand = false;
-                    int population = 0;
+                    int Population = 0;
                     double wealth = 0;
                     double resources = 0;
 
                     // Loop through all cells owned by this civ
                     foreach (var cell in civ.Territory)
                     {
-                        // If population is negative or zero
+                        // If Population is negative or zero
                         if (cell.population <= 0)
                         {
                             // Add the cell to a list to remove its owner
@@ -191,9 +191,9 @@ namespace Orbis.Simulation
 
                         // Calculate the amount of people without food
                         int peopleWithNoFood = (int)Math.Ceiling(cell.population - cell.food);
-                        // Calculate births based of the sie of the cells population
+                        // Calculate births based of the sie of the cells Population
                         int birth = 3 * rand.Next(0, cell.population / 5);
-                        // Calculate deaths based on cells population and the amount of people without food
+                        // Calculate deaths based on cells Population and the amount of people without food
                         int death = rand.Next(0, cell.population / 5) + peopleWithNoFood;
 
                         ///
@@ -206,21 +206,21 @@ namespace Orbis.Simulation
                             changedCells.Enqueue(cell);
                         }
 
-                        // Clamp the max population to the max housing of the cell
+                        // Clamp the max Population to the max housing of the cell
                         cell.population = MathHelper.Clamp(cell.population + birth - death, 0, cell.MaxHousing);
 
                         // Add gains to local trackers to update civ data at end of tick
-                        population += cell.population;
+                        Population += cell.population;
                         wealth += cell.wealth;
                         resources += cell.resources;
                     }
 
-                    // If a civ does not have land or population
-                    if (!hasLand || population <= 0)
+                    // If a civ does not have land or Population
+                    if (!hasLand || Population <= 0)
                     {
                         // set civ to dead
                         civ.IsAlive = false;
-                        // Set the population to 0 to prevent negative numbers
+                        // Set the Population to 0 to prevent negative numbers
                         civ.Population = 0;
                         // Go through all cells
                         foreach (Cell cell in civ.Territory)
@@ -233,7 +233,7 @@ namespace Orbis.Simulation
                     // Update the total values of the civ
                     civ.TotalResource = resources;
                     civ.TotalWealth = wealth;
-                    civ.Population = population;
+                    civ.Population = Population;
 
                 }));
             }
@@ -250,7 +250,7 @@ namespace Orbis.Simulation
             // Go through all cells that need to lose owner
             foreach (KeyValuePair<Cell, Civilization> cellKeyValue in removeOwner)
             {
-                // Set the population to 0;
+                // Set the Population to 0;
                 cellKeyValue.Key.population = 0;
                 // Remove the cell from the civs territory
                 cellKeyValue.Value.LoseCell(cellKeyValue.Key);

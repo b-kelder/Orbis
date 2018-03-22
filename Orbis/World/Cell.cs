@@ -67,10 +67,11 @@ namespace Orbis.World
         /// </summary>
         public float Temperature { get; set; }
 
+
+        public int population;
         public double food;
         public double resources;
         public double wealth;
-        public int population;
 
         public Cell(Point coordinates)
         {
