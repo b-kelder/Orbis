@@ -54,7 +54,7 @@ namespace Orbis.Engine
         public static void LoadContent(ContentManager content)
         {
             LoadSongs(content);
-            LoadEffects(content);
+            //LoadEffects(content);
         }
 
         /// <summary>

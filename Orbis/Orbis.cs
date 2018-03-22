@@ -93,7 +93,12 @@ namespace Orbis
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             AudioManager.LoadContent(Content);
-            //AudioManager.PlaySong("DEV_TEST");
+            //Game Music
+            //AudioManager.PlaySong("Crossing the Chasm");
+            //AudioManager.PlaySong("Rocket");
+
+            //Menu Music
+            //AudioManager.PlaySong("Severe Tire Damage");
 
             XMLModel.DecorationCollection decorationSettings    = Content.Load<XMLModel.DecorationCollection>("Config/Decorations");
             XMLModel.WorldSettings worldSettings                = Content.Load<XMLModel.WorldSettings>("Config/WorldSettings");
