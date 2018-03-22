@@ -9,7 +9,7 @@ using System.Diagnostics;
 namespace Orbis.World
 {
     /// <summary>
-    /// Author: Bram Kelder, Wouter Brookhuis, Kaj v.d. Veen
+    /// Author: Bram Kelder, Wouter Brookhuis, Kaj v.d. Veen, Auke Muller
     /// </summary>
     class WorldGenerator
     {
@@ -17,16 +17,17 @@ namespace Orbis.World
         /// Random object
         /// </summary>
         private Random random;
-
         private Scene scene;
+        private XMLModel.Civilization[] civSettings;
 
         /// <summary>
         /// World generator constructor
         /// </summary>
         /// <param name="seed">A seed to base generation on</param>
-        public WorldGenerator(Scene scene)
+        public WorldGenerator(Scene scene, XMLModel.Civilization[] civSettings)
         {
-            this.scene = scene;
+            this.scene          = scene;
+            this.civSettings    = civSettings;
 
             // Create a random object based on a seed
             random = new Random(scene.Seed);
@@ -48,14 +49,25 @@ namespace Orbis.World
             for(int i = 0; i < count; i++)
             {
                 // Create a civ with all base values
-                Civilization civ = new Civilization
+                Civilization civ = new Civilization();
+                if (i >= civSettings.Length)
                 {
-                    Name = "Kees" + i,
-                };
+                    // Random names if more civs requested then there are names for
+                    XMLModel.Civilization civ1 = civSettings[random.Next(0, civSettings.Length)];
+                    XMLModel.Civilization civ2 = civSettings[random.Next(0, civSettings.Length)];
+                    civ.Name = civ1 + " the " + civ2.name;
+                    civ.Color = new Color(civ1.Color.R, civ2.Color.G, civ2.Color.B);
+                }
+                else
+                {
+                    civ.Name    = civSettings[i].name;
+                    civ.Color   = new Color(civSettings[i].Color.R, civSettings[i].Color.G, civSettings[i].Color.B);
+                }
+
 
                 // Select a random starting cell for the civ
                 // Loop until no cell is available or until break
-                while(scene.Civilizations.Count < scene.WorldMap.CellCount && availableCells.Count > 0)
+                while (scene.Civilizations.Count < scene.WorldMap.CellCount && availableCells.Count > 0)
                 {
                     // TODO: Make random function that always gives tile within radius?
                     // Get a random available cell from the range of available cells and remove it from the list of available cells.

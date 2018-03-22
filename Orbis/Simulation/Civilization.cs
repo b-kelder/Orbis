@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using Orbis.World;
 
 /// <summary>
@@ -56,6 +57,8 @@ namespace Orbis.Simulation
         /// </summary>
         public int Population { get; set; }
 
+        public Color Color { get; set; }
+
         public int TotalHousing { get; set; }
         public double TotalWealth { get; set; }
         public double TotalResource { get; set; }
@@ -78,6 +81,7 @@ namespace Orbis.Simulation
             Wars = new List<War>();
             BorderCivs = new HashSet<Civilization>();
             CivOpinions = new Dictionary<Civilization, int>();
+
         }
 
         /// <summary>
