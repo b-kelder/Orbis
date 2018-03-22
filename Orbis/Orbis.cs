@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -62,14 +63,14 @@ namespace Orbis
             base.Initialize();
         }
 
-        private void GenerateWorld(int seed, XMLModel.DecorationCollection decorationSettings, XMLModel.WorldSettings worldSettings, BiomeCollection biomeCollection)
+        private void GenerateWorld(int seed, XMLModel.DecorationCollection decorationSettings, XMLModel.WorldSettings worldSettings, BiomeCollection biomeCollection, XMLModel.Civilization[] civSettings)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             // Generate world
             Debug.WriteLine("Generating world for seed " + seed);
             scene = new Scene(seed, worldSettings, decorationSettings, biomeCollection);
-            var generator = new WorldGenerator(scene);
+            var generator = new WorldGenerator(scene, civSettings);
             generator.GenerateWorld(TEST_RADIUS);
             generator.GenerateCivs(TEST_CIVS);
 
@@ -92,16 +93,22 @@ namespace Orbis
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             AudioManager.LoadContent(Content);
-            //AudioManager.PlaySong("DEV_TEST");
+            //Game Music
+            //AudioManager.PlaySong("Crossing the Chasm");
+            //AudioManager.PlaySong("Rocket");
 
-            XMLModel.DecorationCollection decorationSettings = Content.Load<XMLModel.DecorationCollection>("Config/Decorations");
-            XMLModel.WorldSettings worldSettings = Content.Load<XMLModel.WorldSettings>("Config/WorldSettings");
-            fontDebug = Content.Load<SpriteFont>("DebugFont");
+            //Menu Music
+            //AudioManager.PlaySong("Severe Tire Damage");
+
+            XMLModel.DecorationCollection decorationSettings    = Content.Load<XMLModel.DecorationCollection>("Config/Decorations");
+            XMLModel.WorldSettings worldSettings                = Content.Load<XMLModel.WorldSettings>("Config/WorldSettings");
+            XMLModel.Civilization[] civSettings                 = Content.Load<XMLModel.Civilization[]>("Config/Civilization");
+            fontDebug                                           = Content.Load<SpriteFont>("DebugFont");
 
             // Biome table test
             var biomeData = Content.Load<XMLModel.BiomeCollection>("Config/Biomes");
             var biomeCollection = new BiomeCollection(biomeData, Content);
-            GenerateWorld(TEST_SEED, decorationSettings, worldSettings, biomeCollection);
+            GenerateWorld(TEST_SEED, decorationSettings, worldSettings, biomeCollection, civSettings);
         }
 
         /// <summary>

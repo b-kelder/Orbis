@@ -8,33 +8,33 @@ namespace XMLModel
 {
     public class WorldSettings
     {
-        public float SeaLevel { get; set; }
+        public float SeaLevel;
         /// <summary>
         /// Rainfall [0-1] gets multiplied by this to get mm of rain per year.
         /// </summary>
-        public float RainMultiplier { get; set; }
-        public float RiverWetness { get; set; }
-        public float LakeWetness { get; set; }
-        public float ElevationMultiplier { get; set; }
-        public float EdgeDistancePower { get; set; }
-        public float ElevationPower { get; set; }
+        public float RainMultiplier;
+        public float RiverWetness;
+        public float LakeWetness;
+        public float ElevationMultiplier;
+        public float EdgeDistancePower;
+        public float ElevationPower;
         /// <summary>
         /// Temperature at the 'poles' (map edges), degrees Celcius
         /// </summary>
-        public float PoleTemperature { get; set; }
+        public float PoleTemperature;
         /// <summary>
         /// Temperature at the equator (map center), degrees Celcius
         /// </summary>
-        public float EquatorTemperature { get; set; }
+        public float EquatorTemperature;
         /// <summary>
         /// Used for the interpolation curve for pole-equator distance based temperature.
         /// 1 is linear.
         /// </summary>
-        public float TemperatureCurvePower { get; set; }
+        public float TemperatureCurvePower;
         /// <summary>
         /// Linear multiplier for temperature based on elevation.
         /// Temperatures are based around SeaLevel, so no need to manually offset.
         /// </summary>
-        public float ElevationTemperatureMultiplier { get; set; }
+        public float ElevationTemperatureMultiplier;
     }
 }
