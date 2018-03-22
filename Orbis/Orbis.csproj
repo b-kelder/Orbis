@@ -134,6 +134,10 @@
     <Compile Include="Simulation\Simulator.cs" />
     <Compile Include="Simulation\Civilization.cs" />
     <Compile Include="Simulation\War.cs" />
+    <Compile Include="States\State\GameState.cs" />
+    <Compile Include="States\IState.cs" />
+    <Compile Include="States\StateManager.cs" />
+    <Compile Include="States\State\MenuState.cs" />
     <Compile Include="TopographyHelper.cs" />
     <Compile Include="World\Biome.cs" />
     <Compile Include="World\BiomeCollection.cs" />
