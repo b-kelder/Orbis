@@ -10,6 +10,9 @@ using Orbis.Simulation;
 using Orbis.States;
 using Orbis.World;
 
+using Orbis.UI.Windows;
+using Orbis.UI.Elements;
+
 namespace Orbis
 {
     /// <summary>
@@ -18,7 +21,7 @@ namespace Orbis
     public class Orbis : Game
     {
 
-        public static readonly int TEST_SEED = 0x03;
+        public static readonly int TEST_SEED = 0x12;
         public static readonly int TEST_CIVS = 15;
         public static readonly int TEST_RADIUS = 128;
         public static readonly int TEST_TICKS = 10000;
@@ -28,6 +31,10 @@ namespace Orbis
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+
+        InputHandler input;
+
+        UI.UIManager UI;
 
         private Scene scene;
         private Simulator simulator;
@@ -43,8 +50,19 @@ namespace Orbis
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            sceneRenderer = new SceneRendererComponent(this);
+
+            sceneRenderer = new SceneRendererComponent(this)
+            {
+                DrawOrder = 0
+            };
             Components.Add(sceneRenderer);
+
+            input = InputHandler.GetInstance();
+            UI = new UI.UIManager(this)
+            {
+                DrawOrder = 1
+            };
+            Components.Add(UI);
         }
 
         /// <summary>
@@ -79,7 +97,6 @@ namespace Orbis
 
             stopwatch.Stop();
             Debug.WriteLine("Generated world in " + stopwatch.ElapsedMilliseconds + " ms");
-
             // Coloring data
             sceneRenderer.OnNewWorldGenerated(scene, seed);
         }
@@ -137,7 +154,7 @@ namespace Orbis
             }
 
             // Update renderer if we can
-            if(sceneRenderer.ReadyForUpdate)
+            if (sceneRenderer.ReadyForUpdate)
             {
                 simulator.Update(gameTime);
                 Cell[] updatedCells = null;
@@ -155,6 +172,9 @@ namespace Orbis
             {
                 Exit();
             }
+
+            TestWindow test = UI.CurrentWindow as TestWindow;
+            test.TestBar.Progress = ((float)simulator.CurrentTick / TEST_TICKS);
 
             base.Update(gameTime);
         }
