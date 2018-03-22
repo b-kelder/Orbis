@@ -90,7 +90,7 @@ namespace Orbis.Simulation
 
             if (AtWar)
             {
-                return action;
+                return null;
             }
 
             double expand = 1, exploit = 1, explore = 1, exterminate = 1;
@@ -144,7 +144,7 @@ namespace Orbis.Simulation
                 }
             }
 
-            return action;
+            return (action.Action != Simulation4XAction.DONOTHING) ? action : null;
         }
 
         public double CalculateCellValue(Cell cell)
@@ -187,31 +187,26 @@ namespace Orbis.Simulation
             }
 
             cell.Owner = null;
+            HashSet<Cell> newNeighbours = new HashSet<Cell>();
 
-            Neighbours.Add(cell);
-
-            List<Cell> a = new List<Cell>();
             foreach (Cell c in cell.Neighbours)
             {
+                Neighbours.Remove(c);
                 if (c.Owner == this)
                 {
                     foreach (Cell cc in c.Neighbours)
                     {
                         if (cc.Owner != this)
                         {
-                            Neighbours.Add(cc);
+                            newNeighbours.Add(cc);
                         }
                     }
                 }
-                else
-                {
-                    a.Add(c);
-                }
             }
 
-            foreach (Cell c in a)
+            foreach(Cell c in newNeighbours)
             {
-                Neighbours.Remove(c);
+                Neighbours.Add(c);
             }
 
             return true;

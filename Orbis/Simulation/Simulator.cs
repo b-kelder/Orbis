@@ -56,7 +56,7 @@ namespace Orbis.Simulation
             Scene = scene;
             maxTick = simulationLength;
             civCount = scene.Civilizations.Count;
-            TickLengthInSeconds = 0.1;
+            TickLengthInSeconds = 0;
 
             // Create a random based on the scene's seed
             rand = new Random(scene.Seed);
@@ -146,9 +146,13 @@ namespace Orbis.Simulation
                 {
                     continue;
                 }
-                
+
                 // Let the civ decide an action
-                actionQueue.Enqueue(civ.DetermineAction());
+                SimulationAction action = civ.DetermineAction();
+                if (action != null)
+                {
+                    actionQueue.Enqueue(civ.DetermineAction());
+                }
 
                 // Create a task to simulate the progress for a civ this tick
                 taskList.Add(Task.Run(() =>
@@ -293,37 +297,28 @@ namespace Orbis.Simulation
 
             // War simulations :D
             int warCount = ongoingWars.Count;
-            // List of finished wars
-            HashSet<War> finishedWars = new HashSet<War>();
             // Get the result of the current battle in each ongoing war.
             for (int warIndex = 0; warIndex < warCount; warIndex++)
             {
                 // Get the war object
                 War war = ongoingWars[warIndex];
                 // Get the result from the war
-                bool warResult = war.Battle();
-                // If the war is over
-                if (warResult)
-                {
-                    // Get the cells to transfer
-                    Cell[] toTransfer = war.GetWarResultCells(warResult);
+                bool warEnded = war.Battle(out BattleResult battleResult);
 
+                if (battleResult.Winner != null)
+                {
                     // Go through all cells
-                    foreach (Cell cell in toTransfer)
+                    foreach (Cell cell in battleResult.OccupiedTerritory)
                     {
-                        // Change owner based on the winner of the war
-                        if (warResult)
-                        {
-                            war.Attacker.ClaimCell(cell);
-                        }
-                        else
-                        {
-                            war.Defender.ClaimCell(cell);
-                        }
-                        
+                        battleResult.Winner.ClaimCell(cell);
+
                         changed.Add(cell);
                     }
+                }
 
+                // If the war is over
+                if (warEnded)
+                {
                     // Wars that have come to an end are removed from the ongoing wars list.
                     warIndex--;
                     warCount--;
