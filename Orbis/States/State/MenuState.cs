@@ -1,5 +1,4 @@
-﻿
-using Orbis.Engine;
+﻿using Orbis.Engine;
 
 namespace Orbis.States.State
 {

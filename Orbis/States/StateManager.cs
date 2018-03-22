@@ -72,10 +72,11 @@ namespace Orbis.States
         /// <returns>Has state changed</returns>
         public bool IsStateChanged()
         {
+            // Check if state has changed, and reset if it did
             bool state = stateChanged;
             if (state)
             {
-                stateChanged = false;
+                stateChanged = false;   // Reset stateChanged
             }
             return state;
         }
@@ -85,10 +86,11 @@ namespace Orbis.States
         /// </summary>
         private void SetDefaultStates()
         {
+            states.Add("menu", new MenuState());
             states.Add("game", new GameState());
 
+            // Set the default active state
             SetActiveState("game");
-            stateChanged = true;
         }
     }
 }
