@@ -43,7 +43,7 @@ namespace Orbis.Rendering
             /// Reference to the RenderInstance that represents this cell's decoration.
             /// Can be null when no decoration is present.
             /// </summary>
-            public RenderInstance Decoration { get; set; }
+            public KeyValuePair<string, int> Decoration { get; set; }
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Orbis.Rendering
             /// <summary>
             /// Mesh to use for default cell decorations in this biome.
             /// </summary>
-            public RenderableMesh DefaultDecoration { get; set; }
+            public string DefaultDecoration { get; set; }
         }
 
         /// <summary>
@@ -71,6 +71,120 @@ namespace Orbis.Rendering
             public Dictionary<Cell, CellMappedData> cellData;
         }
 
+        /// <summary>
+        /// Stores data for a decoration type and allows access to it
+        /// </summary>
+        class DecorationData
+        {
+            private bool[] occupation;
+            private Mesh baseMesh;
+            private RenderableMesh[] combinedRenderableMesh;
+            private bool[] shouldBeUpdated;
+            int meshesPerCombi;
+
+            // TODO: Dynamic mesh count scaling?
+            public DecorationData(Mesh mesh, GraphicsDevice device, int totalMeshes)
+            {
+                int maxInstances = ushort.MaxValue / mesh.VertexCount;
+                var instances = new List<MeshInstance>();
+                for(int i = 0; i < maxInstances; i++)
+                {
+                    instances.Add(new MeshInstance
+                    {
+                        mesh = mesh,
+                        matrix = Matrix.Identity,
+                        tag = i,
+                    });
+                }
+                baseMesh = mesh;
+                combinedRenderableMesh = new RenderableMesh[totalMeshes];
+                occupation = new bool[maxInstances * totalMeshes];
+                shouldBeUpdated = new bool[totalMeshes];
+                meshesPerCombi = maxInstances;
+                for (int i = 0; i < totalMeshes; i++)
+                {
+                    shouldBeUpdated[i] = true;
+                    combinedRenderableMesh[i] = new RenderableMesh(device, new Mesh(instances));
+                }
+            }
+
+            public int GetFreeIndex()
+            {
+                for(int i = 0; i < occupation.Length; i++)
+                {
+                    if (occupation[i] == false)
+                    {
+                        occupation[i] = true;
+                        return i;
+                    }
+                }
+                return -1;
+            }
+
+            public void FreeIndex(int index)
+            {
+                if(index >=0 && index < occupation.Length)
+                {
+                    occupation[index] = false;
+                    SetPosition(index, Vector3.Zero);
+                }
+            }
+
+            public void SetPosition(int index, Vector3 position)
+            {
+                if(index < 0 || index >= occupation.Length)
+                {
+                    throw new IndexOutOfRangeException();
+                }
+
+                int meshIndex = index / this.meshesPerCombi;
+                int offset = (index - meshIndex * this.meshesPerCombi) * baseMesh.VertexCount;
+                for (int i = 0; i < baseMesh.VertexCount; i++)
+                {
+                    combinedRenderableMesh[meshIndex].VertexData[i + offset].Position = baseMesh.Vertices[i] + position;
+                }
+                shouldBeUpdated[meshIndex] = true;
+            }
+
+            public void Update(HashSet<RenderableMesh> updateSet)
+            {
+                for(int i = 0; i < shouldBeUpdated.Length; i++)
+                {
+                    if (shouldBeUpdated[i])
+                    {
+                        updateSet.Add(combinedRenderableMesh[i]);
+                        shouldBeUpdated[i] = false;
+                    }
+                }
+            }
+
+            public List<RenderInstance> GetActiveInstances()
+            {
+                var instances = new List<RenderInstance>();
+                for (int i = 0; i < this.combinedRenderableMesh.Length; i++)
+                {
+                    bool render = false;
+                    for(int k = 0; k < this.meshesPerCombi; k++)
+                    {
+                        if(this.occupation[i * this.meshesPerCombi + k] == true)
+                        {
+                            render = true;
+                            break;
+                        }
+                    }
+                    if(render)
+                    {
+                        instances.Add(new RenderInstance()
+                        {
+                            mesh = combinedRenderableMesh[i],
+                            matrix = Matrix.Identity,
+                        });
+                    }
+                }
+                return instances;
+            }
+        }
+
         private Orbis orbis;
 
         private Dictionary<string, BiomeMappedData> biomeMappedData = new Dictionary<string, BiomeMappedData>();
@@ -78,6 +192,8 @@ namespace Orbis.Rendering
         private Dictionary<Civilization, Color> civColors = new Dictionary<Civilization, Color>();
         private List<RenderableMesh> cellMeshes = new List<RenderableMesh>();
         private List<RenderInstance> renderInstances = new List<RenderInstance>();
+
+        private Dictionary<string, DecorationData> decorations = new Dictionary<string, DecorationData>();
 
         private Effect basicShader;
         private CellColorMode cellColorMode;
@@ -110,6 +226,10 @@ namespace Orbis.Rendering
         /// Maximum time we can spend in Update updating meshes.
         /// </summary>
         public float MaxUpdateTime { get; set; }
+        /// <summary>
+        /// Amount of active render instances.
+        /// </summary>
+        public int RenderInstanceCount { get { return renderInstances.Count; } }
 
         public SceneRendererComponent(Orbis game) : base(game)
         {
@@ -144,6 +264,10 @@ namespace Orbis.Rendering
             modelLoader = new AtlasModelLoader(2048, 2048, basicShader, Game.Content);
             var decorationData = orbis.Content.Load<XMLModel.DecorationCollection>("Config/Decorations");
             decorationManager = new DecorationManager(decorationData, modelLoader, GraphicsDevice);
+            foreach(var data in decorationData.Decorations)
+            {
+                decorations.Add(data.Name, new DecorationData(decorationManager.GetDecorationMesh(data.Name), GraphicsDevice, 50));
+            }
             var biomeData = orbis.Content.Load<XMLModel.BiomeCollection>("Config/Biomes");
             biomeMappedData = new Dictionary<string, BiomeMappedData>();
             foreach (var biome in biomeData.Biomes)
@@ -151,7 +275,7 @@ namespace Orbis.Rendering
                 biomeMappedData.Add(biome.Name, new BiomeMappedData
                 {
                     HexMesh = modelLoader.LoadModel(biome.HexModel.Name, biome.HexModel.Texture, biome.HexModel.ColorTexture).Mesh,
-                    DefaultDecoration = decorationManager.GetDecorationMesh(biome.DefaultDecoration),
+                    DefaultDecoration = biome.DefaultDecoration,
                 });
             }
 
@@ -203,14 +327,6 @@ namespace Orbis.Rendering
                 var meshData = meshTask.Result;
                 this.cellMappedData = meshData.cellData;
                 this.cellMeshes = meshData.renderableMeshes;
-                foreach(var mesh in this.cellMeshes)
-                {
-                    renderInstances.Add(new RenderInstance
-                    {
-                        mesh = mesh,
-                        matrix = Matrix.Identity
-                    });
-                }
                 // Set cell decorations
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
@@ -221,6 +337,15 @@ namespace Orbis.Rendering
                     {
                         SetCellDecoration(cell.Key, cell.Value, biomeData.DefaultDecoration);
                     }
+                }
+                var set = new HashSet<RenderableMesh>();
+                foreach(var dec in this.decorations)
+                {
+                    dec.Value.Update(set);
+                }
+                foreach(var mesh in set)
+                {
+                    meshUpdateQueue.Enqueue(mesh);
                 }
                 stopwatch.Stop();
                 Debug.WriteLine("Took " + stopwatch.Elapsed.TotalMilliseconds + "ms to set decorations");
@@ -316,6 +441,22 @@ namespace Orbis.Rendering
                Matrix.CreateRotationZ(MathHelper.ToRadians(rotation));
 
             camera.Position = Vector3.Transform(Vector3.Zero, camMatrix) + camera.LookTarget;
+
+
+            // Recalculate renderinstances
+            renderInstances = new List<RenderInstance>();
+            foreach (var mesh in this.cellMeshes)
+            {
+                renderInstances.Add(new RenderInstance
+                {
+                    mesh = mesh,
+                    matrix = Matrix.Identity
+                });
+            }
+            foreach(var decoration in this.decorations)
+            {
+                renderInstances.AddRange(decoration.Value.GetActiveInstances());
+            }
 
             base.Update(gameTime);
         }
@@ -519,15 +660,19 @@ namespace Orbis.Rendering
 
                 if(cell.population >= renderedScene.DecorationSettings.LargePopulationThreshold)
                 {
-                    SetCellDecoration(cell, data, decorationManager.GetDecorationMesh("Large Settlement"));
+                    SetCellDecoration(cell, data, "Large Settlement");
                 }
                 else if(cell.population >= renderedScene.DecorationSettings.MediumPopulationThreshold)
                 {
-                    SetCellDecoration(cell, data, decorationManager.GetDecorationMesh("Medium Settlement"));
+                    SetCellDecoration(cell, data, "Medium Settlement");
                 }
                 else if(cell.population >= renderedScene.DecorationSettings.SmallPopulationThreshold)
                 {
-                    SetCellDecoration(cell, data, decorationManager.GetDecorationMesh("Small Settlement"));
+                    SetCellDecoration(cell, data, "Small Settlement");
+                }
+                if(data.Decoration.Key != null)
+                {
+                    this.decorations[data.Decoration.Key].Update(updatedMeshes);
                 }
             }
 
@@ -577,35 +722,33 @@ namespace Orbis.Rendering
         /// <param name="cell">The cell to set for</param>
         /// <param name="cellMappedData">The cell's mapped data</param>
         /// <param name="mesh">The decoration mesh</param>
-        private void SetCellDecoration(Cell cell, CellMappedData cellMappedData, RenderableMesh mesh)
+        private void SetCellDecoration(Cell cell, CellMappedData cellMappedData, string decoration)
         {
-            if(cellMappedData.Decoration == null && mesh == null || !enableDecorations)
+            if(cellMappedData.Decoration.Key == decoration)
             {
                 return;
             }
-            if (cellMappedData.Decoration != null && mesh == null)
+
+            if(cellMappedData.Decoration.Key != null)
             {
-                // Remove instance from active render list
-                renderInstances.Remove(cellMappedData.Decoration);
-                cellMappedData.Decoration = null;
+                this.decorations[cellMappedData.Decoration.Key].FreeIndex(cellMappedData.Decoration.Value);
             }
-            else if (cellMappedData.Decoration == null && mesh != null)
+
+            if(decoration != null && decoration.Length > 0)
             {
-                // Add new instance to render list
-                cellMappedData.Decoration = new RenderInstance
+
+                var index = this.decorations[decoration].GetFreeIndex();
+                if (index < 0)
                 {
-                    mesh = mesh,
-                    matrix = Matrix.CreateRotationZ((float)(random.NextDouble() * Math.PI * 2.01)) *
-                    Matrix.CreateTranslation(new Vector3(TopographyHelper.HexToWorld(cell.Coordinates), (float)cell.Elevation)),
-                };
-                renderInstances.Add(cellMappedData.Decoration);
+                    //Debug.WriteLine("Unable to get free index for decoration " + decoration);
+                    return;
+                }
+                cellMappedData.Decoration = new KeyValuePair<string, int>(decoration, index);
+                this.decorations[decoration].SetPosition(index, new Vector3(TopographyHelper.HexToWorld(cell.Coordinates), (float)cell.Elevation));
             }
-            else if(cellMappedData.Decoration.mesh != mesh)
+            else
             {
-                // Update the instance
-                cellMappedData.Decoration.mesh = mesh;
-                cellMappedData.Decoration.matrix = Matrix.CreateRotationZ((float)(random.NextDouble() * Math.PI * 2.01)) *
-                    Matrix.CreateTranslation(new Vector3(TopographyHelper.HexToWorld(cell.Coordinates), (float)cell.Elevation));
+                cellMappedData.Decoration = new KeyValuePair<string, int>(null, 0);
             }
         }
     }

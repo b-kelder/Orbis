@@ -169,6 +169,7 @@ namespace Orbis
             }
 
             spriteBatch.DrawString(fontDebug, "FPS: " + (1 / gameTime.ElapsedGameTime.TotalSeconds).ToString("##.##"), new Vector2(10, 30), Color.Red);
+            spriteBatch.DrawString(fontDebug, "Rendered Instances: " + sceneRenderer.RenderInstanceCount, new Vector2(100, 30), Color.Red);
 
             spriteBatch.End();
         }
