@@ -11,7 +11,7 @@ namespace Orbis.Rendering
     /// <summary>
     /// An instance of a RenderableMesh to render with specific settings.
     /// </summary>
-    class RenderInstance
+    struct RenderInstance
     {
         public RenderableMesh mesh;
         public Matrix matrix;
