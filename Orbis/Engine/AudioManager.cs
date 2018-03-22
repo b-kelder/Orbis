@@ -20,7 +20,7 @@ namespace Orbis.Engine
         private const string FILE_DIR_EFFECT    = FILE_DIR_ROOT + "/Effects";
 
         // Audio config
-        private const float DEFAULT_VOLUME      = 1;
+        private const float DEFAULT_VOLUME      = 0.05F;
         private const bool DEFAULT_REPEATING    = false;
 
         // Libs for songs/effects
@@ -54,7 +54,7 @@ namespace Orbis.Engine
         public static void LoadContent(ContentManager content)
         {
             LoadSongs(content);
-            LoadEffects(content);
+            //LoadEffects(content);
         }
 
         /// <summary>

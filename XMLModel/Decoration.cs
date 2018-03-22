@@ -11,17 +11,17 @@ namespace XMLModel
     /// </summary>
     public class DecorationCollection
     {
-        public int SmallPopulationThreshold { get; set; }
-        public int MediumPopulationThreshold { get; set; }
-        public int LargePopulationThreshold { get; set; }
-        public List<Decoration> Decorations { get; set; }
+        public int SmallPopulationThreshold;
+        public int MediumPopulationThreshold;
+        public int LargePopulationThreshold;
+        public List<Decoration> Decorations;
     }
     /// <summary>
     /// Defines a cell decoration that can be rendered on a cell
     /// </summary>
     public class Decoration
     {
-        public string Name { get; set; }
-        public Model Model { get; set; }
+        public string Name;
+        public Model Model;
     }
 }
