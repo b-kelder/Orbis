@@ -50,17 +50,20 @@ namespace Orbis.World
             {
                 // Create a civ with all base values
                 Civilization civ = new Civilization();
-                if (count > civSettings.Length)
+                if (i >= civSettings.Length)
                 {
                     // Random names if more civs requested then there are names for
-                    string civ1 = civSettings[random.Next(0, civSettings.Length)].name;
-                    string civ2 = civSettings[random.Next(0, civSettings.Length)].name;
-                    civ.Name = civ1 + " the " + civ2;
+                    XMLModel.Civilization civ1 = civSettings[random.Next(0, civSettings.Length)];
+                    XMLModel.Civilization civ2 = civSettings[random.Next(0, civSettings.Length)];
+                    civ.Name = civ1 + " the " + civ2.name;
+                    civ.Color = new Color(civ1.Color.R, civ2.Color.G, civ2.Color.B);
                 }
                 else
                 {
-                    civ.Name = civSettings[i].name;
+                    civ.Name    = civSettings[i].name;
+                    civ.Color   = new Color(civSettings[i].Color.R, civSettings[i].Color.G, civSettings[i].Color.B);
                 }
+
 
                 // Select a random starting cell for the civ
                 // Loop until no cell is available or until break

@@ -394,7 +394,7 @@ namespace Orbis.Rendering
             civColors = new Dictionary<Civilization, Color>();
             foreach (var civ in scene.Civilizations)
             {
-                civColors.Add(civ, new Color(colorRandom.Next(256), colorRandom.Next(256), colorRandom.Next(256)));
+                civColors.Add(civ, civ.Color);
             }
 
 
