@@ -166,12 +166,12 @@ namespace Orbis
             float y = 80;
             foreach (var civ in scene.Civilizations)
             {
-                spriteBatch.DrawString(fontDebug, civ.Name, new Vector2(10, y), Color.Red);
-                spriteBatch.DrawString(fontDebug, "Size: " + civ.Territory.Count, new Vector2(200, y), Color.Red);
-                spriteBatch.DrawString(fontDebug, "Population: " + civ.Population, new Vector2(300, y), Color.Red);
-                spriteBatch.DrawString(fontDebug, "Is Alive: " + civ.IsAlive, new Vector2(500, y), Color.Red);
-                spriteBatch.DrawString(fontDebug, "Wealth: " + civ.TotalWealth, new Vector2(600, y), Color.Red);
-                spriteBatch.DrawString(fontDebug, "Resource: " + civ.TotalResource, new Vector2(800, y), Color.Red);
+                spriteBatch.DrawString(fontDebug, civ.Name, new Vector2(10, y), civ.Color);
+                spriteBatch.DrawString(fontDebug, "Size: " + civ.Territory.Count, new Vector2(200, y), civ.Color);
+                spriteBatch.DrawString(fontDebug, "Population: " + civ.Population, new Vector2(300, y), civ.Color);
+                spriteBatch.DrawString(fontDebug, "Is Alive: " + civ.IsAlive, new Vector2(500, y), civ.Color);
+                spriteBatch.DrawString(fontDebug, "Wealth: " + civ.TotalWealth, new Vector2(600, y), civ.Color);
+                spriteBatch.DrawString(fontDebug, "Resource: " + civ.TotalResource, new Vector2(800, y), civ.Color);
                 y += 15;
             }
 

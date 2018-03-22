@@ -710,7 +710,7 @@ namespace Orbis.Rendering
                     else { color = Color.Red; }
                     break;
                 default:
-                    color = cell.Owner != null ? civColors[cell.Owner] : Color.DarkSlateGray;
+                    color = cell.Owner != null ? cell.Owner.Color : Color.DarkSlateGray;
                     break;
             }
             return color;

@@ -99,7 +99,7 @@ namespace Orbis.Simulation
 
             double expand = 1, exploit = 1, explore = 1, exterminate = 1;
 
-            expand *= BaseExpand + (Population > 0 ? ((Population - (double)TotalHousing) / Population) : 0);
+            expand *= BaseExpand + (Population / (double)TotalHousing);
             exploit *= BaseExploit;
             explore *= BaseExplore;
 
