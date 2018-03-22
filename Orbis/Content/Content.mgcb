@@ -14,12 +14,6 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin Audio/Songs/DEV_TEST.mp3
-/importer:Mp3Importer
-/processor:SongProcessor
-/processorParam:Quality=Best
-/build:Audio/Songs/DEV_TEST.mp3
-
 #begin biomes_land.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -352,4 +346,22 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/white.png
+
+#begin Audio/Songs/Crossing the Chasm.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Audio/Songs/Crossing the Chasm.mp3
+
+#begin Audio/Songs/Rocket.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Audio/Songs/Rocket.mp3
+
+#begin Audio/Songs/Severe Tire Damage.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Audio/Songs/Severe Tire Damage.mp3
 

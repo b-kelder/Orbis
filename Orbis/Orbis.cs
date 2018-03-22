@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -6,6 +7,7 @@ using Microsoft.Xna.Framework.Input;
 using Orbis.Engine;
 using Orbis.Rendering;
 using Orbis.Simulation;
+using Orbis.States;
 using Orbis.World;
 
 using Orbis.UI.Windows;
@@ -80,14 +82,14 @@ namespace Orbis
             base.Initialize();
         }
 
-        private void GenerateWorld(int seed, XMLModel.DecorationCollection decorationSettings, XMLModel.WorldSettings worldSettings, BiomeCollection biomeCollection)
+        private void GenerateWorld(int seed, XMLModel.DecorationCollection decorationSettings, XMLModel.WorldSettings worldSettings, BiomeCollection biomeCollection, XMLModel.Civilization[] civSettings)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             // Generate world
             Debug.WriteLine("Generating world for seed " + seed);
             scene = new Scene(seed, worldSettings, decorationSettings, biomeCollection);
-            var generator = new WorldGenerator(scene);
+            var generator = new WorldGenerator(scene, civSettings);
             generator.GenerateWorld(TEST_RADIUS);
             generator.GenerateCivs(TEST_CIVS);
 
@@ -109,16 +111,22 @@ namespace Orbis
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             AudioManager.LoadContent(Content);
-            //AudioManager.PlaySong("DEV_TEST");
+            //Game Music
+            //AudioManager.PlaySong("Crossing the Chasm");
+            //AudioManager.PlaySong("Rocket");
 
-            XMLModel.DecorationCollection decorationSettings = Content.Load<XMLModel.DecorationCollection>("Config/Decorations");
-            XMLModel.WorldSettings worldSettings = Content.Load<XMLModel.WorldSettings>("Config/WorldSettings");
-            fontDebug = Content.Load<SpriteFont>("DebugFont");
+            //Menu Music
+            //AudioManager.PlaySong("Severe Tire Damage");
+
+            XMLModel.DecorationCollection decorationSettings    = Content.Load<XMLModel.DecorationCollection>("Config/Decorations");
+            XMLModel.WorldSettings worldSettings                = Content.Load<XMLModel.WorldSettings>("Config/WorldSettings");
+            XMLModel.Civilization[] civSettings                 = Content.Load<XMLModel.Civilization[]>("Config/Civilization");
+            fontDebug                                           = Content.Load<SpriteFont>("DebugFont");
 
             // Biome table test
             var biomeData = Content.Load<XMLModel.BiomeCollection>("Config/Biomes");
             var biomeCollection = new BiomeCollection(biomeData, Content);
-            GenerateWorld(TEST_SEED, decorationSettings, worldSettings, biomeCollection);
+            GenerateWorld(TEST_SEED, decorationSettings, worldSettings, biomeCollection, civSettings);
         }
 
         /// <summary>
@@ -139,9 +147,11 @@ namespace Orbis
             // Update user input
             Input.UpdateInput();
 
-            base.Update(gameTime);
-
-            //UI.bar.Progress = (float)simulator.CurrentTick / TEST_TICKS; ;
+            // Check if the state has changed
+            if (StateManager.GetInstance().IsStateChanged())
+            {
+                StateManager.GetInstance().RunState();
+            }
 
             // Update renderer if we can
             if (sceneRenderer.ReadyForUpdate)
@@ -178,19 +188,20 @@ namespace Orbis
             spriteBatch.Begin();
 
             spriteBatch.DrawString(fontDebug, "Tick: " + simulator.CurrentTick, new Vector2(10, 50), Color.Red);
-            //float y = 80;
-            //foreach (var civ in scene.Civilizations)
-            //{
-            //    spriteBatch.DrawString(fontDebug, civ.Name, new Vector2(10, y), Color.Red);
-            //    spriteBatch.DrawString(fontDebug, "Size: " + civ.Territory.Count, new Vector2(200, y), Color.Red);
-            //    spriteBatch.DrawString(fontDebug, "Population: " + civ.Population, new Vector2(300, y), Color.Red);
-            //    spriteBatch.DrawString(fontDebug, "Is Alive: " + civ.IsAlive, new Vector2(500, y), Color.Red);
-            //    spriteBatch.DrawString(fontDebug, "Wealth: " + civ.TotalWealth, new Vector2(600, y), Color.Red);
-            //    spriteBatch.DrawString(fontDebug, "Resource: " + civ.TotalResource, new Vector2(800, y), Color.Red);
-            //    y += 15;
-            //}
+            float y = 80;
+            foreach (var civ in scene.Civilizations)
+            {
+                spriteBatch.DrawString(fontDebug, civ.Name, new Vector2(10, y), civ.Color);
+                spriteBatch.DrawString(fontDebug, "Size: " + civ.Territory.Count, new Vector2(200, y), civ.Color);
+                spriteBatch.DrawString(fontDebug, "Population: " + civ.Population, new Vector2(300, y), civ.Color);
+                spriteBatch.DrawString(fontDebug, "Is Alive: " + civ.IsAlive, new Vector2(500, y), civ.Color);
+                spriteBatch.DrawString(fontDebug, "Wealth: " + civ.TotalWealth, new Vector2(600, y), civ.Color);
+                spriteBatch.DrawString(fontDebug, "Resource: " + civ.TotalResource, new Vector2(800, y), civ.Color);
+                y += 15;
+            }
 
             spriteBatch.DrawString(fontDebug, "FPS: " + (1 / gameTime.ElapsedGameTime.TotalSeconds).ToString("##.##"), new Vector2(10, 30), Color.Red);
+            spriteBatch.DrawString(fontDebug, "Rendered Instances: " + sceneRenderer.RenderInstanceCount, new Vector2(100, 30), Color.Red);
 
             spriteBatch.End();
         }

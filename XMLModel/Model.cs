@@ -11,14 +11,14 @@ namespace XMLModel
         /// <summary>
         /// Name of the model file
         /// </summary>
-        public string Name { get; set; }
+        public string Name;
         /// <summary>
         /// Name of the texture file
         /// </summary>
-        public string Texture { get; set; }
+        public string Texture;
         /// <summary>
         /// Name of the color texture file
         /// </summary>
-        public string ColorTexture { get; set; }
+        public string ColorTexture;
     }
 }

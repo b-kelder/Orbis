@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using Orbis.World;
 
 /// <summary>
@@ -54,7 +55,9 @@ namespace Orbis.Simulation
         /// <summary>
         /// The total population of the civ
         /// </summary>
-        public int Population { get; private set; }
+        public int Population { get; set; }
+
+        public Color Color { get; set; }
 
         public int TotalHousing { get; set; }
         public double TotalWealth { get; set; }
@@ -78,11 +81,7 @@ namespace Orbis.Simulation
             Wars = new List<War>();
             BorderCivs = new HashSet<Civilization>();
             CivOpinions = new Dictionary<Civilization, int>();
-        }
 
-        public void SetPopulation(int population)
-        {
-            Population = population;
         }
 
         /// <summary>
@@ -100,7 +99,7 @@ namespace Orbis.Simulation
 
             double expand = 1, exploit = 1, explore = 1, exterminate = 1;
 
-            expand *= BaseExpand + (Population > 0 ? ((Population - (double)TotalHousing) / Population) : 0);
+            expand *= BaseExpand + (Population / (double)TotalHousing);
             exploit *= BaseExploit;
             explore *= BaseExplore;
 
