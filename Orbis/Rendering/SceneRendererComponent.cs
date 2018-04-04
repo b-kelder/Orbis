@@ -59,6 +59,7 @@ namespace Orbis.Rendering
             /// Mesh to use for default cell decorations in this biome.
             /// </summary>
             public string DefaultDecoration { get; set; }
+            public float DefaultDensity { get; set; }
         }
 
         /// <summary>
@@ -82,7 +83,6 @@ namespace Orbis.Rendering
 
         private Effect basicShader;
         private CellColorMode cellColorMode;
-        private bool enableDecorations;
 
         private Camera camera;
         private float rotation;
@@ -100,7 +100,7 @@ namespace Orbis.Rendering
         private bool atlasDebugEnabled;
         private RenderInstance atlasDebugInstance;
 
-        private float defaultDecorationDensity;
+        private float decorationDensityMultiplier;
 
         /// <summary>
         /// Returns true if the renderer is ready to accept simulation updates.
@@ -121,10 +121,9 @@ namespace Orbis.Rendering
         public SceneRendererComponent(Orbis game) : base(game)
         {
             MaxUpdateTime = 3;
-            defaultDecorationDensity = 0.25f;
+            decorationDensityMultiplier = 1.0f;
             orbis = game;
             cellColorMode = CellColorMode.OwnerColor;
-            enableDecorations = true;
             atlasDebugEnabled = false;
         }
 
@@ -165,6 +164,7 @@ namespace Orbis.Rendering
                 {
                     HexMesh = modelLoader.LoadModel(biome.HexModel.Name, biome.HexModel.Texture, biome.HexModel.ColorTexture).Mesh,
                     DefaultDecoration = biome.DefaultDecoration,
+                    DefaultDensity = biome.DecorationDensity,
                 });
             }
 
@@ -232,7 +232,7 @@ namespace Orbis.Rendering
                     foreach(var cell in this.cellMappedData)
                     {
                         var biomeData = biomeMappedData[cell.Key.Biome.Name];
-                        if(biomeData.DefaultDecoration != null && random.NextDouble() < defaultDecorationDensity)
+                        if(biomeData.DefaultDecoration != null && random.NextDouble() < biomeData.DefaultDensity * decorationDensityMultiplier)
                         {
                             SetCellDecoration(cell.Key, cell.Value, biomeData.DefaultDecoration);
                         }
@@ -486,7 +486,7 @@ namespace Orbis.Rendering
                     var worldPoint = TopographyHelper.HexToWorld(new Point(p, q));
                     var position = new Vector3(worldPoint, (float)cell.Elevation);
                     var color = GetCellColor(cell);
-                    var mesh = biomeMappedData[cell.Biome.Name].HexMesh;
+                    Mesh mesh = biomeMappedData[cell.Biome.Name].HexMesh;
 
                     // Ensure sea is actually level
                     if (cell.IsWater && cell.Elevation < scene.Settings.SeaLevel)
