@@ -13,7 +13,7 @@ namespace Orbis.Simulation
     /// <author>
     ///     Kaj van der Veen
     /// </author>
-    class War
+    public class War
     {
         public Civilization Attacker { get; set; }
         public Civilization Defender { get; set; }

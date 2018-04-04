@@ -11,7 +11,7 @@ using System.Diagnostics;
 /// </summary>
 namespace Orbis.World
 {
-    class Map
+    public class Map
     {
         private Cell[] cellData;
         private int stride;

@@ -12,7 +12,7 @@ using Orbis.Simulation;
 /// </summary>
 namespace Orbis.World
 {
-    class Cell
+    public class Cell
     {
         /// <summary>
         /// List of neighbour cells

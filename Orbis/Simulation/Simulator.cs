@@ -14,12 +14,13 @@ using System.Threading.Tasks;
 /// </summary>
 namespace Orbis.Simulation
 {
-    class Simulator
+    public class Simulator
     {
         /// <summary>
         /// Current tick of the simulation
         /// </summary>
         public int CurrentTick { get; set; }
+        public DateTime Date { get; set; }
         /// <summary>
         /// The scene to simulate
         /// </summary>
@@ -57,6 +58,8 @@ namespace Orbis.Simulation
             maxTick = simulationLength;
             civCount = scene.Civilizations.Count;
             TickLengthInSeconds = 0;
+
+            Date = new DateTime(2166, 1, 1);
 
             // Create a random based on the scene's seed
             rand = new Random(scene.Seed);
@@ -127,6 +130,7 @@ namespace Orbis.Simulation
         {
             // Increase the current tick
             CurrentTick++;
+            Date = Date.AddMonths(1);
 
             // Clear the list of tasks the civs want to perform
             // Should be empty, but just in case

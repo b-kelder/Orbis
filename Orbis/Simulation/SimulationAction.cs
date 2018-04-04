@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 /// </summary>
 namespace Orbis.Simulation
 {
-    enum Simulation4XAction
+    public enum Simulation4XAction
     {
         // Explore
         EXPLORE,
@@ -23,7 +23,7 @@ namespace Orbis.Simulation
         DONOTHING
     }
 
-    class SimulationAction
+    public class SimulationAction
     {
         public Civilization Civilization { get; set; }
         public Simulation4XAction Action { get; set; }

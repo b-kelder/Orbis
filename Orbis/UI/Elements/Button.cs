@@ -10,7 +10,7 @@ namespace Orbis.UI.Elements
     ///     A button in the Orbis UI.
     /// </summary>
     /// <author>Kaj van der Veen</author>
-    public class Button : RelativeElement, IUpdatableElement
+    public class Button : RelativeElement, IUpdatableElement, IRenderableElement
     {
         // Does the button have text?
         private Boolean _hasText;

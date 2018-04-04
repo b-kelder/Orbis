@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 
 namespace Orbis.UI.Windows
 {
@@ -12,6 +13,8 @@ namespace Orbis.UI.Windows
     {
         // Used for getting window size and text input.
         protected Game _game;
+
+        protected List<IRenderableElement> _children;
 
         /// <summary>
         ///     The screen bounds of the window.
@@ -36,13 +39,20 @@ namespace Orbis.UI.Windows
         {
             _game = game;
             _game.Window.ClientSizeChanged += Window_ClientSizeChanged;
+            _children = new List<IRenderableElement>();
         }
 
         /// <summary>
         ///     Draw the UIWindow to the screen.
         /// </summary>
         /// <param name="spriteBatch">The SpriteBatch to use for drawing.</param>
-        public abstract void Draw(SpriteBatch spriteBatch);
+        public virtual void Draw(SpriteBatch spriteBatch)
+        {
+            foreach (var child in _children)
+            {
+                child.Render(spriteBatch);
+            }
+        }
 
         /// <summary>
         ///     Event handler for resizing the window.
@@ -52,6 +62,25 @@ namespace Orbis.UI.Windows
         /// <summary>
         ///     Perform the update for this frame.
         /// </summary>
-        public abstract void Update();
+        public virtual void Update()
+        {
+            foreach (var child in _children)
+            {
+                if (child is IUpdatableElement)
+                {
+                    ((IUpdatableElement)child).Update();
+                }
+            }
+        }
+
+        public void AddChild(IRenderableElement element)
+        {
+            _children.Add(element);
+        }
+
+        public void RemoveChild(IRenderableElement element)
+        {
+            _children.Remove(element);
+        }
     }
 }

@@ -11,7 +11,7 @@ using Orbis.World;
 /// </summary>
 namespace Orbis.Simulation
 {
-    class Civilization
+    public class Civilization
     {
         /// <summary>
         /// The name of the civ

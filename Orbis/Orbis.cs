@@ -11,7 +11,8 @@ using Orbis.States;
 using Orbis.World;
 
 using Orbis.UI.Windows;
-using Orbis.UI.Elements;
+using Orbis.UI;
+
 
 namespace Orbis
 {
@@ -34,10 +35,10 @@ namespace Orbis
 
         InputHandler input;
 
-        UI.UIManager UI;
+        UIManager UI;
 
-        private Scene scene;
-        private Simulator simulator;
+        public Scene Scene { get; set; }
+        public Simulator Simulator { get; set; }
 
         private SceneRendererComponent sceneRenderer;
 
@@ -88,17 +89,17 @@ namespace Orbis
             stopwatch.Start();
             // Generate world
             Debug.WriteLine("Generating world for seed " + seed);
-            scene = new Scene(seed, worldSettings, decorationSettings, biomeCollection);
-            var generator = new WorldGenerator(scene, civSettings);
+            Scene = new Scene(seed, worldSettings, decorationSettings, biomeCollection);
+            var generator = new WorldGenerator(Scene, civSettings);
             generator.GenerateWorld(TEST_RADIUS);
             generator.GenerateCivs(TEST_CIVS);
 
-            simulator = new Simulator(scene, TEST_TICKS);
+            Simulator = new Simulator(Scene, TEST_TICKS);
 
             stopwatch.Stop();
             Debug.WriteLine("Generated world in " + stopwatch.ElapsedMilliseconds + " ms");
             // Coloring data
-            sceneRenderer.OnNewWorldGenerated(scene, seed);
+            sceneRenderer.OnNewWorldGenerated(Scene, seed);
         }
 
         /// <summary>
@@ -127,6 +128,8 @@ namespace Orbis
             var biomeData = Content.Load<XMLModel.BiomeCollection>("Config/Biomes");
             var biomeCollection = new BiomeCollection(biomeData, Content);
             GenerateWorld(TEST_SEED, decorationSettings, worldSettings, biomeCollection, civSettings);
+
+            UI.CurrentWindow = new GameUI(this);
         }
 
         /// <summary>
@@ -156,11 +159,11 @@ namespace Orbis
             // Update renderer if we can
             if (sceneRenderer.ReadyForUpdate)
             {
-                simulator.Update(gameTime);
+                Simulator.Update(gameTime);
                 Cell[] updatedCells = null;
                 do
                 {
-                    updatedCells = simulator.GetChangedCells();
+                    updatedCells = Simulator.GetChangedCells();
                     if (updatedCells != null && updatedCells.Length > 0)
                     {
                         sceneRenderer.UpdateScene(updatedCells);
@@ -174,11 +177,8 @@ namespace Orbis
             }
             if (Input.IsKeyDown(Keys.P))
             {
-                simulator.TogglePause();
+                Simulator.TogglePause();
             }
-
-            TestWindow test = UI.CurrentWindow as TestWindow;
-            test.TestBar.Progress = ((float)simulator.CurrentTick / TEST_TICKS);
 
             base.Update(gameTime);
         }
@@ -190,26 +190,6 @@ namespace Orbis
         protected override void Draw(GameTime gameTime)
         {
             base.Draw(gameTime);
-
-            spriteBatch.Begin();
-
-            spriteBatch.DrawString(fontDebug, "Tick: " + simulator.CurrentTick, new Vector2(10, 50), Color.Red);
-            float y = 80;
-            foreach (var civ in scene.Civilizations)
-            {
-                spriteBatch.DrawString(fontDebug, civ.Name, new Vector2(10, y), civ.Color);
-                spriteBatch.DrawString(fontDebug, "Size: " + civ.Territory.Count, new Vector2(200, y), civ.Color);
-                spriteBatch.DrawString(fontDebug, "Population: " + civ.Population, new Vector2(300, y), civ.Color);
-                spriteBatch.DrawString(fontDebug, "Is Alive: " + civ.IsAlive, new Vector2(500, y), civ.Color);
-                spriteBatch.DrawString(fontDebug, "Wealth: " + civ.TotalWealth, new Vector2(600, y), civ.Color);
-                spriteBatch.DrawString(fontDebug, "Resource: " + civ.TotalResource, new Vector2(800, y), civ.Color);
-                y += 15;
-            }
-
-            spriteBatch.DrawString(fontDebug, "FPS: " + (1 / gameTime.ElapsedGameTime.TotalSeconds).ToString("##.##"), new Vector2(10, 30), Color.Red);
-            spriteBatch.DrawString(fontDebug, "Rendered Instances: " + sceneRenderer.RenderInstanceCount, new Vector2(100, 30), Color.Red);
-
-            spriteBatch.End();
         }
     }
 }
