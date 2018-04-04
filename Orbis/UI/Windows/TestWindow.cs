@@ -30,7 +30,7 @@ namespace Orbis.UI.Windows
 
             UIContentManager.TryGetInstance(out UIContentManager contentManager);
 
-            AddChild(playButton = new Button(this, new SpriteDefinition(contentManager.GetColorTexture(Color.White), new Rectangle(0, 0, 1, 1)))
+            AddChild(playButton = new Button(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Black), new Rectangle(0, 0, 1, 1)))
             {
                 AnchorPosition = AnchorPosition.TopRight,
                 RelativePosition = new Point(-350, -10),
