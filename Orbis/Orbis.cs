@@ -129,7 +129,7 @@ namespace Orbis
             var biomeCollection = new BiomeCollection(biomeData, Content);
             GenerateWorld(TEST_SEED, decorationSettings, worldSettings, biomeCollection, civSettings);
 
-            UI.CurrentWindow = new TestWindow(this);
+            UI.CurrentWindow = new GameUI(this);
         }
 
         /// <summary>

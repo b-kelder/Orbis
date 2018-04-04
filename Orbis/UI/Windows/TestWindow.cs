@@ -12,7 +12,7 @@ using Orbis.Simulation;
 
 namespace Orbis.UI.Windows
 {
-    public class TestWindow : UIWindow
+    public class GameUI : UIWindow
     {
         private ProgressBar progressBar;
         private RelativeTexture background;
@@ -24,7 +24,7 @@ namespace Orbis.UI.Windows
 
         private int RIGHT_UI_WIDTH = 400;
 
-        public TestWindow(Game game) : base(game)
+        public GameUI(Game game) : base(game)
         {
             orbis = (Orbis)game;
 
