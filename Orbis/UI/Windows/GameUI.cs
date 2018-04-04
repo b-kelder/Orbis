@@ -28,7 +28,7 @@ namespace Orbis.UI.Windows
 
         private Orbis orbis;
 
-        private int RIGHT_UI_WIDTH = 250;
+        private int RIGHT_UI_WIDTH = 270;
         private Color UI_COLOR = Color.LightGray;
 
         public GameUI(Game game) : base(game)
