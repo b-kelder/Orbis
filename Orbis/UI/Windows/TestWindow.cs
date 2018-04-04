@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Orbis.UI.Utility;
 
 using Orbis.UI.Elements;
 using Orbis.Simulation;
+using Orbis.Events;
+using Orbis.Events.Exporters;
 
 namespace Orbis.UI.Windows
 {
@@ -19,6 +18,9 @@ namespace Orbis.UI.Windows
         private RelativeTexture backgroundProgressBar;
         private RelativeText text;
         private Button playButton;
+        private Button exportButton;
+        private Logger logger;
+        private LogExporter logExporter; 
 
         private Orbis orbis;
 
@@ -27,6 +29,8 @@ namespace Orbis.UI.Windows
         public GameUI(Game game) : base(game)
         {
             orbis = (Orbis)game;
+            logger = Logger.GetInstance();
+            logExporter = new LogExporter();
 
             UIContentManager.TryGetInstance(out UIContentManager contentManager);
 
@@ -39,7 +43,17 @@ namespace Orbis.UI.Windows
                 IsFocused = true
             });
 
+            AddChild(exportButton = new Button(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Orange), new Rectangle(0, 0, 1, 1)))
+            {
+                AnchorPosition = AnchorPosition.TopRight,
+                RelativePosition = new Point(-(RIGHT_UI_WIDTH - 96) / 2 + 20, -10),
+                Size = new Point(40, 64),
+                LayerDepth = 0,
+                IsFocused = true
+            });
+
             playButton.Click += PlayButton_Click;
+            exportButton.Click += ExportButton_Click;
 
             // Progress bar
             AddChild(progressBar = new ProgressBar(this)
@@ -105,6 +119,17 @@ namespace Orbis.UI.Windows
             }
             
             orbis.Simulator.TogglePause();
+        }
+
+        /// <summary>
+        /// Button to control exporting of logs
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ExportButton_Click(object sender, EventArgs e)
+        {
+            //Create writer, add console exporter, export to console
+            logExporter.Export(Logger.GetInstance().GetLog());
         }
 
         /// <summary>
