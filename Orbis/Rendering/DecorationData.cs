@@ -19,7 +19,8 @@ namespace Orbis.Rendering
         private List<RenderableMesh> combinedRenderableMesh;
         private List<bool> shouldBeUpdated;
         private GraphicsDevice device;
-        int meshesPerCombi;
+        private int meshesPerCombi;
+        private Random random;
 
         public float Usage
         {
@@ -42,32 +43,19 @@ namespace Orbis.Rendering
         /// <param name="startMeshCount">The amount of combined meshes to start with</param>
         public DecorationData(Mesh mesh, GraphicsDevice device, int startMeshCount)
         {
-            int maxInstances = ushort.MaxValue / mesh.VertexCount;
-            var instances = new List<MeshInstance>();
-            for (int i = 0; i < maxInstances; i++)
-            {
-                instances.Add(new MeshInstance
-                {
-                    mesh = mesh,
-                    matrix = Matrix.Identity,
-                    tag = i,
-                });
-            }
             this.device = device;
             baseMesh = mesh;
             combinedRenderableMesh = new List<RenderableMesh>();
             occupation = new List<bool>();
             shouldBeUpdated = new List<bool>();
-            meshesPerCombi = maxInstances;
-            for (int i = 0; i < startMeshCount * maxInstances; i++)
-            {
-                occupation.Add(false);
-            }
+            meshesPerCombi = ushort.MaxValue / mesh.VertexCount;
+
             for (int i = 0; i < startMeshCount; i++)
             {
-                shouldBeUpdated.Add(true);
-                combinedRenderableMesh.Add(new RenderableMesh(device, new Mesh(instances)));
+                AddCombiMesh();
             }
+
+            random = new Random(mesh.TriangleCount);
         }
 
         private void AddCombiMesh()
@@ -124,9 +112,10 @@ namespace Orbis.Rendering
 
             int meshIndex = index / this.meshesPerCombi;
             int offset = (index - meshIndex * this.meshesPerCombi) * baseMesh.VertexCount;
+            var matrix = Matrix.CreateRotationZ(MathHelper.ToRadians((float)random.NextDouble() * 360)) * Matrix.CreateTranslation(position);
             for (int i = 0; i < baseMesh.VertexCount; i++)
             {
-                combinedRenderableMesh[meshIndex].VertexData[i + offset].Position = baseMesh.Vertices[i] + position;
+                combinedRenderableMesh[meshIndex].VertexData[i + offset].Position = Vector3.Transform(baseMesh.Vertices[i], matrix);
             }
             shouldBeUpdated[meshIndex] = true;
         }

@@ -53,6 +53,14 @@
 					<ColorTexture>black</ColorTexture>
 				</Model>
 			</Item>
+			<Item>
+				<Name>Cactus</Name>
+				<Model>
+					<Name>cactus</Name>
+					<Texture>cactus</Texture>
+					<ColorTexture>black</ColorTexture>
+				</Model>
+			</Item>
 		</Decorations>
 	</Asset>
 </XnaContent>
