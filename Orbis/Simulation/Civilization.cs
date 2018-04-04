@@ -129,7 +129,7 @@ namespace Orbis.Simulation
             {
                 if (Neighbours.Count <= 0)
                 {
-                    LoseCell(Territory.First());
+                    LoseCell(Territory.FirstOrDefault());
                     return action;
                 }
 
@@ -198,7 +198,7 @@ namespace Orbis.Simulation
 
         public bool LoseCell(Cell cell)
         {
-            if (cell.Owner != this)
+            if (cell == null || cell.Owner != this)
             {
                 return false;
             }
