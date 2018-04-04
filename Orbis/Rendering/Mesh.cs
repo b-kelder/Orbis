@@ -13,6 +13,10 @@ namespace Orbis.Rendering
     /// </summary>
     class Mesh
     {
+        /// <summary>
+        /// Returns a map mapping tags to lists vertex indexes.
+        /// The tags can only be set by the MeshInstance constructor.
+        /// </summary>
         public Dictionary<object, List<int>> TagIndexMap { get; private set; }
 
         private bool dirtyFlag;
@@ -100,8 +104,10 @@ namespace Orbis.Rendering
         public int VertexCount { get { return Vertices.Length; } }
         public int TriangleCount { get { return Triangles.Length / 3; } }
         public bool Dirty { get { return dirtyFlag; } }
-        public RenderableMesh RenderableMesh { get; set; }
 
+        /// <summary>
+        /// Creates a new, empty mesh.
+        /// </summary>
         public Mesh()
         {
             Vertices = new Vector3[0];
@@ -109,13 +115,23 @@ namespace Orbis.Rendering
             UVs2 = new Vector2[0];
             Triangles = new ushort[0];
             Colors = new Color[0];
+            TagIndexMap = new Dictionary<object, List<int>>();
         }
 
+        /// <summary>
+        /// Creates a mesh that combines the given mesh instances.
+        /// </summary>
+        /// <param name="meshes">Meshes to combine</param>
         public Mesh(IEnumerable<MeshInstance> meshes)
         {
             CombineMeshes(meshes);
         }
 
+        /// <summary>
+        /// Converts this mesh to useable vertex data.
+        /// </summary>
+        /// <param name="device">GraphicsDevice to use</param>
+        /// <returns>CustomVertexData array</returns>
         public CustomVertexData[] ToVertexData(GraphicsDevice device)
         {
             if(UVs.Length != Vertices.Length || Vertices.Length != Colors.Length || UVs2.Length != UVs.Length)
@@ -133,6 +149,11 @@ namespace Orbis.Rendering
             return vertexData;
         }
 
+        /// <summary>
+        /// Creates the IndexBuffer for this mesh.
+        /// </summary>
+        /// <param name="device">GraphicsDevice to use</param>
+        /// <returns>IndexBuffer</returns>
         public IndexBuffer CreateIndexBuffer(GraphicsDevice device)
         {
             var ib = new IndexBuffer(device, IndexElementSize.SixteenBits, Triangles.Length, BufferUsage.WriteOnly);
@@ -140,25 +161,10 @@ namespace Orbis.Rendering
             return ib;
         }
 
-        public void MakeRenderable(GraphicsDevice device)
-        {
-            if(Dirty)
-            {
-                // TODO: No idea if this is the correct course of action
-                if(RenderableMesh != null)
-                {
-                    RenderableMesh.Dispose();
-                }
-                RenderableMesh = new RenderableMesh(device, this);
-                dirtyFlag = false;
-            }
-        }
-
         private void CombineMeshes(IEnumerable<MeshInstance> meshes)
         {
             // Point Index Map is only possible here
             var indexMap = new Dictionary<object, List<int>>();
-            // TODO: Optimize
             var vertexList = new List<Vector3>();
             var uvList = new List<Vector2>();
             var uv2List = new List<Vector2>();
@@ -167,10 +173,9 @@ namespace Orbis.Rendering
 
             foreach(var mesh in meshes)
             {
-                // Use points as tag
-                if(!indexMap.ContainsKey(mesh.pos))
+                if(!indexMap.ContainsKey(mesh.tag))
                 {
-                    indexMap.Add(mesh.pos, new List<int>());
+                    indexMap.Add(mesh.tag, new List<int>());
                 }
 
                 int vertOffset = vertexList.Count;
@@ -182,7 +187,7 @@ namespace Orbis.Rendering
                 foreach(var vert in mesh.mesh.Vertices)
                 {
                     // Add tag
-                    indexMap[mesh.pos].Add(vertexList.Count);
+                    indexMap[mesh.tag].Add(vertexList.Count);
                     vertexList.Add(Vector3.Transform(vert, mesh.matrix));
                 }
                 uvList.AddRange(mesh.mesh.UVs);
@@ -213,6 +218,10 @@ namespace Orbis.Rendering
             this.TagIndexMap = indexMap;
         }
 
+        /// <summary>
+        /// Sets the entire Mesh's color.
+        /// </summary>
+        /// <param name="color">Color to set to</param>
         public void SetColor(Color color)
         {
             for(int i = 0; i < colors.Length; i++)
@@ -226,7 +235,7 @@ namespace Orbis.Rendering
     {
         public Mesh mesh;
         public Matrix matrix;
-        public Point pos;
+        public object tag;
         public bool useColor;
         public Color color;
     }

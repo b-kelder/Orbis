@@ -105,15 +105,37 @@
     <Compile Include="Engine\AudioManager.cs" />
     <Compile Include="Engine\InputHandler.cs" />
     <Compile Include="Engine\Perlin.cs" />
+    <Compile Include="Events\Log.cs" />
+    <Compile Include="Events\Logger.cs" />
+    <Compile Include="Events\Writers\ILogWriter.cs" />
+    <Compile Include="Events\LogWriter.cs" />
+    <Compile Include="Events\Helpers\DeviceWriterHelper.cs" />
+    <Compile Include="Events\Writers\TextFileWriter.cs" />
+    <Compile Include="Events\Writers\XMLFileWriter.cs" />
     <Compile Include="GamePage.xaml.cs">
       <DependentUpon>GamePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Orbis.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rendering\DecorationData.cs" />
+    <Compile Include="UI\Elements\RelativeElement.cs" />
+    <Compile Include="UI\IUpdatableElement.cs" />
+    <Compile Include="UI\Elements\RelativeText.cs" />
+    <Compile Include="UI\Elements\Button.cs" />
+    <Compile Include="UI\Elements\InputTextField.cs" />
+    <Compile Include="UI\IRenderableElement.cs" />
+    <Compile Include="UI\Elements\RelativeTexture.cs" />
+    <Compile Include="UI\IPositionedElement.cs" />
+    <Compile Include="UI\Elements\ProgressBar.cs" />
+    <Compile Include="UI\Elements\Scrollbar.cs" />
+    <Compile Include="UI\AnchorPosition.cs" />
+    <Compile Include="UI\Elements\PrerenderableElement.cs" />
+    <Compile Include="UI\UIManager.cs" />
     <Compile Include="Rendering\AtlasModelLoader.cs" />
     <Compile Include="Rendering\AutoAtlas.cs" />
     <Compile Include="Rendering\Camera.cs" />
     <Compile Include="Rendering\CustomVertexData.cs" />
+    <Compile Include="Rendering\DecorationManager.cs" />
     <Compile Include="Rendering\Material.cs" />
     <Compile Include="Rendering\Mesh.cs" />
     <Compile Include="Rendering\MeshCombiner.cs" />
@@ -121,12 +143,24 @@
     <Compile Include="Rendering\ObjParser.cs" />
     <Compile Include="Rendering\RenderableMesh.cs" />
     <Compile Include="Rendering\RenderInstance.cs" />
+    <Compile Include="Simulation\BattleResult.cs" />
     <Compile Include="Simulation\SimulationAction.cs" />
     <Compile Include="Rendering\SceneRendererComponent.cs" />
     <Compile Include="Simulation\Simulator.cs" />
     <Compile Include="Simulation\Civilization.cs" />
+    <Compile Include="Simulation\War.cs" />
+    <Compile Include="States\State\GameState.cs" />
+    <Compile Include="States\IState.cs" />
+    <Compile Include="States\StateManager.cs" />
+    <Compile Include="States\State\MenuState.cs" />
     <Compile Include="TopographyHelper.cs" />
+    <Compile Include="UI\Windows\TestWindow.cs" />
+    <Compile Include="UI\Windows\UIWindow.cs" />
+    <Compile Include="UI\Utility\UIContentManager.cs" />
+    <Compile Include="UI\SpriteDefinition.cs" />
+    <Compile Include="UI\Utility\TextHelper.cs" />
     <Compile Include="World\Biome.cs" />
+    <Compile Include="World\BiomeCollection.cs" />
     <Compile Include="World\Cell.cs" />
     <Compile Include="World\Map.cs" />
     <Compile Include="World\Scene.cs" />
@@ -141,6 +175,12 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <Content Include="Content\Meshes\quad_up.obj" />
+    <Content Include="Content\Meshes\trees1.obj" />
+    <Content Include="Content\Meshes\house1.obj" />
+    <Content Include="Content\Meshes\house3.obj" />
+    <Content Include="Content\Meshes\house2.obj" />
+    <Content Include="Content\Meshes\trees2.obj" />
+    <Content Include="Content\Meshes\trees3.obj" />
     <None Include="Orbis_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -177,6 +217,7 @@
       <Name>XMLModel</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

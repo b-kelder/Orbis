@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using Orbis.Engine;
 using Orbis.Simulation;
 
+/// <summary>
+/// Author: Bram Kelder
+/// </summary>
 namespace Orbis.World
 {
     class Cell
@@ -44,14 +47,31 @@ namespace Orbis.World
         /// </summary>
         public bool IsWater { get; set; }
         /// <summary>
+        /// Indicates if this cell has a river.
+        /// </summary>
+        public bool HasRiver { get; set; }
+        /// <summary>
+        /// Indicates how wet this cell is in equivalents of mms of rain per year.
+        /// </summary>
+        public double Wetness { get; set; }
+        /// <summary>
         /// Coordinates of the cell on the world map
         /// </summary>
         public Point Coordinates { get; set; }
+        /// <summary>
+        /// The biome of this cell
+        /// </summary>
+        public Biome Biome { get; set; }
+        /// <summary>
+        /// Temperature of this cell in degrees Celcius
+        /// </summary>
+        public float Temperature { get; set; }
 
+
+        public int population;
         public double food;
         public double resources;
         public double wealth;
-        public int population;
 
         public Cell(Point coordinates)
         {
