@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 /// </summary>
 namespace Orbis.World
 {
-    class Biome
+    public class Biome
     {
         public string Name { get; set; }
         /// <summary>

@@ -302,6 +302,23 @@ namespace Orbis.Rendering
                 distance += zoomSpeed;
                 //scale += speed;
             }
+
+            // Mouse Camera movement
+            if (orbis.Input.IsMouseHold(Engine.MouseButton.Right))
+            {
+                //Zooming in/out with the mousewheel
+                if (orbis.Input.MouseScroll() != 0)
+                {
+                    distance -= orbis.Input.MouseScroll() / 10;
+                }
+                //Rotating the Camera if the mouse moved
+                if (orbis.Input.MouseMove() != Point.Zero)
+                {
+                    rotation += orbis.Input.MouseMove().X / 2;
+                    angle += orbis.Input.MouseMove().Y / 2;
+                }
+            }
+
             if (orbis.Input.IsKeyHeld(Keys.W))
             {
                 camMoveDelta.Y += movementSpeed * 0.07f;
