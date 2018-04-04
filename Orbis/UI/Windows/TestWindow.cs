@@ -82,7 +82,7 @@ namespace Orbis.UI.Windows
             foreach (Civilization civ in orbis.Scene.Civilizations)
             {
                 // Civ color
-                AddChild(background = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(civ.Color), new Rectangle(0, 0, 1, 1)))
+                AddChild(new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(civ.Color), new Rectangle(0, 0, 1, 1)))
                 {
                     Size = new Point(5, 80),
                     AnchorPosition = AnchorPosition.TopRight,
