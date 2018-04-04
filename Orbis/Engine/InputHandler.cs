@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
 namespace Orbis.Engine
 {
@@ -282,6 +283,21 @@ namespace Orbis.Engine
         {
             return GetButtonStatePrevious(mButton) == ButtonState.Pressed &&
                    GetButtonState(mButton)         == ButtonState.Released;
+        }
+
+        public int MouseScroll()
+        {
+            return mState.ScrollWheelValue - mStatePrevious.ScrollWheelValue;
+        }
+
+        public Point MouseMove()
+        {
+            return mState.Position - mStatePrevious.Position;
+        }
+
+        public Point GetMousePosition()
+        {
+            return mState.Position;
         }
 
         /// <summary>
