@@ -35,7 +35,7 @@ namespace Orbis.UI.Windows
                 AnchorPosition = AnchorPosition.TopRight,
                 RelativePosition = new Point(-350, -10),
                 Size = new Point(100, 50),
-                LayerDepth = 1,
+                LayerDepth = 0,
                 IsFocused = true
             });
 
