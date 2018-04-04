@@ -49,5 +49,9 @@ namespace XMLModel
         /// Default cell decoration for this biome, can be null
         /// </summary>
         public string DefaultDecoration;
+        /// <summary>
+        /// Default density of the decoration in this biome from 0 to 1
+        /// </summary>
+        public float DecorationDensity;
     }
 }

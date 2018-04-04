@@ -14,6 +14,24 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Audio/Songs/Crossing the Chasm.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Audio/Songs/Crossing the Chasm.mp3
+
+#begin Audio/Songs/Rocket.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Audio/Songs/Rocket.mp3
+
+#begin Audio/Songs/Severe Tire Damage.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Audio/Songs/Severe Tire Damage.mp3
+
 #begin biomes_land.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -82,6 +100,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/black.png
+
+#begin Textures/cactus.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/cactus.png
 
 #begin Textures/hex.png
 /importer:TextureImporter
@@ -154,6 +184,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/hex_ice.png
+
+#begin Textures/hex_ice2.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/hex_ice2.png
 
 #begin Textures/hex_rainforest.png
 /importer:TextureImporter
@@ -311,6 +353,18 @@
 /processorParam:TextureFormat=Color
 /build:Textures/trees3.png
 
+#begin Textures/white.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/white.png
+
 #begin UI/Placeholder.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -334,34 +388,4 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:UI/Scrollbar.png
-
-#begin white.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Textures/white.png
-
-#begin Audio/Songs/Crossing the Chasm.mp3
-/importer:Mp3Importer
-/processor:SongProcessor
-/processorParam:Quality=Best
-/build:Audio/Songs/Crossing the Chasm.mp3
-
-#begin Audio/Songs/Rocket.mp3
-/importer:Mp3Importer
-/processor:SongProcessor
-/processorParam:Quality=Best
-/build:Audio/Songs/Rocket.mp3
-
-#begin Audio/Songs/Severe Tire Damage.mp3
-/importer:Mp3Importer
-/processor:SongProcessor
-/processorParam:Quality=Best
-/build:Audio/Songs/Severe Tire Damage.mp3
 
