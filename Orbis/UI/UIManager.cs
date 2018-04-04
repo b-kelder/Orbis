@@ -15,7 +15,7 @@ namespace Orbis.UI
         /// <summary>
         ///     The current window shown by the UI.
         /// </summary>
-        public UIWindow CurrentWindow { get; private set; }
+        public UIWindow CurrentWindow { get; set; }
 
         /// <summary>
         ///     The spritebatch used to draw the UI.
@@ -48,8 +48,6 @@ namespace Orbis.UI
 
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
 
-            CurrentWindow = new TestWindow(Game);
-
             base.Initialize();
         }
 
@@ -62,6 +60,10 @@ namespace Orbis.UI
         /// </param>
         public override void Update(GameTime gameTime)
         {
+            if (CurrentWindow != null)
+            {
+                CurrentWindow.Update();
+            }
             base.Update(gameTime);
         }
 
@@ -71,9 +73,12 @@ namespace Orbis.UI
         /// <param name="gameTime"></param>
         public override void Draw(GameTime gameTime)
         {
-            _spriteBatch.Begin(SpriteSortMode.BackToFront);
-            CurrentWindow.Draw(_spriteBatch);
-            _spriteBatch.End();
+            if (CurrentWindow != null)
+            {
+                _spriteBatch.Begin(SpriteSortMode.BackToFront);
+                CurrentWindow.Draw(_spriteBatch);
+                _spriteBatch.End();
+            }
 
             base.Draw(gameTime);
         }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Orbis.UI.Elements
 {
@@ -72,6 +73,7 @@ namespace Orbis.UI.Elements
         ///     The dimensions of the element.
         /// </summary>
         public virtual Point Size { get; set; }
+        public float LayerDepth { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
         /// <summary>
         ///     Create a new <see cref="RelativeElement"/>.

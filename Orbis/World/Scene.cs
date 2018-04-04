@@ -10,7 +10,7 @@ namespace Orbis.World
     /// <summary>
     /// Author: Bram Kelder
     /// </summary>
-    class Scene
+    public class Scene
     {
         public Map WorldMap { get; set; }
         public List<Civilization> Civilizations { get; set; }

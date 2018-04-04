@@ -49,7 +49,7 @@ namespace Orbis.UI.Elements
 
                 _progressBar.Size = barSize;
 
-                _progressMessage.Text = Message + " " + _progress.ToString("0.00%");
+                _progressMessage.Text = Message;
             }
         }
         private float _progress;

@@ -266,7 +266,7 @@ namespace Orbis.Rendering
             decorationManager = new DecorationManager(decorationData, modelLoader, GraphicsDevice);
             foreach(var data in decorationData.Decorations)
             {
-                decorations.Add(data.Name, new DecorationData(decorationManager.GetDecorationMesh(data.Name), GraphicsDevice, 50));
+                decorations.Add(data.Name, new DecorationData(decorationManager.GetDecorationMesh(data.Name), GraphicsDevice, 1));
             }
             var biomeData = orbis.Content.Load<XMLModel.BiomeCollection>("Config/Biomes");
             biomeMappedData = new Dictionary<string, BiomeMappedData>();
