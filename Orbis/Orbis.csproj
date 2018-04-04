@@ -182,6 +182,7 @@
     <Content Include="Content\Meshes\house2.obj" />
     <Content Include="Content\Meshes\trees2.obj" />
     <Content Include="Content\Meshes\trees3.obj" />
+    <Content Include="Content\Meshes\cactus.obj" />
     <None Include="Orbis_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>

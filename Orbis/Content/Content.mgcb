@@ -101,6 +101,18 @@
 /processorParam:TextureFormat=Color
 /build:Textures/black.png
 
+#begin Textures/cactus.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/cactus.png
+
 #begin Textures/hex.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -172,6 +184,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/hex_ice.png
+
+#begin Textures/hex_ice2.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/hex_ice2.png
 
 #begin Textures/hex_rainforest.png
 /importer:TextureImporter
@@ -353,6 +377,7 @@
 /processorParam:TextureFormat=Color
 /build:UI/Button.png
 
+#begin UI/Scrollbar.png
 #begin UI/Button_Next.png
 /importer:TextureImporter
 /processor:TextureProcessor

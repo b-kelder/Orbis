@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Orbis.Events.Exporters;
 
 namespace Orbis.Events
@@ -24,22 +23,11 @@ namespace Orbis.Events
             // Make sure we have something to write to
             if (exporters != null && exporters.Count > 0)
             {
-                Task t = Task.Run(() =>
+                // Export in all export formats
+                foreach (ILogExporter exporter in exporters)
                 {
-                    // Catch errors caused by exporting while writing new logs
-                    try
-                    {
-                        // Export in all export formats
-                        foreach (ILogExporter exporter in exporters)
-                        {
-                            exporter.Export(logs);
-                        }
-                    }
-                    catch (InvalidOperationException ex)
-                    {
-                        //TODO: implement actual catch
-                    }
-                });
+                    exporter.Export(logs);
+                }
             }
             else
             {
@@ -89,8 +77,10 @@ namespace Orbis.Events
         /// </summary>
         private void SetDefaultExporters()
         {
-            // Add an exporter to export to console
+            // Add an exporter to console, txt and xml
             exporters.Add(new ConsoleExporter());
+            exporters.Add(new TextFileExporter());
+            exporters.Add(new XMLFileExporter());
         }
     }
 }

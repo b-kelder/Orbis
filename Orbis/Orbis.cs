@@ -22,9 +22,9 @@ namespace Orbis
     public class Orbis : Game
     {
 
-        public static readonly int TEST_SEED = 0x55555555;
+        public static readonly int TEST_SEED = 0x1111111;
         public static readonly int TEST_CIVS = 15;
-        public static readonly int TEST_RADIUS = 100;
+        public static readonly int TEST_RADIUS = 150;
         public static readonly int TEST_TICKS = 10000;
 
         public InputHandler Input { get { return InputHandler.GetInstance(); } }
@@ -45,7 +45,7 @@ namespace Orbis
 
         private SpriteFont fontDebug;
 
-        float worldUpdateTimer;
+        private bool drawDebugText;
 
         public Orbis()
         {
@@ -180,6 +180,11 @@ namespace Orbis
                 Simulator.TogglePause();
             }
 
+            if(Input.IsKeyDown(Keys.F1))
+            {
+                drawDebugText = !drawDebugText;
+            }
+
             base.Update(gameTime);
         }
 
@@ -190,6 +195,17 @@ namespace Orbis
         protected override void Draw(GameTime gameTime)
         {
             base.Draw(gameTime);
+
+            if(drawDebugText)
+            {
+                spriteBatch.Begin();
+                spriteBatch.DrawString(fontDebug,
+                    "FPS: " + (1 / gameTime.ElapsedGameTime.TotalSeconds).ToString("##") + "   " +
+                    "Render Instances: " + sceneRenderer.RenderInstanceCount
+                    , new Vector2(40, 40), Color.Red);
+                spriteBatch.End();
+            }
+
         }
     }
 }
