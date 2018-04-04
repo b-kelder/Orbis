@@ -111,10 +111,10 @@ namespace Orbis.Simulation
                 Defender.BorderCivs.Remove(Attacker);
                 Defender.CivOpinions.Remove(Attacker);
 
-                // DEBUG: create writer, add console writer, write to console
-                LogExporter logWriter = new LogExporter();
-                logWriter.AddWriter(new ConsoleExporter());
-                logWriter.Write(logger.GetLog());
+                // DEBUG: create writer, add console exporter, export to console
+                LogExporter logExporter = new LogExporter();
+                logExporter.AddExporter(new ConsoleExporter());
+                logExporter.Export(logger.GetLog());
             }
 
             _duration++;
