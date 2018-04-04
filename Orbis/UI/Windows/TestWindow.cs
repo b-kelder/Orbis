@@ -22,7 +22,7 @@ namespace Orbis.UI.Windows
 
         private Orbis orbis;
 
-        private int RIGHT_UI_WIDTH = 400;
+        private int RIGHT_UI_WIDTH = 250;
 
         public GameUI(Game game) : base(game)
         {
@@ -33,8 +33,8 @@ namespace Orbis.UI.Windows
             AddChild(playButton = new Button(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Black), new Rectangle(0, 0, 1, 1)))
             {
                 AnchorPosition = AnchorPosition.TopRight,
-                RelativePosition = new Point(-350, -10),
-                Size = new Point(100, 50),
+                RelativePosition = new Point(-(RIGHT_UI_WIDTH - 96) / 2 - 96 , -10),
+                Size = new Point(96, 64),
                 LayerDepth = 0,
                 IsFocused = true
             });
@@ -62,7 +62,7 @@ namespace Orbis.UI.Windows
             // Background for UI
             AddChild(background = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(Color.White), new Rectangle(0, 0, 1, 1)))
             {
-                Size = new Point(400, _game.Window.ClientBounds.Height),
+                Size = new Point(RIGHT_UI_WIDTH, _game.Window.ClientBounds.Height),
                 AnchorPosition = AnchorPosition.TopRight,
                 RelativePosition = new Point(-RIGHT_UI_WIDTH, 0),
                 LayerDepth = 1
@@ -74,19 +74,19 @@ namespace Orbis.UI.Windows
                 TextColor = Color.Black,
                 Text = "",
                 AnchorPosition = AnchorPosition.TopRight,
-                RelativePosition = new Point(-RIGHT_UI_WIDTH + 50, 50),
+                RelativePosition = new Point(-RIGHT_UI_WIDTH + 40, 64),
                 LayerDepth = 0
             });
 
-            int x = 75;
+            int x = 89;
             foreach (Civilization civ in orbis.Scene.Civilizations)
             {
                 // Civ color
-                AddChild(background = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(civ.Color), new Rectangle(0, 0, 1, 1)))
+                AddChild(new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(civ.Color), new Rectangle(0, 0, 1, 1)))
                 {
                     Size = new Point(5, 80),
                     AnchorPosition = AnchorPosition.TopRight,
-                    RelativePosition = new Point(-RIGHT_UI_WIDTH + 55, x),
+                    RelativePosition = new Point(-RIGHT_UI_WIDTH + 45, x),
                     LayerDepth = 0
                 });
                 x += 126;
@@ -139,11 +139,11 @@ namespace Orbis.UI.Windows
             foreach (var civ in orbis.Scene.Civilizations)
             {
                 sb.AppendLine(civ.Name);
-                sb.AppendLine("      Size: " + civ.Territory.Count);
-                sb.AppendLine("      Population: " + civ.Population);
                 sb.AppendLine("      Is Alive: " + civ.IsAlive);
-                sb.AppendLine("      Wealth: " + civ.TotalWealth);
-                sb.AppendLine("      Resource: " + civ.TotalResource);
+                sb.AppendLine("      Population: " + civ.Population);
+                sb.AppendLine("      Size: " + (civ.Territory.Count * 3141) + " KM2");
+                sb.AppendLine("      Wealth: " + (int)civ.TotalWealth + "KG AU");
+                sb.AppendLine("      Resource: " + (int)civ.TotalResource + " KG");
                 sb.AppendLine();
             }
             sb.AppendLine("\r\n\r\n");
