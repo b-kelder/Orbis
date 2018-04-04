@@ -53,6 +53,7 @@ namespace Orbis.Events
         /// <param name="log"></param>
         public void Export(Log log)
         {
+            // To avoid duplication, put the log in a list, and use the list export method
             Export
             (
                 new List<Log> { log }
