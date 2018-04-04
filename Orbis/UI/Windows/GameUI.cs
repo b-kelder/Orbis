@@ -153,6 +153,10 @@ namespace Orbis.UI.Windows
         /// <param name="e"></param>
         private void ExportButton_Click(object sender, EventArgs e)
         {
+            if (!orbis.Simulator.IsPaused())
+            {
+                orbis.Simulator.TogglePause();
+            }
             //Create writer, add console exporter, export to console
             logExporter.Export(Logger.GetInstance().GetLog());
         }

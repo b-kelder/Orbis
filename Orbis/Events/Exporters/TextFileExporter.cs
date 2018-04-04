@@ -6,8 +6,13 @@ namespace Orbis.Events.Exporters
 {
     class TextFileExporter : DeviceWriterHelper, ILogExporter
     {
+        private string data;
+
         public async void Export(List<Log> logs)
         {
+            // We parse all data to a var, which in the end gets writen to a file.
+            data = "";
+
             // Pick folder and handle cancel actions
             bool folderPicked = await PickFolder();
             if (folderPicked)
@@ -16,8 +21,9 @@ namespace Orbis.Events.Exporters
 
                 foreach (Log log in logs)
                 {
-                    WriteToCurrentFile(log.ToString() + Environment.NewLine);
+                    data += log.ToString() + Environment.NewLine;
                 }
+                WriteToCurrentFile(data);
             }
         }
     }

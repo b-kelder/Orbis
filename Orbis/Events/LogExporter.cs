@@ -21,17 +21,21 @@ namespace Orbis.Events
         public void Export(List<Log> logs)
         {
             // Make sure we have something to write to
-            if (exporters != null && exporters.Count > 0)
+            if (exporters != null && exporters.Count > 0 && logs.Count > 0)
             {
-                // Export in all export formats
-                foreach (ILogExporter exporter in exporters)
+                // Catch export while writing exceptions (Collection was modified; enumeration operation may not execute.)
+                try
                 {
-                    exporter.Export(logs);
+                    // Export in all export formats
+                    foreach (ILogExporter exporter in exporters)
+                    {
+                        exporter.Export(logs);
+                    }
                 }
-            }
-            else
-            {
-                throw new Exception("Exporter exception: LogExporter called without any configuered exporters.");
+                catch(InvalidOperationException ex)
+                {
+                    // TODO: Handle exception
+                }
             }
         }
 
