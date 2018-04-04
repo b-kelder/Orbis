@@ -24,7 +24,7 @@ namespace Orbis
 
         public static readonly int TEST_SEED = 0x55555555;
         public static readonly int TEST_CIVS = 15;
-        public static readonly int TEST_RADIUS = 300;
+        public static readonly int TEST_RADIUS = 250;
         public static readonly int TEST_TICKS = 10000;
 
         public InputHandler Input { get { return InputHandler.GetInstance(); } }
