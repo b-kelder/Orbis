@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using Orbis.Events.Writers;
+using Orbis.Events.Exporters;
 
 namespace Orbis.Events
 {
-    class LogWriter
+    class LogExporter
     {
-        private List<ILogWriter> writers;
+        private List<ILogExporter> exporters;
 
-        public LogWriter()
+        public LogExporter()
         {
-            writers = new List<ILogWriter>();
+            exporters = new List<ILogExporter>();
         }
 
         /// <summary>
@@ -20,11 +20,11 @@ namespace Orbis.Events
         public void Write(List<Log> logs)
         {
             // Make sure we have something to write to
-            if (writers != null && writers.Count > 0)
+            if (exporters != null && exporters.Count > 0)
             {
-                foreach (ILogWriter writer in writers)
+                foreach (ILogExporter writer in exporters)
                 {
-                    writer.Write(logs);
+                    writer.Export(logs);
                 }
             }
             else
@@ -49,11 +49,11 @@ namespace Orbis.Events
         /// Add a writer
         /// </summary>
         /// <param name="writer"></param>
-        public void AddWriter(ILogWriter writer)
+        public void AddWriter(ILogExporter writer)
         {
-            if (!writers.Contains(writer))
+            if (!exporters.Contains(writer))
             {
-                writers.Add(writer);
+                exporters.Add(writer);
             }
         }
 
@@ -61,11 +61,11 @@ namespace Orbis.Events
         /// Remove a writer
         /// </summary>
         /// <param name="writer"></param>
-        public void RemoveWriter(ILogWriter writer)
+        public void RemoveWriter(ILogExporter writer)
         {
-            if (writers.Contains(writer))
+            if (exporters.Contains(writer))
             {
-                writers.Remove(writer);
+                exporters.Remove(writer);
             }
         }
     }

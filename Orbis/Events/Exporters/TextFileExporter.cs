@@ -1,13 +1,12 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Orbis.Events.Helpers;
 
-namespace Orbis.Events.Writers
+namespace Orbis.Events.Exporters
 {
-    class TextFileWriter : DeviceWriterHelper, ILogWriter
+    class TextFileExporter : DeviceWriterHelper, ILogExporter
     {
-        public async void Write(List<Log> logs)
+        public async void Export(List<Log> logs)
         {
             // Pick folder and handle cancel actions
             bool folderPicked = await PickFolder();
