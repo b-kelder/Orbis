@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Orbis.Events
 {
@@ -33,7 +34,8 @@ namespace Orbis.Events
         /// <param name="type">The type</param>
         public void AddLog(string item, string type = DEFAULT_TYPE)
         {
-            log.Add(new Log(item, type));
+            Task t = Task.Run(() => log.Add(new Log(item, type)));
+            t.Wait();
         }
 
         /// <summary>

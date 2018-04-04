@@ -24,6 +24,7 @@ namespace Orbis.Simulation
         private Scene _scene;
         private int _battleBalance;
         private int _duration;
+        private Logger _logger;
         
         // amount of lost battles/ duration of the war / random shit
 
@@ -46,7 +47,8 @@ namespace Orbis.Simulation
             Attacker.Wars.Add(this);
             Defender.Wars.Add(this);
 
-            Logger.GetInstance().AddLog(Attacker.Name + " has declared war on ." + Defender.Name, "war");
+            _logger = Logger.GetInstance();
+            _logger.AddLog(Attacker.Name + " has declared war on ." + Defender.Name, "war");
         }
 
         /// <summary>
@@ -56,7 +58,6 @@ namespace Orbis.Simulation
         public bool Battle(out BattleResult result)
         {
             bool warEnded = false;
-            Logger logger = Logger.GetInstance();
 
             result = new BattleResult();
 
@@ -75,21 +76,21 @@ namespace Orbis.Simulation
                 //+ (0.4 * Attacker.Population + 10 * Attacker.Wars.Count)
                 //- (0.4 * Defender.Population + 10 * Defender.Wars.Count));
 
-                logger.AddLog("Battle result for battle between " + Attacker.Name + " and " + Defender.Name + ": " + battleResult + ".", "war");
+                _logger.AddLog("Battle result for battle between " + Attacker.Name + " and " + Defender.Name + ": " + battleResult + ".", "war");
 
                 if (battleResult > _upperBound)
                 {
                     result.Winner = Attacker;
                     result.OccupiedTerritory = GetOccupiedTerritory(Attacker, Defender);
 
-                    logger.AddLog(Attacker.Name + "(" + Attacker.Population + ") has won a battle against " + Defender.Name + "(" + Defender.Population + ")", "war");
+                    _logger.AddLog(Attacker.Name + "(" + Attacker.Population + ") has won a battle against " + Defender.Name + "(" + Defender.Population + ")", "war");
                 }
                 else if (battleResult < _lowerBound)
                 {
                     result.Winner = Defender;
                     result.OccupiedTerritory = GetOccupiedTerritory(Defender, Attacker);
 
-                    logger.AddLog(Defender.Name + "(" + Defender.Population + ") has won a battle against " + Attacker.Name + "(" + Attacker.Population + ")", "war");
+                    _logger.AddLog(Defender.Name + "(" + Defender.Population + ") has won a battle against " + Attacker.Name + "(" + Attacker.Population + ")", "war");
                 }
 
                 int endScore = _random.Next(1, 6) - _battleBalance + _duration;
@@ -99,7 +100,7 @@ namespace Orbis.Simulation
 
             if (warEnded)
             {
-                logger.AddLog("The war between " + Attacker.Name + "(" + Attacker.Population + ") and " + Defender.Name + "(" + Defender.Population + ") has ended. (Duration: " + _duration + ")", "war");
+                _logger.AddLog("The war between " + Attacker.Name + "(" + Attacker.Population + ") and " + Defender.Name + "(" + Defender.Population + ") has ended. (Duration: " + _duration + ")", "war");
 
                 Attacker.Wars.Remove(this);
                 Defender.Wars.Remove(this);
@@ -110,11 +111,6 @@ namespace Orbis.Simulation
 
                 Defender.BorderCivs.Remove(Attacker);
                 Defender.CivOpinions.Remove(Attacker);
-
-                // DEBUG: create writer, add console exporter, export to console
-                LogExporter logExporter = new LogExporter();
-                logExporter.AddExporter(new ConsoleExporter());
-                logExporter.Export(logger.GetLog());
             }
 
             _duration++;
