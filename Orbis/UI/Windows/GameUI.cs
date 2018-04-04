@@ -132,17 +132,6 @@ namespace Orbis.UI.Windows
 
         private void PlayButton_Click(object sender, EventArgs e)
         {
-            if (orbis.Simulator.IsPaused())
-            {
-                playButton.Text = "Pause";
-                playButton.SpriteDefinition = pause;
-            }
-            else
-            {
-                playButton.Text = "Play";
-                playButton.SpriteDefinition = play;
-            }
-            
             orbis.Simulator.TogglePause();
         }
 
@@ -185,6 +174,15 @@ namespace Orbis.UI.Windows
         /// </summary>
         public override void Update()
         {
+            if (orbis.Simulator.IsPaused())
+            {
+                playButton.SpriteDefinition = play;
+            }
+            else
+            {
+                playButton.SpriteDefinition = pause;
+            }
+
             progressBar.Progress = ((float)orbis.Simulator.CurrentTick / Orbis.TEST_TICKS);
             progressBar.Message = "Date: " + orbis.Simulator.Date.ToString("MMM yyyy");
 
