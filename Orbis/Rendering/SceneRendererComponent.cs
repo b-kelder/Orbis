@@ -71,120 +71,6 @@ namespace Orbis.Rendering
             public Dictionary<Cell, CellMappedData> cellData;
         }
 
-        /// <summary>
-        /// Stores data for a decoration type and allows access to it
-        /// </summary>
-        class DecorationData
-        {
-            private bool[] occupation;
-            private Mesh baseMesh;
-            private RenderableMesh[] combinedRenderableMesh;
-            private bool[] shouldBeUpdated;
-            int meshesPerCombi;
-
-            // TODO: Dynamic mesh count scaling?
-            public DecorationData(Mesh mesh, GraphicsDevice device, int totalMeshes)
-            {
-                int maxInstances = ushort.MaxValue / mesh.VertexCount;
-                var instances = new List<MeshInstance>();
-                for(int i = 0; i < maxInstances; i++)
-                {
-                    instances.Add(new MeshInstance
-                    {
-                        mesh = mesh,
-                        matrix = Matrix.Identity,
-                        tag = i,
-                    });
-                }
-                baseMesh = mesh;
-                combinedRenderableMesh = new RenderableMesh[totalMeshes];
-                occupation = new bool[maxInstances * totalMeshes];
-                shouldBeUpdated = new bool[totalMeshes];
-                meshesPerCombi = maxInstances;
-                for (int i = 0; i < totalMeshes; i++)
-                {
-                    shouldBeUpdated[i] = true;
-                    combinedRenderableMesh[i] = new RenderableMesh(device, new Mesh(instances));
-                }
-            }
-
-            public int GetFreeIndex()
-            {
-                for(int i = 0; i < occupation.Length; i++)
-                {
-                    if (occupation[i] == false)
-                    {
-                        occupation[i] = true;
-                        return i;
-                    }
-                }
-                return -1;
-            }
-
-            public void FreeIndex(int index)
-            {
-                if(index >=0 && index < occupation.Length)
-                {
-                    occupation[index] = false;
-                    SetPosition(index, Vector3.Zero);
-                }
-            }
-
-            public void SetPosition(int index, Vector3 position)
-            {
-                if(index < 0 || index >= occupation.Length)
-                {
-                    throw new IndexOutOfRangeException();
-                }
-
-                int meshIndex = index / this.meshesPerCombi;
-                int offset = (index - meshIndex * this.meshesPerCombi) * baseMesh.VertexCount;
-                for (int i = 0; i < baseMesh.VertexCount; i++)
-                {
-                    combinedRenderableMesh[meshIndex].VertexData[i + offset].Position = baseMesh.Vertices[i] + position;
-                }
-                shouldBeUpdated[meshIndex] = true;
-            }
-
-            public void Update(HashSet<RenderableMesh> updateSet)
-            {
-                for(int i = 0; i < shouldBeUpdated.Length; i++)
-                {
-                    if (shouldBeUpdated[i])
-                    {
-                        updateSet.Add(combinedRenderableMesh[i]);
-                        shouldBeUpdated[i] = false;
-                    }
-                }
-            }
-
-            public List<RenderInstance> GetActiveInstances()
-            {
-                var instances = new List<RenderInstance>();
-                for (int i = 0; i < this.combinedRenderableMesh.Length; i++)
-                {
-                    bool render = false;
-                    for(int k = 0; k < this.meshesPerCombi; k++)
-                    {
-                        if(this.occupation[i * this.meshesPerCombi + k] == true)
-                        {
-                            render = true;
-                            break;
-                        }
-                    }
-                    if(render)
-                    {
-                        instances.Add(new RenderInstance()
-                        {
-                            mesh = combinedRenderableMesh[i],
-                            matrix = Matrix.Identity,
-                        });
-                    }
-                }
-                return instances;
-            }
-        }
-
         private Orbis orbis;
 
         private Dictionary<string, BiomeMappedData> biomeMappedData = new Dictionary<string, BiomeMappedData>();
@@ -412,6 +298,23 @@ namespace Orbis.Rendering
                 distance += zoomSpeed;
                 //scale += speed;
             }
+
+            // Mouse Camera movement
+            if (orbis.Input.IsMouseHold(Engine.MouseButton.Right))
+            {
+                //Zooming in/out with the mousewheel
+                if (orbis.Input.MouseScroll() != 0)
+                {
+                    distance -= orbis.Input.MouseScroll() / 10;
+                }
+                //Rotating the Camera if the mouse moved
+                if (orbis.Input.MouseMove() != Point.Zero)
+                {
+                    rotation += orbis.Input.MouseMove().X / 2;
+                    angle += orbis.Input.MouseMove().Y / 2;
+                }
+            }
+
             if (orbis.Input.IsKeyHeld(Keys.W))
             {
                 camMoveDelta.Y += movementSpeed * 0.07f;

@@ -6,10 +6,24 @@ namespace Orbis.Events
     {
         private const string DEFAULT_TYPE = "normal";
         private List<Log> log;
+        private static Logger logger;
 
-        public Logger()
+        private Logger()
         {
             log = new List<Log>();
+        }
+
+        /// <summary>
+        /// Get instance of logger
+        /// </summary>
+        /// <returns></returns>
+        public static Logger GetInstance()
+        {
+            if (logger == null)
+            {
+                logger = new Logger();
+            }
+            return logger;
         }
 
         /// <summary>
