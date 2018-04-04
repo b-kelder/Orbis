@@ -18,13 +18,18 @@ namespace Orbis.UI.Windows
         private RelativeTexture backgroundProgressBar;
         private RelativeText text;
         private Button playButton;
+        private Button nextButton;
         private Button exportButton;
         private Logger logger;
-        private LogExporter logExporter; 
+        private LogExporter logExporter;
+
+        SpriteDefinition play;
+        SpriteDefinition pause;
 
         private Orbis orbis;
 
         private int RIGHT_UI_WIDTH = 250;
+        private Color UI_COLOR = Color.LightGray;
 
         public GameUI(Game game) : base(game)
         {
@@ -34,7 +39,10 @@ namespace Orbis.UI.Windows
 
             UIContentManager.TryGetInstance(out UIContentManager contentManager);
 
-            AddChild(playButton = new Button(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Black), new Rectangle(0, 0, 1, 1)))
+            play = new SpriteDefinition(contentManager.GetTexture("UI/Button_Play"), new Rectangle(0, 0, 96, 64));
+            pause = new SpriteDefinition(contentManager.GetTexture("UI/Button_Pause"), new Rectangle(0, 0, 96, 64));
+
+            AddChild(playButton = new Button(this, play)
             {
                 AnchorPosition = AnchorPosition.TopRight,
                 RelativePosition = new Point(-(RIGHT_UI_WIDTH - 96) / 2 - 96 , -10),
@@ -43,16 +51,26 @@ namespace Orbis.UI.Windows
                 IsFocused = true
             });
 
+            AddChild(nextButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Next"), new Rectangle(0, 0, 70, 64)))
+            {
+                AnchorPosition = AnchorPosition.TopRight,
+                RelativePosition = new Point(-(RIGHT_UI_WIDTH - playButton.Size.X) / 2, -10),
+                Size = new Point(70, 64),
+                LayerDepth = 0,
+                IsFocused = true
+            });
+
             AddChild(exportButton = new Button(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Orange), new Rectangle(0, 0, 1, 1)))
             {
                 AnchorPosition = AnchorPosition.TopRight,
-                RelativePosition = new Point(-(RIGHT_UI_WIDTH - 96) / 2 + 20, -10),
-                Size = new Point(40, 64),
+                RelativePosition = new Point(-(RIGHT_UI_WIDTH - playButton.Size.X) / 2 - playButton.Size.X - 70, -10),
+                Size = new Point(70, 64),
                 LayerDepth = 0,
                 IsFocused = true
             });
 
             playButton.Click += PlayButton_Click;
+            nextButton.Click += NextButton_Click;
             exportButton.Click += ExportButton_Click;
 
             // Progress bar
@@ -65,7 +83,7 @@ namespace Orbis.UI.Windows
             });
 
             // Background for progressbar
-            AddChild(backgroundProgressBar = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(Color.White), new Rectangle(0, 0, 1, 1)))
+            AddChild(backgroundProgressBar = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(UI_COLOR), new Rectangle(0, 0, 1, 1)))
             {
                 Size = new Point(_game.Window.ClientBounds.Width - RIGHT_UI_WIDTH, 80),
                 AnchorPosition = AnchorPosition.BottomLeft,
@@ -74,7 +92,7 @@ namespace Orbis.UI.Windows
             });
 
             // Background for UI
-            AddChild(background = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(Color.White), new Rectangle(0, 0, 1, 1)))
+            AddChild(background = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(UI_COLOR), new Rectangle(0, 0, 1, 1)))
             {
                 Size = new Point(RIGHT_UI_WIDTH, _game.Window.ClientBounds.Height),
                 AnchorPosition = AnchorPosition.TopRight,
@@ -107,15 +125,22 @@ namespace Orbis.UI.Windows
             }
         }
 
+        private void NextButton_Click(object sender, EventArgs e)
+        {
+            orbis.Simulator.SimulateOneTick();
+        }
+
         private void PlayButton_Click(object sender, EventArgs e)
         {
             if (orbis.Simulator.IsPaused())
             {
                 playButton.Text = "Pause";
+                playButton.SpriteDefinition = pause;
             }
             else
             {
                 playButton.Text = "Play";
+                playButton.SpriteDefinition = play;
             }
             
             orbis.Simulator.TogglePause();
