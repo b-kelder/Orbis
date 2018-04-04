@@ -104,7 +104,6 @@ namespace Orbis.Events.Helpers
             await writeLock.WaitAsync();
             try
             {
-                Debug.WriteLine("Writign text...");
                 await FileIO.AppendTextAsync(file, text);
                 return true;
             }
