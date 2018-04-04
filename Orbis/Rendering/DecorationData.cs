@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +20,19 @@ namespace Orbis.Rendering
         private List<bool> shouldBeUpdated;
         private GraphicsDevice device;
         int meshesPerCombi;
+
+        public float Usage
+        {
+            get
+            {
+                int occupied = 0;
+                foreach(var o in occupation)
+                {
+                    if(o) { occupied++; }
+                }
+                return (float)occupied / occupation.Count;
+            }
+        }
 
         /// <summary>
         /// Creates a new DecorationData for the given mesh.
@@ -134,7 +148,7 @@ namespace Orbis.Rendering
             var instances = new List<RenderInstance>();
             for (int i = 0; i < this.combinedRenderableMesh.Count; i++)
             {
-                bool render = false;
+                /*bool render = false;
                 for (int k = 0; k < this.meshesPerCombi; k++)
                 {
                     if (this.occupation[i * this.meshesPerCombi + k] == true)
@@ -143,7 +157,7 @@ namespace Orbis.Rendering
                         break;
                     }
                 }
-                if (render)
+                if (render)*/
                 {
                     instances.Add(new RenderInstance()
                     {

@@ -101,6 +101,8 @@ namespace Orbis.Rendering
         private bool atlasDebugEnabled;
         private RenderInstance atlasDebugInstance;
 
+        private float defaultDecorationDensity;
+
         /// <summary>
         /// Returns true if the renderer is ready to accept simulation updates.
         /// </summary>
@@ -120,6 +122,7 @@ namespace Orbis.Rendering
         public SceneRendererComponent(Orbis game) : base(game)
         {
             MaxUpdateTime = 3;
+            defaultDecorationDensity = 0.25f;
             orbis = game;
             cellColorMode = CellColorMode.OwnerColor;
             enableDecorations = true;
@@ -133,6 +136,7 @@ namespace Orbis.Rendering
             distance = 20;
             angle = -60;
             camera = new Camera();
+            camera.ClipFar = 1200;
 
             base.Initialize();
         }
@@ -219,7 +223,7 @@ namespace Orbis.Rendering
                 foreach(var cell in this.cellMappedData)
                 {
                     var biomeData = biomeMappedData[cell.Key.Biome.Name];
-                    if(biomeData.DefaultDecoration != null)
+                    if(biomeData.DefaultDecoration != null && random.NextDouble() < defaultDecorationDensity)
                     {
                         SetCellDecoration(cell.Key, cell.Value, biomeData.DefaultDecoration);
                     }
