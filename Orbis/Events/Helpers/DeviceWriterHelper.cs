@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
@@ -13,6 +14,7 @@ namespace Orbis.Events.Helpers
         private StorageFolder storageFolder;
         private StorageFile currentfile;
         private static bool folderPickerActive = false;
+        static SemaphoreSlim writeLock = new SemaphoreSlim(1, 1);
 
         /// <summary>
         /// Create a folder in the DocumentsLibrary
@@ -99,14 +101,20 @@ namespace Orbis.Events.Helpers
         /// <returns>Operation success</returns>
         public async Task<bool> WriteToFile(StorageFile file, string text)
         {
+            await writeLock.WaitAsync();
             try
             {
+                Debug.WriteLine("Writign text...");
                 await FileIO.AppendTextAsync(file, text);
                 return true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.WriteLine(ex);
+            }
+            finally
+            {
+                writeLock.Release();
             }
             return false;
         }
