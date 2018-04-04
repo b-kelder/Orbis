@@ -14,58 +14,58 @@ namespace Orbis.Events
         }
 
         /// <summary>
-        /// Write a list of logs
+        /// Export a list of logs
         /// </summary>
-        /// <param name="logs"></param>
-        public void Write(List<Log> logs)
+        /// <param name="logs">The logs to export</param>
+        public void Export(List<Log> logs)
         {
             // Make sure we have something to write to
             if (exporters != null && exporters.Count > 0)
             {
-                foreach (ILogExporter writer in exporters)
+                foreach (ILogExporter exporter in exporters)
                 {
-                    writer.Export(logs);
+                    exporter.Export(logs);
                 }
             }
             else
             {
-                throw new Exception("Writer exception: LogWriter called without any configuered writers.");
+                throw new Exception("Exporter exception: LogExporter called without any configuered exporters.");
             }
         }
 
         /// <summary>
-        /// Write a log to configuered format
+        /// Export a log
         /// </summary>
         /// <param name="log"></param>
-        public void Write(Log log)
+        public void Export(Log log)
         {
-            Write
+            Export
             (
                 new List<Log> { log }
             );
         }
 
         /// <summary>
-        /// Add a writer
+        /// Add an exporter
         /// </summary>
-        /// <param name="writer"></param>
-        public void AddWriter(ILogExporter writer)
+        /// <param name="exporter"></param>
+        public void AddExporter(ILogExporter exporter)
         {
-            if (!exporters.Contains(writer))
+            if (!exporters.Contains(exporter))
             {
-                exporters.Add(writer);
+                exporters.Add(exporter);
             }
         }
 
         /// <summary>
-        /// Remove a writer
+        /// Remove an exporter
         /// </summary>
-        /// <param name="writer"></param>
-        public void RemoveWriter(ILogExporter writer)
+        /// <param name="exporter"></param>
+        public void RemoveExporter(ILogExporter exporter)
         {
-            if (exporters.Contains(writer))
+            if (exporters.Contains(exporter))
             {
-                exporters.Remove(writer);
+                exporters.Remove(exporter);
             }
         }
     }
