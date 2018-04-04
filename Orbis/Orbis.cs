@@ -21,9 +21,9 @@ namespace Orbis
     public class Orbis : Game
     {
 
-        public static readonly int TEST_SEED = 0x12;
+        public static readonly int TEST_SEED = 0x55555555;
         public static readonly int TEST_CIVS = 15;
-        public static readonly int TEST_RADIUS = 128;
+        public static readonly int TEST_RADIUS = 300;
         public static readonly int TEST_TICKS = 10000;
 
         public InputHandler Input { get { return InputHandler.GetInstance(); } }
@@ -194,7 +194,7 @@ namespace Orbis
             spriteBatch.Begin();
 
             spriteBatch.DrawString(fontDebug, "Tick: " + simulator.CurrentTick, new Vector2(10, 50), Color.Red);
-            float y = 80;
+            /*float y = 80;
             foreach (var civ in scene.Civilizations)
             {
                 spriteBatch.DrawString(fontDebug, civ.Name, new Vector2(10, y), civ.Color);
@@ -204,7 +204,7 @@ namespace Orbis
                 spriteBatch.DrawString(fontDebug, "Wealth: " + civ.TotalWealth, new Vector2(600, y), civ.Color);
                 spriteBatch.DrawString(fontDebug, "Resource: " + civ.TotalResource, new Vector2(800, y), civ.Color);
                 y += 15;
-            }
+            }*/
 
             spriteBatch.DrawString(fontDebug, "FPS: " + (1 / gameTime.ElapsedGameTime.TotalSeconds).ToString("##.##"), new Vector2(10, 30), Color.Red);
             spriteBatch.DrawString(fontDebug, "Rendered Instances: " + sceneRenderer.RenderInstanceCount, new Vector2(100, 30), Color.Red);
