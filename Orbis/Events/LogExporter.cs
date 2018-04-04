@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Orbis.Events.Exporters;
 
 namespace Orbis.Events
@@ -11,6 +12,7 @@ namespace Orbis.Events
         public LogExporter()
         {
             exporters = new List<ILogExporter>();
+            SetDefaultExporters();
         }
 
         /// <summary>
@@ -22,10 +24,22 @@ namespace Orbis.Events
             // Make sure we have something to write to
             if (exporters != null && exporters.Count > 0)
             {
-                foreach (ILogExporter exporter in exporters)
+                Task t = Task.Run(() =>
                 {
-                    exporter.Export(logs);
-                }
+                    // Catch errors caused by exporting while writing new logs
+                    try
+                    {
+                        // Export in all export formats
+                        foreach (ILogExporter exporter in exporters)
+                        {
+                            exporter.Export(logs);
+                        }
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        //TODO: implement actual catch
+                    }
+                });
             }
             else
             {
@@ -67,6 +81,15 @@ namespace Orbis.Events
             {
                 exporters.Remove(exporter);
             }
+        }
+
+        /// <summary>
+        /// Set default exporters the system always will use.
+        /// </summary>
+        private void SetDefaultExporters()
+        {
+            // Add an exporter to export to console
+            exporters.Add(new ConsoleExporter());
         }
     }
 }
