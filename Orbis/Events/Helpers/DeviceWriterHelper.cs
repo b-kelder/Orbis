@@ -66,7 +66,7 @@ namespace Orbis.Events.Helpers
             }
             catch(Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine("Folder picking error: " + ex);
             }
             folderPickerActive = false;
             return false;
@@ -90,7 +90,7 @@ namespace Orbis.Events.Helpers
             }
             catch(Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine("Create File error: " + ex);
             }
             return null;
         }
@@ -112,7 +112,7 @@ namespace Orbis.Events.Helpers
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine("Write to file error: " + ex);
             }
             finally
             {
