@@ -16,6 +16,7 @@ namespace Orbis.UI.Windows
         private ProgressBar progressBar;
         private RelativeTexture background;
         private RelativeTexture backgroundProgressBar;
+        private RelativeTexture scene;
         private RelativeText text;
         private Button playButton;
         private Button nextButton;
@@ -29,7 +30,10 @@ namespace Orbis.UI.Windows
 
         private Orbis orbis;
 
+        private bool screenResized;
+
         private int RIGHT_UI_WIDTH = 270;
+        private int BOTTOM_UI_HEIGHT = 80;
         private Color UI_COLOR = Color.LightGray;
 
         public GameUI(Game game) : base(game)
@@ -86,9 +90,9 @@ namespace Orbis.UI.Windows
             // Background for progressbar
             AddChild(backgroundProgressBar = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(UI_COLOR), new Rectangle(0, 0, 1, 1)))
             {
-                Size = new Point(_game.Window.ClientBounds.Width - RIGHT_UI_WIDTH, 80),
+                Size = new Point(_game.Window.ClientBounds.Width - RIGHT_UI_WIDTH, BOTTOM_UI_HEIGHT),
                 AnchorPosition = AnchorPosition.BottomLeft,
-                RelativePosition = new Point(0,-80),
+                RelativePosition = new Point(0,-BOTTOM_UI_HEIGHT),
                 LayerDepth = 1
             });
 
@@ -101,6 +105,20 @@ namespace Orbis.UI.Windows
                 LayerDepth = 1
             });
 
+            // Scene panel
+            var sceneSize = new Point(_game.Window.ClientBounds.Width - RIGHT_UI_WIDTH, _game.Window.ClientBounds.Height - BOTTOM_UI_HEIGHT);
+            AddChild(scene = new RelativeTexture(this, new SpriteDefinition(
+                new RenderTarget2D(orbis.GraphicsDevice, sceneSize.X, sceneSize.Y),
+                new Rectangle(0, 0, sceneSize.X, sceneSize.Y)))
+            {
+                Size = sceneSize,
+                AnchorPosition = AnchorPosition.TopRight,
+                RelativePosition = new Point(0, 0),
+                LayerDepth = 0.5f
+            });
+            // Scene panel itself is invisible, we just use it for size and texture storage
+            scene.Visible = false;
+
             AddChild(civPanel = new CivPanel(this, orbis.Scene.Civilizations)
             {
                 AnchorPosition = AnchorPosition.TopRight,
@@ -108,6 +126,8 @@ namespace Orbis.UI.Windows
                 Size = new Point(RIGHT_UI_WIDTH, game.Window.ClientBounds.Height - 64),
                 LayerDepth = 0.99F
             });
+
+            screenResized = true;
         }
 
         private void NextButton_Click(object sender, EventArgs e)
@@ -142,6 +162,8 @@ namespace Orbis.UI.Windows
         public override void Draw(SpriteBatch spriteBatch)
         {
             base.Draw(spriteBatch);
+            // Handle the scene seperately because for some reason it doesn't want to draw when used as a regular child
+            spriteBatch.Draw(scene.SpriteDefinition.SpriteSheet, scene.SpriteDefinition.SourceRectangle, Color.White);
         }
 
         /// <summary>
@@ -153,6 +175,9 @@ namespace Orbis.UI.Windows
             background.Size = new Point(RIGHT_UI_WIDTH, _game.Window.ClientBounds.Height);
             backgroundProgressBar.Size = new Point(_game.Window.ClientBounds.Width - RIGHT_UI_WIDTH, 80);
             civPanel.Size = new Point(RIGHT_UI_WIDTH, _game.Window.ClientBounds.Height - 64);
+            scene.Size = new Point(_game.Window.ClientBounds.Width - RIGHT_UI_WIDTH,
+                _game.Window.ClientBounds.Height - BOTTOM_UI_HEIGHT);
+            screenResized = true;
         }
 
         /// <summary>
@@ -160,6 +185,24 @@ namespace Orbis.UI.Windows
         /// </summary>
         public override void Update()
         {
+            if (screenResized)
+            {
+                // Update RenderTarget
+                if(scene.SpriteDefinition.SpriteSheet != null)
+                {
+                    scene.SpriteDefinition.SpriteSheet.Dispose();
+                }
+                var rt = new RenderTarget2D(orbis.GraphicsDevice,
+                    scene.Size.X, scene.Size.Y,
+                    false, 
+                    orbis.GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth24);
+                scene.SpriteDefinition = new SpriteDefinition(
+                    rt,
+                    new Rectangle(Point.Zero, scene.Size));
+                orbis.SceneRenderer.RenderTarget = rt;
+                screenResized = false;
+            }
+
             if (orbis.Simulator.IsPaused())
             {
                 playButton.SpriteDefinition = play;

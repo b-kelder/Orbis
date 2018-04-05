@@ -42,7 +42,7 @@ namespace Orbis
         public XMLModel.Civilization[] CivSettings { get; private set; }
         public BiomeCollection BiomeCollection { get; private set; }
 
-        private SceneRendererComponent sceneRenderer;
+        public SceneRendererComponent SceneRenderer { get; private set; }
 
 
         private SpriteFont fontDebug;
@@ -56,11 +56,11 @@ namespace Orbis
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
-            sceneRenderer = new SceneRendererComponent(this)
+            SceneRenderer = new SceneRendererComponent(this)
             {
                 DrawOrder = 0
             };
-            Components.Add(sceneRenderer);
+            Components.Add(SceneRenderer);
 
             input = InputHandler.GetInstance();
             UI = new UI.UIManager(this)
@@ -109,7 +109,7 @@ namespace Orbis
             stopwatch.Stop();
             Debug.WriteLine("Generated world in " + stopwatch.ElapsedMilliseconds + " ms");
             // Coloring data
-            sceneRenderer.OnNewWorldGenerated(Scene, seed);
+            SceneRenderer.OnNewWorldGenerated(Scene, seed);
         }
 
         /// <summary>
@@ -166,7 +166,7 @@ namespace Orbis
             }
 
             // Update renderer if we can
-            if (sceneRenderer.ReadyForUpdate)
+            if (SceneRenderer.ReadyForUpdate)
             {
                 Simulator.Update(gameTime);
                 Cell[] updatedCells = null;
@@ -175,7 +175,7 @@ namespace Orbis
                     updatedCells = Simulator.GetChangedCells();
                     if (updatedCells != null && updatedCells.Length > 0)
                     {
-                        sceneRenderer.UpdateScene(updatedCells);
+                        SceneRenderer.UpdateScene(updatedCells);
                     }
                 } while (updatedCells != null);
             }
@@ -210,7 +210,7 @@ namespace Orbis
                 spriteBatch.Begin();
                 spriteBatch.DrawString(fontDebug,
                     "FPS: " + (1 / gameTime.ElapsedGameTime.TotalSeconds).ToString("##") + "   " +
-                    "Render Instances: " + sceneRenderer.RenderInstanceCount
+                    "Render Instances: " + SceneRenderer.RenderInstanceCount
                     , new Vector2(40, 40), Color.Red);
 
                 float y = 55;

@@ -13,7 +13,7 @@ namespace Orbis.Rendering
     /// <summary>
     /// Renders a 3d representation of the scene, allowing the user to move a camera to view it.
     /// </summary>
-    class SceneRendererComponent : DrawableGameComponent
+    public class SceneRendererComponent : DrawableGameComponent
     {
         /// <summary>
         /// Mode used to determine cell vertex colors.
@@ -427,10 +427,14 @@ namespace Orbis.Rendering
 
         public override void Draw(GameTime gameTime)
         {
+            DrawToTarget(RenderTarget);
+            base.Draw(gameTime);
+        }
+
+        private void DrawToTarget(RenderTarget2D renderTarget)
+        {
             var graphics = orbis.Graphics;
-            // Save current render targets so we can restore them later
-            var prevTargets = GraphicsDevice.GetRenderTargets();
-            GraphicsDevice.SetRenderTarget(RenderTarget);
+            GraphicsDevice.SetRenderTarget(renderTarget);
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
@@ -441,6 +445,10 @@ namespace Orbis.Rendering
             GraphicsDevice.BlendState = BlendState.Opaque;
 
             float aspectRatio = orbis.Graphics.PreferredBackBufferWidth / (float)orbis.Graphics.PreferredBackBufferHeight;
+            if(renderTarget != null)
+            {
+                aspectRatio = renderTarget.Width / (float)renderTarget.Height;
+            }
             Matrix viewMatrix = camera.CreateViewMatrix();
             Matrix projectionMatrix = camera.CreateProjectionMatrix(aspectRatio);
 
@@ -499,8 +507,7 @@ namespace Orbis.Rendering
                 }
             }
 
-            GraphicsDevice.SetRenderTargets(prevTargets);
-            base.Draw(gameTime);
+            GraphicsDevice.SetRenderTarget(null);
         }
 
         /// <summary>
