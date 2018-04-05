@@ -1,9 +1,8 @@
-﻿using System;
-using System.Text;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Orbis.UI.Utility;
 using Orbis.UI.Elements;
+using Orbis.UI.Utility;
+using System;
 
 namespace Orbis.UI.Windows
 {
@@ -19,6 +18,7 @@ namespace Orbis.UI.Windows
         private Button quitButton;
 
         private Color BACKGROUND_COLOR = Color.LightGray;
+        private RelativeText text;
 
         public MenuUI(Game game) : base(game)
         {
@@ -43,7 +43,7 @@ namespace Orbis.UI.Windows
                 LayerDepth = 0.5f
             });
 
-            AddChild(popupButton = new Button(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Blue), new Rectangle(0, 0, 1, 1)))
+            AddChild(popupButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Start"), new Rectangle(0, 0, 200, 57)))
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(_game.Window.ClientBounds.Width / 6, _game.Window.ClientBounds.Height / 12),
@@ -52,7 +52,7 @@ namespace Orbis.UI.Windows
                 IsFocused = true
             });
 
-            AddChild(optionsButton = new Button(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Orange), new Rectangle(0, 0, 1, 1)))
+            AddChild(optionsButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Settings"), new Rectangle(0, 0, 200, 57)))
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(_game.Window.ClientBounds.Width / 6, _game.Window.ClientBounds.Height / 12),
@@ -61,7 +61,7 @@ namespace Orbis.UI.Windows
                 IsFocused = true
             });
 
-            AddChild(quitButton = new Button(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Yellow), new Rectangle(0, 0, 1, 1)))
+            AddChild(quitButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Quit"), new Rectangle(0, 0, 200, 57)))
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(_game.Window.ClientBounds.Width / 6, _game.Window.ClientBounds.Height / 12),
@@ -70,7 +70,7 @@ namespace Orbis.UI.Windows
                 IsFocused = true
             });
 
-            AddChild(backgroundPopup = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Green), new Rectangle(0, 0, 1, 1)))
+            AddChild(backgroundPopup = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(Color.DarkGray), new Rectangle(0, 0, 1, 1)))
             {
                 Size = new Point(_game.Window.ClientBounds.Width / 4, _game.Window.ClientBounds.Height / 4),
                 AnchorPosition = AnchorPosition.Center,
@@ -79,7 +79,19 @@ namespace Orbis.UI.Windows
                 Visible = false
             });
 
-            AddChild(startButton = new Button(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Purple), new Rectangle(0, 0, 1, 1)))
+            AddChild(text = new RelativeText(this, contentManager.GetFont("DebugFont"))
+            {
+                AnchorPosition = AnchorPosition.Center,
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10, 10),
+                Text = "Generate a world based on the following settings:\r\n" +
+                "Seed: " + Orbis.TEST_SEED + 
+                "\r\nCivilization count: " + Orbis.TEST_CIVS +
+                "\r\nMap radius: " + Orbis.TEST_RADIUS +
+                "\r\nMonths to simulate: " + Orbis.TEST_TICKS,
+                Visible = false
+            });
+
+            AddChild(startButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Settings"), new Rectangle(0, 0, 200, 57)))
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(_game.Window.ClientBounds.Width / 8, _game.Window.ClientBounds.Height / 16),
@@ -100,6 +112,7 @@ namespace Orbis.UI.Windows
             backgroundPopup.Visible = true;
             startButton.Visible = true;
             startButton.IsFocused = true;
+            text.Visible = true;
 
             popupButton.IsFocused = false;
             optionsButton.IsFocused = false;
@@ -113,12 +126,12 @@ namespace Orbis.UI.Windows
 
         private void OptionsButton_Click(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            orbis.UI.CurrentWindow = new SettingsUI(orbis);
         }
 
         private void StartButton_Click(object sender, EventArgs e)
         {
-            //orbis.GenerateWorld();
+            orbis.GenerateWorld(Orbis.TEST_SEED, orbis.DecorationSettings, orbis.WorldSettings, orbis.BiomeCollection, orbis.CivSettings, Orbis.TEST_CIVS, Orbis.TEST_RADIUS, Orbis.TEST_TICKS);
             orbis.UI.CurrentWindow = new GameUI(orbis);
         }
 

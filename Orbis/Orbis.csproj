@@ -155,6 +155,7 @@
     <Compile Include="States\StateManager.cs" />
     <Compile Include="States\State\MenuState.cs" />
     <Compile Include="TopographyHelper.cs" />
+    <Compile Include="UI\Windows\SettingsUI.cs" />
     <Compile Include="UI\Windows\MenuUI.cs" />
     <Compile Include="UI\Windows\GameUI.cs" />
     <Compile Include="UI\Windows\UIWindow.cs" />

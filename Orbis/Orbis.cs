@@ -13,7 +13,6 @@ using Orbis.World;
 using Orbis.UI.Windows;
 using Orbis.UI;
 
-
 namespace Orbis
 {
     /// <summary>
@@ -21,7 +20,6 @@ namespace Orbis
     /// </summary>
     public class Orbis : Game
     {
-
         public static readonly int TEST_SEED = 0x9213812;
         public static readonly int TEST_CIVS = 15;
         public static readonly int TEST_RADIUS = 150;
@@ -39,6 +37,10 @@ namespace Orbis
 
         public Scene Scene { get; set; }
         public Simulator Simulator { get; set; }
+        public XMLModel.DecorationCollection DecorationSettings { get; private set; }
+        public XMLModel.WorldSettings WorldSettings { get; private set; }
+        public XMLModel.Civilization[] CivSettings { get; private set; }
+        public BiomeCollection BiomeCollection { get; private set; }
 
         private SceneRendererComponent sceneRenderer;
 
@@ -91,7 +93,7 @@ namespace Orbis
             base.Initialize();
         }
 
-        public void GenerateWorld(int seed, XMLModel.DecorationCollection decorationSettings, XMLModel.WorldSettings worldSettings, BiomeCollection biomeCollection, XMLModel.Civilization[] civSettings)
+        public void GenerateWorld(int seed, XMLModel.DecorationCollection decorationSettings, XMLModel.WorldSettings worldSettings, World.BiomeCollection biomeCollection, XMLModel.Civilization[] civSettings, int civs, int radius, int ticks)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -99,10 +101,10 @@ namespace Orbis
             Debug.WriteLine("Generating world for seed " + seed);
             Scene = new Scene(seed, worldSettings, decorationSettings, biomeCollection);
             var generator = new WorldGenerator(Scene, civSettings);
-            generator.GenerateWorld(TEST_RADIUS);
-            generator.GenerateCivs(TEST_CIVS);
+            generator.GenerateWorld(radius);
+            generator.GenerateCivs(civs);
 
-            Simulator = new Simulator(Scene, TEST_TICKS);
+            Simulator = new Simulator(Scene, ticks);
 
             stopwatch.Stop();
             Debug.WriteLine("Generated world in " + stopwatch.ElapsedMilliseconds + " ms");
@@ -127,15 +129,14 @@ namespace Orbis
             //Menu Music
             //AudioManager.PlaySong("Severe Tire Damage");
 
-            XMLModel.DecorationCollection decorationSettings    = Content.Load<XMLModel.DecorationCollection>("Config/Decorations");
-            XMLModel.WorldSettings worldSettings                = Content.Load<XMLModel.WorldSettings>("Config/WorldSettings");
-            XMLModel.Civilization[] civSettings                 = Content.Load<XMLModel.Civilization[]>("Config/Civilization");
-            fontDebug                                           = Content.Load<SpriteFont>("DebugFont");
+            DecorationSettings = Content.Load<XMLModel.DecorationCollection>("Config/Decorations");
+            WorldSettings = Content.Load<XMLModel.WorldSettings>("Config/WorldSettings");
+            CivSettings = Content.Load<XMLModel.Civilization[]>("Config/Civilization");
+            fontDebug = Content.Load<SpriteFont>("DebugFont");
 
             // Biome table test
             var biomeData = Content.Load<XMLModel.BiomeCollection>("Config/Biomes");
-            var biomeCollection = new BiomeCollection(biomeData, Content);
-            GenerateWorld(TEST_SEED, decorationSettings, worldSettings, biomeCollection, civSettings);
+            BiomeCollection = new BiomeCollection(biomeData, Content);
 
             UI.CurrentWindow = new MenuUI(this);
         }
