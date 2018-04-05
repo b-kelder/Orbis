@@ -25,8 +25,6 @@ namespace Orbis.Events
             // Make sure we have something to write to
             if (exporters != null && exporters.Count > 0 && logs != null && logs.Count > 0)
             {
-                logs = null;
-
                 try
                 {
                     // Export in all export formats
