@@ -129,6 +129,10 @@ namespace Orbis.Rendering
         /// The cell currently highlighted by the camera. Might be null.
         /// </summary>
         public Cell HighlightedCell { get { return currentCamCell; } }
+        /// <summary>
+        /// Render target used by this component.
+        /// </summary>
+        public RenderTarget2D RenderTarget { get; set; }
 
         public SceneRendererComponent(Orbis game) : base(game)
         {
@@ -420,7 +424,9 @@ namespace Orbis.Rendering
         public override void Draw(GameTime gameTime)
         {
             var graphics = orbis.Graphics;
-
+            // Save current render targets so we can restore them later
+            var prevTargets = GraphicsDevice.GetRenderTargets();
+            GraphicsDevice.SetRenderTarget(RenderTarget);
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
@@ -447,8 +453,8 @@ namespace Orbis.Rendering
             // Draw tile highlighter if we are on the map
             if (currentCamCell != null)
             {
-                var pos = new Vector3(TopographyHelper.HexToWorld(currentCamCell.Coordinates),
-                    camera.LookTarget.Z);
+                var pos = camera.LookTarget;/*new Vector3(TopographyHelper.HexToWorld(currentCamCell.Coordinates),
+                    camera.LookTarget.Z);*/
                 meshBatches[tileHighlightMesh] = new List<RenderInstance>()
                 {
                     new RenderInstance()
@@ -489,6 +495,7 @@ namespace Orbis.Rendering
                 }
             }
 
+            GraphicsDevice.SetRenderTargets(prevTargets);
             base.Draw(gameTime);
         }
 
