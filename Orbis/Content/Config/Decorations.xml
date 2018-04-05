@@ -33,7 +33,7 @@
 				<Name>Small Settlement</Name>
 				<Model>
 					<Name>house1</Name>
-					<Texture>house1</Texture>
+					<Texture>building</Texture>
 					<ColorTexture>black</ColorTexture>
 				</Model>
 			</Item>
@@ -41,7 +41,7 @@
 				<Name>Medium Settlement</Name>
 				<Model>
 					<Name>house2</Name>
-					<Texture>house2</Texture>
+					<Texture>building</Texture>
 					<ColorTexture>black</ColorTexture>
 				</Model>
 			</Item>
@@ -49,7 +49,7 @@
 				<Name>Large Settlement</Name>
 				<Model>
 					<Name>house3</Name>
-					<Texture>house3</Texture>
+					<Texture>building</Texture>
 					<ColorTexture>black</ColorTexture>
 				</Model>
 			</Item>
