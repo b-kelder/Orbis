@@ -175,12 +175,14 @@ namespace Orbis.Rendering
             modelLoader = new AtlasModelLoader(2048, 2048, basicShader, Game.Content);
             var decorationData = orbis.Content.Load<XMLModel.DecorationCollection>("Config/Decorations");
             decorationManager = new DecorationManager(decorationData, modelLoader, GraphicsDevice);
+            // Load decorations
             foreach(var data in decorationData.Decorations)
             {
                 decorations.Add(data.Name, new DecorationData(decorationManager.GetDecorationMesh(data.Name), GraphicsDevice, 1));
             }
             var biomeData = orbis.Content.Load<XMLModel.BiomeCollection>("Config/Biomes");
             biomeMappedData = new Dictionary<string, BiomeMappedData>();
+            // Load biomes
             foreach (var biome in biomeData.Biomes)
             {
                 biomeMappedData.Add(biome.Name, new BiomeMappedData
