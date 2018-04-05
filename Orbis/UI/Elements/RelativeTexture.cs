@@ -7,6 +7,8 @@ namespace Orbis.UI.Elements
     /// <summary>
     ///     A texture with a fixed position and dimensions.
     /// </summary>
+    /// 
+    /// <author>Kaj van der Veen</author>
     public class RelativeTexture : RelativeElement, IRenderableElement
     {
         /// <summary>

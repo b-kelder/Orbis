@@ -66,6 +66,11 @@ namespace Orbis
                 DrawOrder = 1
             };
             Components.Add(UI);
+
+            graphics.PreparingDeviceSettings += (sender, args) =>
+            {
+                args.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PreserveContents;
+            };
         }
 
         /// <summary>

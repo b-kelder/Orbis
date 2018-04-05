@@ -23,7 +23,7 @@ namespace Orbis.UI
         private SpriteBatch _spriteBatch;
 
         /// <summary>
-        ///     Represents the currently shown window.
+        ///     Create a new <see cref="UIManager"/>
         /// </summary>
         /// <param name="game"></param>
         public UIManager(Game game) : base(game)
@@ -42,8 +42,12 @@ namespace Orbis.UI
             CurrentWindow = nextWindow;
         }
 
+        /// <summary>
+        ///     Initialize the UIManager.
+        /// </summary>
         public override void Initialize()
         {
+            // The UIContentManager needs to be created with the game as a parameter.
             UIContentManager.CreateInstance(Game);
 
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);

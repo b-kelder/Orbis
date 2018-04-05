@@ -3,6 +3,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Orbis.UI.Elements
 {
+    /// <summary>
+    ///     An element in the UI that has a position relative to its parent.
+    /// </summary>
+    /// 
+    /// <author>Kaj van der Veen</author>
     public abstract class RelativeElement : IPositionedElement
     {
         /// <summary>
@@ -73,7 +78,6 @@ namespace Orbis.UI.Elements
         ///     The dimensions of the element.
         /// </summary>
         public virtual Point Size { get; set; }
-        public float LayerDepth { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
         /// <summary>
         ///     Create a new <see cref="RelativeElement"/>.

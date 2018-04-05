@@ -119,6 +119,7 @@
     <Compile Include="Orbis.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rendering\DecorationData.cs" />
+    <Compile Include="UI\Elements\CivPanel.cs" />
     <Compile Include="UI\Elements\RelativeElement.cs" />
     <Compile Include="UI\IUpdatableElement.cs" />
     <Compile Include="UI\Elements\RelativeText.cs" />
@@ -130,7 +131,6 @@
     <Compile Include="UI\Elements\ProgressBar.cs" />
     <Compile Include="UI\Elements\Scrollbar.cs" />
     <Compile Include="UI\AnchorPosition.cs" />
-    <Compile Include="UI\Elements\PrerenderableElement.cs" />
     <Compile Include="UI\UIManager.cs" />
     <Compile Include="Rendering\AtlasModelLoader.cs" />
     <Compile Include="Rendering\AutoAtlas.cs" />

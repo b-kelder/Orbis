@@ -9,6 +9,8 @@ namespace Orbis.UI.Elements
     /// <summary>
     ///     Represents a scrollbar that can be used by UI Elements.
     /// </summary>
+    /// 
+    /// <author>Kaj van der Veen</author>
     public class Scrollbar : RelativeElement, IUpdatableElement
     {
         // Used to display the background.

@@ -9,6 +9,8 @@ namespace Orbis.UI.Utility
     /// <summary>
     ///     Loads and manages textures for the UI.
     /// </summary>
+    /// 
+    /// <author>Kaj van der Veen</author>
     public class UIContentManager
     {
         // Used to load new textures.

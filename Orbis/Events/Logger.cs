@@ -43,7 +43,7 @@ namespace Orbis.Events
                 }
                 catch (IndexOutOfRangeException ex)
                 {
-                    System.Diagnostics.Debug.WriteLine(ex);
+                    System.Diagnostics.Debug.WriteLine("Add to log error: " + ex);
                 }
             });
         }

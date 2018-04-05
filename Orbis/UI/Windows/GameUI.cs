@@ -20,6 +20,7 @@ namespace Orbis.UI.Windows
         private Button playButton;
         private Button nextButton;
         private Button exportButton;
+        private CivPanel civPanel;
         private Logger logger;
         private LogExporter logExporter;
 
@@ -100,29 +101,13 @@ namespace Orbis.UI.Windows
                 LayerDepth = 1
             });
 
-            // Text for all civ data
-            AddChild(text = new RelativeText(this, contentManager.GetFont("DebugFont"))
+            AddChild(civPanel = new CivPanel(this, orbis.Scene.Civilizations)
             {
-                TextColor = Color.Black,
-                Text = "",
                 AnchorPosition = AnchorPosition.TopRight,
-                RelativePosition = new Point(-RIGHT_UI_WIDTH + 40, 64),
-                LayerDepth = 0
+                RelativePosition = new Point(-RIGHT_UI_WIDTH, 64),
+                Size = new Point(RIGHT_UI_WIDTH, game.Window.ClientBounds.Height - 64),
+                LayerDepth = 0.99F
             });
-
-            int x = 89;
-            foreach (Civilization civ in orbis.Scene.Civilizations)
-            {
-                // Civ color
-                AddChild(new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(civ.Color), new Rectangle(0, 0, 1, 1)))
-                {
-                    Size = new Point(5, 80),
-                    AnchorPosition = AnchorPosition.TopRight,
-                    RelativePosition = new Point(-RIGHT_UI_WIDTH + 45, x),
-                    LayerDepth = 0
-                });
-                x += 126;
-            }
         }
 
         private void NextButton_Click(object sender, EventArgs e)
@@ -165,8 +150,9 @@ namespace Orbis.UI.Windows
         protected override void Window_ClientSizeChanged(object sender, EventArgs e)
         {
             progressBar.Size = new Point(_game.Window.ClientBounds.Width - RIGHT_UI_WIDTH - 40, 50);
-            background.Size = new Point(400, _game.Window.ClientBounds.Height);
+            background.Size = new Point(RIGHT_UI_WIDTH, _game.Window.ClientBounds.Height);
             backgroundProgressBar.Size = new Point(_game.Window.ClientBounds.Width - RIGHT_UI_WIDTH, 80);
+            civPanel.Size = new Point(RIGHT_UI_WIDTH, _game.Window.ClientBounds.Height - 64);
         }
 
         /// <summary>
@@ -185,22 +171,6 @@ namespace Orbis.UI.Windows
 
             progressBar.Progress = ((float)orbis.Simulator.CurrentTick / Orbis.TEST_TICKS);
             progressBar.Message = "Date: " + orbis.Simulator.Date.ToString("MMM yyyy");
-
-            StringBuilder sb = new StringBuilder();
-
-            foreach (var civ in orbis.Scene.Civilizations)
-            {
-                sb.AppendLine(civ.Name);
-                sb.AppendLine("      Is Alive: " + civ.IsAlive);
-                sb.AppendLine("      Population: " + civ.Population);
-                sb.AppendLine("      Size: " + (civ.Territory.Count * 3141) + " KM2");
-                sb.AppendLine("      Wealth: " + (int)civ.TotalWealth + "KG AU");
-                sb.AppendLine("      Resource: " + (int)civ.TotalResource + " KG");
-                sb.AppendLine();
-            }
-            sb.AppendLine("\r\n\r\n");
-
-            text.Text = sb.ToString();
 
             base.Update();
         }

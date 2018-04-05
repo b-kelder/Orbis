@@ -9,6 +9,7 @@ namespace Orbis.UI.Elements
     /// <summary>
     ///     A button in the Orbis UI.
     /// </summary>
+    /// 
     /// <author>Kaj van der Veen</author>
     public class Button : RelativeElement, IUpdatableElement, IRenderableElement
     {
