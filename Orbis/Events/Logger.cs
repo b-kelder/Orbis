@@ -5,8 +5,8 @@ namespace Orbis.Events
 {
     class Logger
     {
-        private const string DEFAULT_TYPE = "normal";
-        private List<Log> log;
+        private const string DEFAULT_TYPE = "normal";   // Default log type
+        private List<Log> log;                          // List that contains all the logs
         private static Logger logger;
 
         private Logger()
@@ -53,15 +53,19 @@ namespace Orbis.Events
         /// <returns>List of logs</returns>
         public List<Log> GetLogByType(string type)
         {
+            // Create a local list with logs
             List<Log> tempLog = new List<Log>();
 
             foreach (var logItem in log)
             {
+                // If the type matches the given type, put in new list
                 if (logItem.Type == type)
                 {
                     tempLog.Add(logItem);
                 }
             }
+
+            // Return local list
             return tempLog;
         }
     }

@@ -82,9 +82,9 @@ namespace Orbis.Events
         private void SetDefaultExporters()
         {
             // Add an exporter to console, txt and xml
-            exporters.Add(new ConsoleExporter());
-            exporters.Add(new TextFileExporter());
-            exporters.Add(new XMLFileExporter());
+            exporters.Add(new ConsoleExporter());       // Console Exporter
+            exporters.Add(new TextFileExporter());      // Text File (.txt) Eporter
+            exporters.Add(new XMLFileExporter());       // XML exporter
         }
     }
 }
