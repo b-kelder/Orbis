@@ -29,7 +29,7 @@ namespace Orbis.UI.Windows
 
         private Orbis orbis;
 
-        private int RIGHT_UI_WIDTH = 250;
+        private int RIGHT_UI_WIDTH = 270;
         private Color UI_COLOR = Color.LightGray;
 
         public GameUI(Game game) : base(game)
@@ -61,7 +61,7 @@ namespace Orbis.UI.Windows
                 IsFocused = true
             });
 
-            AddChild(exportButton = new Button(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Orange), new Rectangle(0, 0, 1, 1)))
+            AddChild(exportButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Export"), new Rectangle(0, 0, 70, 64)))
             {
                 AnchorPosition = AnchorPosition.TopRight,
                 RelativePosition = new Point(-(RIGHT_UI_WIDTH - playButton.Size.X) / 2 - playButton.Size.X - 70, -10),

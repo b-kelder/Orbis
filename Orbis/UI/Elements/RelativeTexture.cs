@@ -57,6 +57,19 @@ namespace Orbis.UI.Elements
             }
         }
 
+        public bool Visible
+        {
+            get
+            {
+                return visible;
+            }
+            set
+            {
+                visible = value;
+            }
+        }
+        private bool visible = true;
+
         private SpriteDefinition _spriteDef;
 
         /// <summary>
@@ -81,7 +94,9 @@ namespace Orbis.UI.Elements
         /// </param>
         public void Render(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(SpriteDefinition.SpriteSheet,
+            if (Visible)
+            {
+                spriteBatch.Draw(SpriteDefinition.SpriteSheet,
                 Bounds,
                 SpriteDefinition.SourceRectangle,
                 Color.White,
@@ -89,6 +104,7 @@ namespace Orbis.UI.Elements
                 Vector2.Zero,
                 SpriteEffects,
                 LayerDepth);
+            }
         }
     }
 }

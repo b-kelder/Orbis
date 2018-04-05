@@ -21,6 +21,8 @@ namespace Orbis.UI
         /// <exception cref="ArgumentOutOfRangeException" />
         float LayerDepth { get; set; }
 
+        bool Visible { get; set; }
+
         /// <summary>
         ///     Render the UI Element using the given spriteBatch.
         /// </summary>

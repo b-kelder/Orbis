@@ -23,6 +23,19 @@ namespace Orbis.UI.Elements
         /// </summary>
         public string Message { get; set; }
 
+        public bool Visible
+        {
+            get
+            {
+                return visible;
+            }
+            set
+            {
+                visible = value;
+            }
+        }
+        private bool visible = true;
+
         /// <summary>
         ///     The color to use for drawing the message above the progress bar.
         /// </summary>
@@ -132,10 +145,11 @@ namespace Orbis.UI.Elements
         /// <param name="spriteBatch"></param>
         public void Render(SpriteBatch spriteBatch)
         {
-            
-
-            _progressMessage.Render(spriteBatch);
-            _progressBar.Render(spriteBatch);
+            if (Visible)
+            {
+                _progressMessage.Render(spriteBatch);
+                _progressBar.Render(spriteBatch);
+            }
         }
     }
 }

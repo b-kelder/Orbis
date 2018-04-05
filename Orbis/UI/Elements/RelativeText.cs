@@ -29,6 +29,19 @@ namespace Orbis.UI.Elements
         }
         private SpriteFont _font;
 
+        public bool Visible
+        {
+            get
+            {
+                return visible;
+            }
+            set
+            {
+                visible = value;
+            }
+        }
+        private bool visible = true;
+
         /// <summary>
         ///     The layer depth of the text.
         /// </summary>
@@ -118,7 +131,7 @@ namespace Orbis.UI.Elements
         /// </param>
         public void Render(SpriteBatch spriteBatch)
         {
-            if (!string.IsNullOrWhiteSpace(Text))
+            if (!string.IsNullOrWhiteSpace(Text) && Visible)
             {
                 spriteBatch.DrawString(Font,
                 Text,
