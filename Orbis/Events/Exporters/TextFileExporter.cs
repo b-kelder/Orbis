@@ -11,7 +11,7 @@ namespace Orbis.Events.Exporters
         public async void Export(List<Log> logs)
         {
             // We parse all data to a var, which in the end gets writen to a file.
-            data = "";
+            data = Environment.NewLine + Environment.NewLine + "Exported at: " + DateTime.Now.ToString() + Environment.NewLine + Environment.NewLine;
 
             // Pick folder and handle cancel actions
             bool folderPicked = await PickFolder();

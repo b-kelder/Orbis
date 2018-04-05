@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Orbis.Events.Exporters
@@ -7,6 +8,7 @@ namespace Orbis.Events.Exporters
     {
         public void Export(List<Log> logs)
         {
+            Debug.WriteLine("\n\nExported at: " + DateTime.Now.ToString() + "\n\n");
             foreach (Log log in logs)
             {
                 Debug.WriteLine(log.ToString());

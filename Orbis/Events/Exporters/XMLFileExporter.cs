@@ -31,10 +31,12 @@ namespace Orbis.Events.Exporters
                 using (System.Xml.XmlWriter writer = System.Xml.XmlWriter.Create(s, settings))
                 {
                     writer.WriteStartElement("Logs");
+                    string timestamp = DateTime.Now.ToString();
 
                     foreach (Log log in logs)
                     {
                         writer.WriteStartElement("Log");
+                        writer.WriteAttributeString("exportedAt", timestamp);
                         writer.WriteElementString("Item", log.Item);
                         writer.WriteElementString("Type", log.Type);
                         writer.WriteElementString("Timestamp", log.Timestamp);
