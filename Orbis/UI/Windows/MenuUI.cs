@@ -37,17 +37,17 @@ namespace Orbis.UI.Windows
 
             AddChild(logo = new RelativeTexture(this, new SpriteDefinition(contentManager.GetTexture("UI/Orbis-Icon"), new Rectangle(0, 0, 1520, 1520)))
             {
-                Size = new Point(500, 500),
+                Size = new Point(_game.Window.ClientBounds.Width / 4, _game.Window.ClientBounds.Width / 4),
                 AnchorPosition = AnchorPosition.Center,
-                RelativePosition = new Point(-250, -(_game.Window.ClientBounds.Height / 2) + 100),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8, -(_game.Window.ClientBounds.Height / 2) + 50),
                 LayerDepth = 0.5f
             });
 
             AddChild(popupButton = new Button(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Blue), new Rectangle(0, 0, 1, 1)))
             {
                 AnchorPosition = AnchorPosition.Center,
-                Size = new Point(400, 100),
-                RelativePosition = new Point(-200, -150 + 100),
+                Size = new Point(_game.Window.ClientBounds.Width / 6, _game.Window.ClientBounds.Height / 12),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 12, -_game.Window.ClientBounds.Height / 8 + 100),
                 LayerDepth = 0.5f,
                 IsFocused = true
             });
@@ -55,8 +55,8 @@ namespace Orbis.UI.Windows
             AddChild(optionsButton = new Button(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Orange), new Rectangle(0, 0, 1, 1)))
             {
                 AnchorPosition = AnchorPosition.Center,
-                Size = new Point(400, 100),
-                RelativePosition = new Point(-200, 0 + 100),
+                Size = new Point(_game.Window.ClientBounds.Width / 6, _game.Window.ClientBounds.Height / 12),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 12, 0 + 100),
                 LayerDepth = 0.5f,
                 IsFocused = true
             });
@@ -64,8 +64,8 @@ namespace Orbis.UI.Windows
             AddChild(quitButton = new Button(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Yellow), new Rectangle(0, 0, 1, 1)))
             {
                 AnchorPosition = AnchorPosition.Center,
-                Size = new Point(400, 100),
-                RelativePosition = new Point(-200, 150 + 100),
+                Size = new Point(_game.Window.ClientBounds.Width / 6, _game.Window.ClientBounds.Height / 12),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 12, _game.Window.ClientBounds.Height / 8 + 100),
                 LayerDepth = 0.5f,
                 IsFocused = true
             });
@@ -118,6 +118,7 @@ namespace Orbis.UI.Windows
 
         private void StartButton_Click(object sender, EventArgs e)
         {
+            //orbis.GenerateWorld();
             orbis.UI.CurrentWindow = new GameUI(orbis);
         }
 

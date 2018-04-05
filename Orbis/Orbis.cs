@@ -86,7 +86,7 @@ namespace Orbis
             base.Initialize();
         }
 
-        private void GenerateWorld(int seed, XMLModel.DecorationCollection decorationSettings, XMLModel.WorldSettings worldSettings, BiomeCollection biomeCollection, XMLModel.Civilization[] civSettings)
+        public void GenerateWorld(int seed, XMLModel.DecorationCollection decorationSettings, XMLModel.WorldSettings worldSettings, BiomeCollection biomeCollection, XMLModel.Civilization[] civSettings)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
