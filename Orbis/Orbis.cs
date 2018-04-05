@@ -24,8 +24,8 @@ namespace Orbis
 
         public static readonly int TEST_SEED = 0x1111111;
         public static readonly int TEST_CIVS = 15;
-        public static readonly int TEST_RADIUS = 150;
-        public static readonly int TEST_TICKS = 10000;
+        public static readonly int TEST_RADIUS = 1;
+        public static readonly int TEST_TICKS = 1;
 
         public InputHandler Input { get { return InputHandler.GetInstance(); } }
         public GraphicsDeviceManager Graphics { get { return graphics; } }
@@ -35,7 +35,7 @@ namespace Orbis
 
         InputHandler input;
 
-        UIManager UI;
+        public UIManager UI;
 
         public Scene Scene { get; set; }
         public Simulator Simulator { get; set; }
@@ -130,7 +130,7 @@ namespace Orbis
             var biomeCollection = new BiomeCollection(biomeData, Content);
             GenerateWorld(TEST_SEED, decorationSettings, worldSettings, biomeCollection, civSettings);
 
-            UI.CurrentWindow = new GameUI(this);
+            UI.CurrentWindow = new MenuUI(this);
         }
 
         /// <summary>
