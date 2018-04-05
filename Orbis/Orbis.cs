@@ -77,6 +77,7 @@ namespace Orbis
             AudioManager.Initialize();
 
             this.IsFixedTimeStep = false;
+            this.IsMouseVisible = true;
             graphics.SynchronizeWithVerticalRetrace = false;
             graphics.ApplyChanges();
 
