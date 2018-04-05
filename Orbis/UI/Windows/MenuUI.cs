@@ -137,7 +137,7 @@ namespace Orbis.UI.Windows
         {
             orbis.GenerateWorld(Orbis.TEST_SEED, orbis.DecorationSettings, orbis.WorldSettings, orbis.BiomeCollection, orbis.CivSettings, Orbis.TEST_CIVS, Orbis.TEST_RADIUS, Orbis.TEST_TICKS);
             orbis.UI.CurrentWindow = new GameUI(orbis);
-            stateManager.SetActiveState("game");
+            stateManager.SetActiveState(StateManager.State.GAME);
         }
 
         /// <summary>

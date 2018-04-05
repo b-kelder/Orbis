@@ -5,14 +5,16 @@ namespace Orbis.States
 {
     class StateManager
     {
-        private Dictionary<string, IState> states;
+        private Dictionary<State, IState> states;
         private IState activeState;
         private static StateManager stateManager;
         private bool stateChanged;
 
+        public enum State { MENU, GAME }
+
         private StateManager()
         {
-            states = new Dictionary<string, IState>();
+            states = new Dictionary<State, IState>();
             SetDefaultStates();
         }
 
@@ -34,7 +36,7 @@ namespace Orbis.States
         /// </summary>
         /// <param name="key">The key to identify the state</param>
         /// <param name="state">The state object</param>
-        public void AddState(string key, IState state)
+        public void AddState(State key, IState state)
         {
             if (!states.ContainsValue(state) && !states.ContainsKey(key))
             {
@@ -46,7 +48,7 @@ namespace Orbis.States
         /// Set an state active
         /// </summary>
         /// <param name="key">The key to identify the state</param>
-        public void SetActiveState(string key)
+        public void SetActiveState(State key)
         {
             if (states.ContainsKey(key))
             {
@@ -86,11 +88,11 @@ namespace Orbis.States
         /// </summary>
         private void SetDefaultStates()
         {
-            states.Add("menu", new MenuState());
-            states.Add("game", new GameState());
+            states.Add(State.MENU, new MenuState());
+            states.Add(State.GAME, new GameState());
 
             // Set the default active state
-            SetActiveState("menu");
+            SetActiveState(State.MENU);
         }
     }
 }
