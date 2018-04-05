@@ -19,91 +19,13 @@ namespace Orbis.Rendering
         /// </summary>
         public Dictionary<object, List<int>> TagIndexMap { get; private set; }
 
-        private bool dirtyFlag;
-        private Vector3[] vertices;
-        private Vector2[] uvs;
-        private Vector2[] uvs2;
-        private ushort[] triangles;
-        private Color[] colors;
-
-        public Vector3[] Vertices {
-            get
-            {
-                return vertices;
-            }
-            set
-            {
-                if(vertices != value)
-                {
-                    dirtyFlag = true;
-                    vertices = value;
-                }
-            }
-        }
-        public Vector2[] UVs
-        {
-            get
-            {
-                return uvs;
-            }
-            set
-            {
-                if(uvs != value)
-                {
-                    dirtyFlag = true;
-                    uvs = value;
-                }
-            }
-        }
-        public Vector2[] UVs2
-        {
-            get
-            {
-                return uvs2;
-            }
-            set
-            {
-                if (uvs2 != value)
-                {
-                    dirtyFlag = true;
-                    uvs2 = value;
-                }
-            }
-        }
-        public ushort[] Triangles
-        {
-            get
-            {
-                return triangles;
-            }
-            set
-            {
-                if(triangles != value)
-                {
-                    dirtyFlag = true;
-                    triangles = value;
-                }
-            }
-        }
-
-        public Color[] Colors
-        {
-            get
-            {
-                return colors;
-            }
-            set
-            {
-                if(colors != value)
-                {
-                    colors = value;
-                    dirtyFlag = true;
-                }
-            }
-        }
+        public Vector3[] Vertices { get; set; }
+        public Vector2[] UVs { get; set; }
+        public Vector2[] UVs2 { get; set; }
+        public ushort[] Triangles { get; set; }
+        public Color[] Colors { get; set; }
         public int VertexCount { get { return Vertices.Length; } }
         public int TriangleCount { get { return Triangles.Length / 3; } }
-        public bool Dirty { get { return dirtyFlag; } }
 
         /// <summary>
         /// Creates a new, empty mesh.
@@ -163,7 +85,6 @@ namespace Orbis.Rendering
 
         private void CombineMeshes(IEnumerable<MeshInstance> meshes)
         {
-            // Point Index Map is only possible here
             var indexMap = new Dictionary<object, List<int>>();
             var vertexList = new List<Vector3>();
             var uvList = new List<Vector2>();
@@ -173,20 +94,19 @@ namespace Orbis.Rendering
 
             foreach(var mesh in meshes)
             {
-                if(!indexMap.ContainsKey(mesh.tag))
-                {
-                    indexMap.Add(mesh.tag, new List<int>());
-                }
-
                 int vertOffset = vertexList.Count;
                 if(vertOffset + mesh.mesh.Vertices.Length > ushort.MaxValue)
                 {
                     throw new IndexOutOfRangeException("Combined vertex count exceeds max of 65535");
                 }
 
-                foreach(var vert in mesh.mesh.Vertices)
+                // Vertex tagging
+                if (!indexMap.ContainsKey(mesh.tag))
                 {
-                    // Add tag
+                    indexMap.Add(mesh.tag, new List<int>());
+                }
+                foreach (var vert in mesh.mesh.Vertices)
+                {
                     indexMap[mesh.tag].Add(vertexList.Count);
                     vertexList.Add(Vector3.Transform(vert, mesh.matrix));
                 }
@@ -198,7 +118,7 @@ namespace Orbis.Rendering
                 }
                 if(mesh.useColor)
                 {
-                    // Use instance color
+                    // Use instance color override
                     for(int i = 0; i < mesh.mesh.VertexCount; i++)
                     {
                         colorList.Add(mesh.color);
@@ -224,19 +144,38 @@ namespace Orbis.Rendering
         /// <param name="color">Color to set to</param>
         public void SetColor(Color color)
         {
-            for(int i = 0; i < colors.Length; i++)
+            for(int i = 0; i < Colors.Length; i++)
             {
-                colors[i] = color;
+                Colors[i] = color;
             }
         }
     }
 
+    /// <summary>
+    /// A mesh that should be combined into a larger mesh
+    /// </summary>
     struct MeshInstance
     {
+        /// <summary>
+        /// The mesh to use
+        /// </summary>
         public Mesh mesh;
+        /// <summary>
+        /// Transformation matrix
+        /// </summary>
         public Matrix matrix;
+        /// <summary>
+        /// Optional tag to later get this instance's vertices back
+        /// from the combined main combi mesh
+        /// </summary>
         public object tag;
+        /// <summary>
+        /// When true override vertex color with color
+        /// </summary>
         public bool useColor;
+        /// <summary>
+        /// Optional vertex color override
+        /// </summary>
         public Color color;
     }
 }
