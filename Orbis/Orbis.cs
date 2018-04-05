@@ -12,6 +12,8 @@ using Orbis.World;
 
 using Orbis.UI.Windows;
 using Orbis.UI;
+using System;
+using System.Linq;
 
 namespace Orbis
 {
@@ -20,9 +22,9 @@ namespace Orbis
     /// </summary>
     public class Orbis : Game
     {
-        public static readonly int TEST_SEED = 0x9213812;
-        public static readonly int TEST_CIVS = 15;
-        public static readonly int TEST_RADIUS = 150;
+        public static readonly int TEST_SEED = 1000;
+        public static readonly int TEST_CIVS = 30;
+        public static readonly int TEST_RADIUS = 128;
         public static readonly int TEST_TICKS = 10000;
 
         public InputHandler Input { get { return InputHandler.GetInstance(); } }
@@ -100,7 +102,9 @@ namespace Orbis
             // Generate world
             Debug.WriteLine("Generating world for seed " + seed);
             Scene = new Scene(seed, worldSettings, decorationSettings, biomeCollection);
-            var generator = new WorldGenerator(Scene, civSettings);
+            var random = new Random(seed);
+            var randomCivs = civSettings.OrderBy(x => random.Next()).ToArray();
+            var generator = new WorldGenerator(Scene, randomCivs);
             generator.GenerateWorld(radius);
             generator.GenerateCivs(civs);
 
