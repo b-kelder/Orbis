@@ -11,6 +11,8 @@ namespace Orbis.Events
         public LogExporter()
         {
             exporters = new List<ILogExporter>();
+
+            // Set all the default exporter
             SetDefaultExporters();
         }
 
