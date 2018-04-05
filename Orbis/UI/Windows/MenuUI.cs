@@ -91,7 +91,7 @@ namespace Orbis.UI.Windows
                 Visible = false
             });
 
-            AddChild(startButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Settings"), new Rectangle(0, 0, 200, 57)))
+            AddChild(startButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Start"), new Rectangle(0, 0, 200, 57)))
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(_game.Window.ClientBounds.Width / 8, _game.Window.ClientBounds.Height / 16),
