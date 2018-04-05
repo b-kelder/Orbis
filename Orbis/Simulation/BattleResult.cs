@@ -10,7 +10,7 @@ namespace Orbis.Simulation
     /// <summary>
     ///     Represents the result of a single battle during a war.
     /// </summary>
-    class BattleResult
+    public class BattleResult
     {
         /// <summary>
         ///     The civilisation that won the battle.

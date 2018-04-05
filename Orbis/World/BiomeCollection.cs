@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Orbis.World
 {
-    class BiomeCollection
+    public class BiomeCollection
     {
         private Dictionary<Color, Biome> biomeColorMap;
         private Dictionary<string, Biome> biomeNameMap;

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Microsoft.Xna.Framework;
+using Orbis.Events;
+using Orbis.Events.Exporters;
 using Orbis.World;
 
 namespace Orbis.Simulation
@@ -15,7 +13,7 @@ namespace Orbis.Simulation
     /// <author>
     ///     Kaj van der Veen
     /// </author>
-    class War
+    public class War
     {
         public Civilization Attacker { get; set; }
         public Civilization Defender { get; set; }
@@ -26,6 +24,7 @@ namespace Orbis.Simulation
         private Scene _scene;
         private int _battleBalance;
         private int _duration;
+        private Logger _logger;
         
         // amount of lost battles/ duration of the war / random shit
 
@@ -48,9 +47,8 @@ namespace Orbis.Simulation
             Attacker.Wars.Add(this);
             Defender.Wars.Add(this);
 
-            System.Diagnostics.Debug.WriteLine("{0} has declared war on {1}."
-                , Attacker.Name
-                , Defender.Name);
+            _logger = Logger.GetInstance();
+            _logger.AddLog(Attacker.Name + " has declared war on ." + Defender.Name, "war");
         }
 
         /// <summary>
@@ -60,6 +58,7 @@ namespace Orbis.Simulation
         public bool Battle(out BattleResult result)
         {
             bool warEnded = false;
+
             result = new BattleResult();
 
             if (!Attacker.IsAlive || !Defender.IsAlive)
@@ -77,32 +76,21 @@ namespace Orbis.Simulation
                 //+ (0.4 * Attacker.Population + 10 * Attacker.Wars.Count)
                 //- (0.4 * Defender.Population + 10 * Defender.Wars.Count));
 
-                System.Diagnostics.Debug.WriteLine("Battle result for battle between {0} and {1}: {2}.",
-                    Attacker.Name,
-                    Defender.Name,
-                    battleResult);
+                _logger.AddLog("Battle result for battle between " + Attacker.Name + " and " + Defender.Name + ": " + battleResult + ".", "war");
 
                 if (battleResult > _upperBound)
                 {
                     result.Winner = Attacker;
                     result.OccupiedTerritory = GetOccupiedTerritory(Attacker, Defender);
 
-                    System.Diagnostics.Debug.WriteLine("{0} ({1}) has won a battle against {2} ({3}).",
-                        Attacker.Name,
-                        Attacker.Population,
-                        Defender.Name,
-                        Defender.Population);
+                    _logger.AddLog(Attacker.Name + "(" + Attacker.Population + ") has won a battle against " + Defender.Name + "(" + Defender.Population + ")", "war");
                 }
                 else if (battleResult < _lowerBound)
                 {
                     result.Winner = Defender;
                     result.OccupiedTerritory = GetOccupiedTerritory(Defender, Attacker);
 
-                    System.Diagnostics.Debug.WriteLine("{2} ({3}) has won a battle against {0} ({1}).",
-                        Attacker.Name,
-                        Attacker.Population,
-                        Defender.Name,
-                        Defender.Population);
+                    _logger.AddLog(Defender.Name + "(" + Defender.Population + ") has won a battle against " + Attacker.Name + "(" + Attacker.Population + ")", "war");
                 }
 
                 int endScore = _random.Next(1, 6) - _battleBalance + _duration;
@@ -112,12 +100,7 @@ namespace Orbis.Simulation
 
             if (warEnded)
             {
-                System.Diagnostics.Debug.WriteLine("The war between {0} ({1}) and {2} ({3}) has ended. (duration: {4}).",
-                        Attacker.Name,
-                        Attacker.Population,
-                        Defender.Name,
-                        Defender.Population,
-                        _duration);
+                _logger.AddLog("The war between " + Attacker.Name + "(" + Attacker.Population + ") and " + Defender.Name + "(" + Defender.Population + ") has ended. (Duration: " + _duration + ")", "war");
 
                 Attacker.Wars.Remove(this);
                 Defender.Wars.Remove(this);

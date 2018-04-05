@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
@@ -8,11 +9,12 @@ namespace Orbis.Events.Helpers
 {
     abstract class DeviceWriterHelper
     {
-        private const string FOLDER_TOKEN = "GeneralFolderToken";
+        private const string FOLDER_TOKEN = "GeneralFolderToken";   // Token which identifies the folder location (used for cache)
 
-        private StorageFolder storageFolder;
-        private StorageFile currentfile;
-        private static bool folderPickerActive = false;
+        private StorageFolder storageFolder;                        // The folder to store data in (the picked folder)
+        private StorageFile currentfile;                            // The current file loaded in system and to write to
+        private static bool folderPickerActive = false;             // Prevents duplicate picker windows to open
+        static SemaphoreSlim writeLock = new SemaphoreSlim(1, 1);   // Write lock
 
         /// <summary>
         /// Create a folder in the DocumentsLibrary
@@ -36,6 +38,8 @@ namespace Orbis.Events.Helpers
             {
                 storageFolder       = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync(FOLDER_TOKEN);
                 folderPickerActive  = false;
+
+                // No need to pick the folder, as it is in cache
                 return true;
             }
 
@@ -44,7 +48,7 @@ namespace Orbis.Events.Helpers
                 // Create a Picker
                 var folderPicker = new Windows.Storage.Pickers.FolderPicker()
                 {
-                    SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+                    //SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
                 };
                 folderPicker.FileTypeFilter.Add("*");
 
@@ -99,14 +103,20 @@ namespace Orbis.Events.Helpers
         /// <returns>Operation success</returns>
         public async Task<bool> WriteToFile(StorageFile file, string text)
         {
+            // Wait wile lock is active
+            await writeLock.WaitAsync();
             try
             {
                 await FileIO.AppendTextAsync(file, text);
                 return true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.WriteLine(ex);
+            }
+            finally
+            {
+                writeLock.Release();
             }
             return false;
         }
@@ -124,7 +134,7 @@ namespace Orbis.Events.Helpers
         }
 
         /// <summary>
-        /// Clear the current folder cash (folder needs to be re-picked)
+        /// Clear the current folder cache (folder needs to be re-picked)
         /// </summary>
         public void ClearCurrentFolderCache()
         {

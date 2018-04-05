@@ -20,9 +20,10 @@
 					<ColorTexture>hex_c</ColorTexture>
 				</HexModel>
 				<DefaultDecoration></DefaultDecoration>
+				<DecorationDensity>1</DecorationDensity>
 			</Item>
 			<Item>
-				<Name>Ice</Name>
+				<Name>Sea Ice</Name>
 				<Color>
 					<R>255</R>
 					<G>255</G>
@@ -37,6 +38,25 @@
 					<ColorTexture>hex_c</ColorTexture>
 				</HexModel>
 				<DefaultDecoration></DefaultDecoration>
+				<DecorationDensity>1</DecorationDensity>
+			</Item>
+			<Item>
+				<Name>Land Ice</Name>
+				<Color>
+					<R>201</R>
+					<G>201</G>
+					<B>201</B>
+				</Color>
+				<FoodModifier>1</FoodModifier>
+				<ResourceModifier>1</ResourceModifier>
+				<PopulationModifier>1</PopulationModifier>
+				<HexModel>
+					<Name>hex</Name>
+					<Texture>hex_ice2</Texture>
+					<ColorTexture>hex_c</ColorTexture>
+				</HexModel>
+				<DefaultDecoration></DefaultDecoration>
+				<DecorationDensity>1</DecorationDensity>
 			</Item>
 			<Item>
 				<Name>Grassland</Name>
@@ -54,6 +74,7 @@
 					<ColorTexture>hex_c</ColorTexture>
 				</HexModel>
 				<DefaultDecoration></DefaultDecoration>
+				<DecorationDensity>1</DecorationDensity>
 			</Item>
 			<Item>
 				<Name>Woodland</Name>
@@ -71,6 +92,7 @@
 					<ColorTexture>hex_c</ColorTexture>
 				</HexModel>
 				<DefaultDecoration>Temperate Trees</DefaultDecoration>
+				<DecorationDensity>1</DecorationDensity>
 			</Item>
 			<Item>
 				<Name>Tundra</Name>
@@ -88,6 +110,7 @@
 					<ColorTexture>hex_c</ColorTexture>
 				</HexModel>
 				<DefaultDecoration></DefaultDecoration>
+				<DecorationDensity>1</DecorationDensity>
 			</Item>
 			<Item>
 				<Name>Boreal Forest</Name>
@@ -105,6 +128,7 @@
 					<ColorTexture>hex_c</ColorTexture>
 				</HexModel>
 				<DefaultDecoration>Boreal Trees</DefaultDecoration>
+				<DecorationDensity>1</DecorationDensity>
 			</Item>
 			<Item>
 				<Name>Desert</Name>
@@ -121,7 +145,8 @@
 					<Texture>hex_desert</Texture>
 					<ColorTexture>hex_c</ColorTexture>
 				</HexModel>
-				<DefaultDecoration></DefaultDecoration>
+				<DefaultDecoration>Cactus</DefaultDecoration>
+				<DecorationDensity>0.1</DecorationDensity>
 			</Item>
 			<Item>
 				<Name>Savanna</Name>
@@ -139,6 +164,7 @@
 					<ColorTexture>hex_c</ColorTexture>
 				</HexModel>
 				<DefaultDecoration></DefaultDecoration>
+				<DecorationDensity>1</DecorationDensity>
 			</Item>
 			<Item>
 				<Name>Tropical Rainforest</Name>
@@ -156,6 +182,7 @@
 					<ColorTexture>hex_c</ColorTexture>
 				</HexModel>
 				<DefaultDecoration>Tropical Trees</DefaultDecoration>
+				<DecorationDensity>1</DecorationDensity>
 			</Item>
 		</Biomes>
 	</Asset>
