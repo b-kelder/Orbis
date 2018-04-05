@@ -74,15 +74,17 @@ namespace Orbis.Rendering
 
         private Orbis orbis;
 
+        private Dictionary<string, DecorationData> decorations = new Dictionary<string, DecorationData>();
         private Dictionary<string, BiomeMappedData> biomeMappedData = new Dictionary<string, BiomeMappedData>();
         private Dictionary<Cell, CellMappedData> cellMappedData = new Dictionary<Cell, CellMappedData>();
         private List<RenderableMesh> cellMeshes = new List<RenderableMesh>();
         private List<RenderInstance> renderInstances = new List<RenderInstance>();
 
-        private Dictionary<string, DecorationData> decorations = new Dictionary<string, DecorationData>();
-
         private Effect basicShader;
-        private CellColorMode cellColorMode;
+        /// <summary>
+        /// Mode used for setting cell hex vertex colors. Only gets applied when cells are updated.
+        /// </summary>
+        private CellColorMode cellColorMode;        
 
         private Camera camera;
         private float rotation;
@@ -96,13 +98,17 @@ namespace Orbis.Rendering
         private Scene renderedScene;
         private AtlasModelLoader modelLoader;
         private DecorationManager decorationManager;
-
         private Random random;
 
-        private bool atlasDebugEnabled;
+        // Texture atlas debugging
+        private const bool atlasDebugEnabled = false;
         private RenderInstance atlasDebugInstance;
 
-        private float decorationDensityMultiplier;
+        /// <summary>
+        /// Sets the maximum allowed density for default cell decorations.
+        /// Lower values can improve performance. Range 0 to 1.
+        /// </summary>
+        public float DecorationDensityCap { get; set; }
 
         /// <summary>
         /// Returns true if the renderer is ready to accept simulation updates.
@@ -119,14 +125,17 @@ namespace Orbis.Rendering
         /// Amount of active render instances.
         /// </summary>
         public int RenderInstanceCount { get { return renderInstances.Count; } }
+        /// <summary>
+        /// The cell currently highlighted by the camera. Might be null.
+        /// </summary>
+        public Cell HighlightedCell { get { return currentCamCell; } }
 
         public SceneRendererComponent(Orbis game) : base(game)
         {
             MaxUpdateTime = 3;
-            decorationDensityMultiplier = 1.0f;
+            DecorationDensityCap = 1.0f;
             orbis = game;
             cellColorMode = CellColorMode.OwnerColor;
-            atlasDebugEnabled = false;
         }
 
         public override void Initialize()
@@ -238,7 +247,7 @@ namespace Orbis.Rendering
                     foreach(var cell in this.cellMappedData)
                     {
                         var biomeData = biomeMappedData[cell.Key.Biome.Name];
-                        if(biomeData.DefaultDecoration != null && random.NextDouble() < biomeData.DefaultDensity * decorationDensityMultiplier)
+                        if(biomeData.DefaultDecoration != null && random.NextDouble() < MathHelper.Clamp(biomeData.DefaultDensity, 0, DecorationDensityCap))
                         {
                             SetCellDecoration(cell.Key, cell.Value, biomeData.DefaultDecoration);
                         }
@@ -356,6 +365,7 @@ namespace Orbis.Rendering
             distance = MathHelper.Clamp(distance, 1, 4000);
 
             camera.LookTarget = camera.LookTarget + Vector3.Transform(camMoveDelta, Matrix.CreateRotationZ(MathHelper.ToRadians(rotation)));
+            // Update highlighted cell
             var camTile = TopographyHelper.RoundWorldToHex(new Vector2(camera.LookTarget.X, camera.LookTarget.Y));
             currentCamCell = renderedScene.WorldMap.GetCell(camTile.X, camTile.Y);
             if(currentCamCell != null)
@@ -376,7 +386,10 @@ namespace Orbis.Rendering
                 orbis.DrawDebugLine("Current cell: " + currentCamCell.Coordinates);
                 orbis.DrawDebugLine("Owner: " + (currentCamCell.Owner != null ? currentCamCell.Owner.Name : "Nobody"));
                 orbis.DrawDebugLine("Biome: " + currentCamCell.Biome.Name);
+                orbis.DrawDebugLine("Temperature: " + currentCamCell.Temperature.ToString("#.#"));
+                orbis.DrawDebugLine("Elevation: " + ((currentCamCell.Elevation - renderedScene.Settings.SeaLevel) * 450).ToString("#.#"));
                 orbis.DrawDebugLine("Population: " + currentCamCell.population);
+                orbis.DrawDebugLine("Food: " + currentCamCell.food.ToString("#.#"));
             }
 
             // Move camera back from its target
@@ -431,7 +444,7 @@ namespace Orbis.Rendering
                 }
                 meshBatches[instance.mesh].Add(instance);
             }
-            // Draw tile inidicator if we are on the map
+            // Draw tile highlighter if we are on the map
             if (currentCamCell != null)
             {
                 var pos = new Vector3(TopographyHelper.HexToWorld(currentCamCell.Coordinates),
