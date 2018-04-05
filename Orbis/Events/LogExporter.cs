@@ -21,7 +21,7 @@ namespace Orbis.Events
         public void Export(List<Log> logs)
         {
             // Make sure we have something to write to
-            if (exporters != null && exporters.Count > 0 && logs.Count > 0)
+            if (exporters != null && exporters.Count > 0 && logs != null && logs.Count > 0)
             {
                 // Catch export while writing exceptions (Collection was modified; enumeration operation may not execute.)
                 try
