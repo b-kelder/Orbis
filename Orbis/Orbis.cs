@@ -108,7 +108,7 @@ namespace Orbis
 
             stopwatch.Stop();
             Debug.WriteLine("Generated world in " + stopwatch.ElapsedMilliseconds + " ms");
-            // Coloring data
+            // Let the scene renderer generate the new meshes
             SceneRenderer.OnNewWorldGenerated(Scene, seed);
         }
 
