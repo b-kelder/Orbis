@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Orbis.Events
@@ -34,7 +35,17 @@ namespace Orbis.Events
         /// <param name="type">The type</param>
         public void AddLog(string item, string type = DEFAULT_TYPE)
         {
-            Task.Run(() => log.Add(new Log(item, type)));
+            Task.Run(() =>
+            {
+                try
+                {
+                    log.Add(new Log(item, type));
+                }
+                catch (IndexOutOfRangeException ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex);
+                }
+            });
         }
 
         /// <summary>
