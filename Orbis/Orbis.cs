@@ -23,7 +23,7 @@ namespace Orbis
     {
 
         public static readonly int TEST_SEED = 0x1111111;
-        public static readonly int TEST_CIVS = 15;
+        public static readonly int TEST_CIVS = 1;
         public static readonly int TEST_RADIUS = 1;
         public static readonly int TEST_TICKS = 1;
 

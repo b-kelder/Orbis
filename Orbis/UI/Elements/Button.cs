@@ -135,6 +135,20 @@ namespace Orbis.UI.Elements
         ///     The text displayed on the button.
         /// </summary>
         public string Text { get => _textString; set => _textString = value; }
+
+        public bool Visible
+        {
+            get
+            {
+                return visible;
+            }
+            set
+            {
+                visible = value;
+            }
+        }
+        private bool visible = true;
+
         private string _textString;
 
         /// <summary>
@@ -166,20 +180,23 @@ namespace Orbis.UI.Elements
         /// <param name="spriteBatch"></param>
         public void Render(SpriteBatch spriteBatch)
         {
-            _texture.Render(spriteBatch);
-
-            if (_hasText &&_textString != null)
+            if (Visible)
             {
-                // Do some work to center the text in the button.
-                int maxWidth = Size.X - 8;
-                string clippedString = Utility.TextHelper.ClipText(Font, _textString, maxWidth);
-                Vector2 textSize = Font.MeasureString(clippedString);
+                _texture.Render(spriteBatch);
 
-                Point center = Bounds.Center;
-                _text.RelativePosition = new Point((int)Math.Floor(center.X - textSize.X / 2), (int)Math.Floor(center.Y - textSize.Y / 2));
-                _text.Text = clippedString;
+                if (_hasText && _textString != null)
+                {
+                    // Do some work to center the text in the button.
+                    int maxWidth = Size.X - 8;
+                    string clippedString = Utility.TextHelper.ClipText(Font, _textString, maxWidth);
+                    Vector2 textSize = Font.MeasureString(clippedString);
 
-                _text.Render(spriteBatch);
+                    Point center = Bounds.Center;
+                    _text.RelativePosition = new Point((int)Math.Floor(center.X - textSize.X / 2), (int)Math.Floor(center.Y - textSize.Y / 2));
+                    _text.Text = clippedString;
+
+                    _text.Render(spriteBatch);
+                }
             }
         }
 

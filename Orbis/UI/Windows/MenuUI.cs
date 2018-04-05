@@ -3,11 +3,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Orbis.UI.Utility;
-
 using Orbis.UI.Elements;
-using Orbis.Simulation;
-using Orbis.Events;
-using Orbis.Events.Exporters;
 
 namespace Orbis.UI.Windows
 {
@@ -15,7 +11,12 @@ namespace Orbis.UI.Windows
     {
         private Orbis orbis;
         private RelativeTexture background;
+        private RelativeTexture backgroundPopup;
+        private RelativeTexture logo;
+        private Button popupButton;
         private Button startButton;
+        private Button optionsButton;
+        private Button quitButton;
 
         private Color BACKGROUND_COLOR = Color.LightGray;
 
@@ -34,16 +35,85 @@ namespace Orbis.UI.Windows
                 LayerDepth = 1
             });
 
-            AddChild(startButton = new Button(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Black), new Rectangle(0, 0, 1, 1)))
+            AddChild(logo = new RelativeTexture(this, new SpriteDefinition(contentManager.GetTexture("UI/Orbis-Icon"), new Rectangle(0, 0, 1520, 1520)))
+            {
+                Size = new Point(500, 500),
+                AnchorPosition = AnchorPosition.Center,
+                RelativePosition = new Point(-250, -(_game.Window.ClientBounds.Height / 2) + 100),
+                LayerDepth = 0.5f
+            });
+
+            AddChild(popupButton = new Button(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Blue), new Rectangle(0, 0, 1, 1)))
             {
                 AnchorPosition = AnchorPosition.Center,
-                Size = new Point(200, 50),
-                RelativePosition = new Point(-100, 0),
-                LayerDepth = 0,
+                Size = new Point(400, 100),
+                RelativePosition = new Point(-200, -150 + 100),
+                LayerDepth = 0.5f,
                 IsFocused = true
             });
 
+            AddChild(optionsButton = new Button(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Orange), new Rectangle(0, 0, 1, 1)))
+            {
+                AnchorPosition = AnchorPosition.Center,
+                Size = new Point(400, 100),
+                RelativePosition = new Point(-200, 0 + 100),
+                LayerDepth = 0.5f,
+                IsFocused = true
+            });
+
+            AddChild(quitButton = new Button(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Yellow), new Rectangle(0, 0, 1, 1)))
+            {
+                AnchorPosition = AnchorPosition.Center,
+                Size = new Point(400, 100),
+                RelativePosition = new Point(-200, 150 + 100),
+                LayerDepth = 0.5f,
+                IsFocused = true
+            });
+
+            AddChild(backgroundPopup = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Green), new Rectangle(0, 0, 1, 1)))
+            {
+                Size = new Point(_game.Window.ClientBounds.Width / 4, _game.Window.ClientBounds.Height / 4),
+                AnchorPosition = AnchorPosition.Center,
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8, 0),
+                LayerDepth = 0.4f,
+                Visible = false
+            });
+
+            AddChild(startButton = new Button(this, new SpriteDefinition(contentManager.GetColorTexture(Color.Purple), new Rectangle(0, 0, 1, 1)))
+            {
+                AnchorPosition = AnchorPosition.Center,
+                Size = new Point(_game.Window.ClientBounds.Width / 8, _game.Window.ClientBounds.Height / 16),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 16, _game.Window.ClientBounds.Width / 8 - _game.Window.ClientBounds.Height / 16),
+                LayerDepth = 0.3f,
+                IsFocused = false,
+                Visible = false
+            });
+
             startButton.Click += StartButton_Click;
+            optionsButton.Click += OptionsButton_Click;
+            quitButton.Click += QuitButton_Click;
+            popupButton.Click += PopupButton_Click;
+        }
+
+        private void PopupButton_Click(object sender, EventArgs e)
+        {
+            backgroundPopup.Visible = true;
+            startButton.Visible = true;
+            startButton.IsFocused = true;
+
+            popupButton.IsFocused = false;
+            optionsButton.IsFocused = false;
+            quitButton.IsFocused = false;
+        }
+
+        private void QuitButton_Click(object sender, EventArgs e)
+        {
+            orbis.Exit();
+        }
+
+        private void OptionsButton_Click(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void StartButton_Click(object sender, EventArgs e)
