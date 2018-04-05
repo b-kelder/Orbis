@@ -91,6 +91,11 @@ namespace Orbis.UI.Elements
         }
 
         /// <summary>
+        ///     Is the scrollbar in focus?
+        /// </summary>
+        public bool IsFocused { get; set; }
+
+        /// <summary>
         ///     Create a new <see cref="Scrollbar"/>.
         /// </summary>
         /// 
@@ -109,29 +114,31 @@ namespace Orbis.UI.Elements
             }
 
             // Sprite definitions are created for the different sprites used by scrollbar items.
-            Rectangle buttonRect = new Rectangle(0, 0, 15, 15);
-            SpriteDefinition buttonDef = new SpriteDefinition(scrollbarSheet, buttonRect);
+            Rectangle upButtonRect = new Rectangle(0, 0, 15, 15);
+            SpriteDefinition upButtonDef = new SpriteDefinition(scrollbarSheet, upButtonRect);
+
+            Rectangle downButtonRect = new Rectangle(15, 0, 15, 15);
+            SpriteDefinition downButtonDef = new SpriteDefinition(scrollbarSheet, downButtonRect);
 
             Rectangle handleRect = new Rectangle(0, 15, 15, 20);
             SpriteDefinition handleDef = new SpriteDefinition(scrollbarSheet, handleRect);
 
-            Rectangle backgroundRect = new Rectangle(15, 0, 15, 35);
+            Rectangle backgroundRect = new Rectangle(15, 15, 15, 35);
             SpriteDefinition backgroundDef = new SpriteDefinition(scrollbarSheet, backgroundRect);
 
             // Finally, the items themselves can be created.
-            _upButton = new Button(this, buttonDef)
+            _upButton = new Button(this, upButtonDef)
             {
                 RelativePosition = Point.Zero,
                 Size = new Point(15, 15),
                 IsFocused = true
             };
-            _downButton = new Button(this, buttonDef)
+            _downButton = new Button(this, downButtonDef)
             {
                 AnchorPosition = AnchorPosition.BottomLeft,
                 RelativePosition = new Point(0, -15),
                 Size = new Point(15, 15),
-                IsFocused = true,
-                SpriteEffects = SpriteEffects.FlipVertically
+                IsFocused = true
             };
             _handle = new RelativeTexture(this, handleDef)
             {
@@ -187,12 +194,16 @@ namespace Orbis.UI.Elements
         /// </summary>
         public void Update()
         {
-            // Updating the buttons is only necessary when the mouse is over the scrollbar.
-            Point mousePos = Mouse.GetState().Position;
-            if (Bounds.Contains(mousePos))
+            // Non-focused scrollbars are not updated.
+            if (IsFocused)
             {
-                _upButton.Update();
-                _downButton.Update();
+                // Updating the buttons is only necessary when the mouse is over the scrollbar.
+                Point mousePos = Mouse.GetState().Position;
+                if (Bounds.Contains(mousePos))
+                {
+                    _upButton.Update();
+                    _downButton.Update();
+                }
             }
         }
 

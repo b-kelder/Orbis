@@ -176,7 +176,16 @@ namespace Orbis.UI.Elements
                 // To allow scrolling, the overflowing elements need to be rendered to a render target first.
                 PreRender(spriteBatch);
 
-                _scrollbar.Render(spriteBatch);
+                int textHeight = (int)Math.Ceiling(_textFont.MeasureString(_civText).Y);
+                if (textHeight > Size.Y)
+                {
+                    _scrollbar.IsFocused = true;
+                    _scrollbar.Render(spriteBatch);
+                }
+                else
+                {
+                    _scrollbar.IsFocused = false;
+                }
 
                 spriteBatch.Draw(_fullTexture,
                     Bounds,
