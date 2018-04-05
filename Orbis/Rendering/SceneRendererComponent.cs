@@ -100,6 +100,8 @@ namespace Orbis.Rendering
         private DecorationManager decorationManager;
         private Random random;
 
+        private Queue<KeyValuePair<Cell, CellMappedData>> defaultDecorationQueue = new Queue<KeyValuePair<Cell, CellMappedData>>();
+
         // Texture atlas debugging
         private const bool atlasDebugEnabled = false;
         private RenderInstance atlasDebugInstance;
@@ -114,7 +116,11 @@ namespace Orbis.Rendering
         /// Returns true if the renderer is ready to accept simulation updates.
         /// </summary>
         public bool ReadyForUpdate { get {
-                return renderedScene != null && cellMappedData.Count > 0 && cellMeshes.Count > 0 && meshUpdateQueue.Count == 0;
+                return renderedScene != null && 
+                    cellMappedData.Count > 0 &&
+                    cellMeshes.Count > 0 && 
+                    meshUpdateQueue.Count == 0 &&
+                    defaultDecorationQueue.Count == 0;
             } }
 
         /// <summary>
@@ -252,23 +258,10 @@ namespace Orbis.Rendering
                     // Set cell decorations, this can lock up the application for a while
                     var stopwatch = new Stopwatch();
                     stopwatch.Start();
-                    foreach(var cell in this.cellMappedData)
+                    defaultDecorationQueue = new Queue<KeyValuePair<Cell, CellMappedData>>();
+                    foreach (var cell in this.cellMappedData)
                     {
-                        var biomeData = biomeMappedData[cell.Key.Biome.Name];
-                        if(biomeData.DefaultDecoration != null && random.NextDouble() < MathHelper.Clamp(biomeData.DefaultDensity, 0, DecorationDensityCap))
-                        {
-                            SetCellDecoration(cell.Key, cell.Value, biomeData.DefaultDecoration);
-                        }
-                    }
-                    // Check which decorations need to be updated, although it's probably all of them
-                    var set = new HashSet<RenderableMesh>();
-                    foreach(var dec in this.decorations)
-                    {
-                        dec.Value.Update(set);
-                    }
-                    foreach(var mesh in set)
-                    {
-                        meshUpdateQueue.Enqueue(mesh);
+                        defaultDecorationQueue.Enqueue(cell);
                     }
                     meshTask = null;
 
@@ -277,7 +270,33 @@ namespace Orbis.Rendering
                 }
             }
 
+            // Spread default decoration setting over several frames
+            if(defaultDecorationQueue.Count > 0)
+            {
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+                do
+                {
+                    var cell = defaultDecorationQueue.Dequeue();
+                    var biomeData = biomeMappedData[cell.Key.Biome.Name];
+                    if (biomeData.DefaultDecoration != null && random.NextDouble() < MathHelper.Clamp(biomeData.DefaultDensity, 0, DecorationDensityCap))
+                    {
+                        SetCellDecoration(cell.Key, cell.Value, biomeData.DefaultDecoration);
+                    }
+                } while (defaultDecorationQueue.Count > 0 && stopwatch.Elapsed.TotalMilliseconds <= this.MaxUpdateTime);
 
+                // Check which decorations need to be updated this frame
+                var set = new HashSet<RenderableMesh>();
+                foreach (var dec in this.decorations)
+                {
+                    dec.Value.Update(set);
+                }
+                foreach (var mesh in set)
+                {
+                    meshUpdateQueue.Enqueue(mesh);
+                }
+                stopwatch.Stop();
+            }
             // Update some vertex buffers if we have to without impact framerate too much
             if(meshUpdateQueue.Count > 0)
             {
@@ -533,6 +552,11 @@ namespace Orbis.Rendering
             camera.LookTarget = new Vector3(camera.LookTarget.X, camera.LookTarget.Y, scene.Settings.SeaLevel);
         }
 
+        /// <summary>
+        /// Generates terrain meshes, cell and biome data from a scene. Can be put in a task.
+        /// </summary>
+        /// <param name="scene">The scene to generate from</param>
+        /// <returns>Results</returns>
         private MeshGenerationResult GenerateMeshesFromScene(Scene scene)
         {
             // Results
