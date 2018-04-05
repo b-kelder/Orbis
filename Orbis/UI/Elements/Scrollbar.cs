@@ -91,6 +91,11 @@ namespace Orbis.UI.Elements
         }
 
         /// <summary>
+        ///     Is the scrollbar in focus?
+        /// </summary>
+        public bool IsFocused { get; set; }
+
+        /// <summary>
         ///     Create a new <see cref="Scrollbar"/>.
         /// </summary>
         /// 
@@ -189,12 +194,16 @@ namespace Orbis.UI.Elements
         /// </summary>
         public void Update()
         {
-            // Updating the buttons is only necessary when the mouse is over the scrollbar.
-            Point mousePos = Mouse.GetState().Position;
-            if (Bounds.Contains(mousePos))
+            // Non-focused scrollbars are not updated.
+            if (IsFocused)
             {
-                _upButton.Update();
-                _downButton.Update();
+                // Updating the buttons is only necessary when the mouse is over the scrollbar.
+                Point mousePos = Mouse.GetState().Position;
+                if (Bounds.Contains(mousePos))
+                {
+                    _upButton.Update();
+                    _downButton.Update();
+                }
             }
         }
 
