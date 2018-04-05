@@ -24,7 +24,7 @@ namespace Orbis.UI.Elements
         private Rectangle _viewPort;
 
         // Used for the text in the panel.
-        private string _civText;
+        private string _civText = "a";
         private SpriteFont _textFont;
 
         /// <summary>
@@ -64,6 +64,19 @@ namespace Orbis.UI.Elements
                 _scrollbar.LayerDepth = value;
             }
         }
+
+        public bool Visible
+        {
+            get
+            {
+                return visible;
+            }
+            set
+            {
+                visible = value;
+            }
+        }
+        private bool visible = true;
 
         /// <summary>
         ///     Create a new <see cref="CivPanel"/>.
@@ -158,18 +171,21 @@ namespace Orbis.UI.Elements
         /// </param>
         public void Render(SpriteBatch spriteBatch)
         {
-            // To allow scrolling, the overflowing elements need to be rendered to a render target first.
-            PreRender(spriteBatch);
+            if (Visible)
+            {
+                // To allow scrolling, the overflowing elements need to be rendered to a render target first.
+                PreRender(spriteBatch);
 
-            _scrollbar.Render(spriteBatch);
+                _scrollbar.Render(spriteBatch);
 
-            spriteBatch.Draw(_fullTexture,
-                Bounds,
-                _viewPort,
-                Color.White, 0f,
-                Vector2.Zero,
-                SpriteEffects.None,
-                LayerDepth - 0.01F);
+                spriteBatch.Draw(_fullTexture,
+                    Bounds,
+                    _viewPort,
+                    Color.White, 0f,
+                    Vector2.Zero,
+                    SpriteEffects.None,
+                    LayerDepth - 0.01F);
+            }
         }
 
         /// <summary>
