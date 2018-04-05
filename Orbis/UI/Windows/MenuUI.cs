@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Orbis.Engine;
+using Orbis.States;
 using Orbis.UI.Elements;
 using Orbis.UI.Utility;
 using System;
@@ -16,6 +18,7 @@ namespace Orbis.UI.Windows
         private Button startButton;
         private Button optionsButton;
         private Button quitButton;
+        private StateManager stateManager;
 
         private Color BACKGROUND_COLOR = Color.LightGray;
         private RelativeText text;
@@ -23,7 +26,8 @@ namespace Orbis.UI.Windows
         public MenuUI(Game game) : base(game)
         {
             orbis = (Orbis)game;
-            
+            stateManager = StateManager.GetInstance();
+
             UIContentManager.TryGetInstance(out UIContentManager contentManager);
 
             // Background for UI
@@ -133,6 +137,7 @@ namespace Orbis.UI.Windows
         {
             orbis.GenerateWorld(Orbis.TEST_SEED, orbis.DecorationSettings, orbis.WorldSettings, orbis.BiomeCollection, orbis.CivSettings, Orbis.TEST_CIVS, Orbis.TEST_RADIUS, Orbis.TEST_TICKS);
             orbis.UI.CurrentWindow = new GameUI(orbis);
+            stateManager.SetActiveState("game");
         }
 
         /// <summary>

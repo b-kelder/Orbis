@@ -6,7 +6,7 @@ namespace Orbis.States.State
     {
         public void Run()
         {
-            AudioManager.PlaySong("Severe Tire Damage");
+            AudioManager.PlaySong("Severe Tire Damage", true, 1);
         }
     }
 }

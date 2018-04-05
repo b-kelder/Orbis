@@ -90,7 +90,7 @@ namespace Orbis.States
             states.Add("game", new GameState());
 
             // Set the default active state
-            SetActiveState("game");
+            SetActiveState("menu");
         }
     }
 }
