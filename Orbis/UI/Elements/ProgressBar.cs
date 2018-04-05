@@ -8,6 +8,7 @@ namespace Orbis.UI.Elements
     /// <summary>
     ///     A progress bar in the Orbis UI.
     /// </summary>
+    /// 
     /// <author>Kaj van der Veen</author>
     public class ProgressBar : RelativeElement, IRenderableElement
     {

@@ -7,6 +7,8 @@ namespace Orbis.UI.Elements
     /// <summary>
     ///     Text with a fixed position.
     /// </summary>
+    /// 
+    /// <author>Kaj van der Veen</author>
     public class RelativeText : RelativeElement, IRenderableElement
     {
         /// <summary>
