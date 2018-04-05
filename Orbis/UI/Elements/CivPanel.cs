@@ -212,7 +212,7 @@ namespace Orbis.UI.Elements
                 var civ = civTexturePair.Key;
                 StringBuilder entrySb = new StringBuilder();
 
-                entrySb.AppendLine(civ.Name);
+                entrySb.AppendLine(TextHelper.WrapText(_textFont, civ.Name, Size.X - 30));
                 entrySb.AppendLine("  Is Alive: " + civ.IsAlive);
                 entrySb.AppendLine("  Population: " + civ.Population);
                 entrySb.AppendLine("  Size: " + (civ.Territory.Count * 3141) + " KM^2");
