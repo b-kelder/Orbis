@@ -25,7 +25,8 @@ namespace Orbis.Events
             // Make sure we have something to write to
             if (exporters != null && exporters.Count > 0 && logs != null && logs.Count > 0)
             {
-                // Catch export while writing exceptions (Collection was modified; enumeration operation may not execute.)
+                logs = null;
+
                 try
                 {
                     // Export in all export formats
@@ -34,7 +35,7 @@ namespace Orbis.Events
                         exporter.Export(logs);
                     }
                 }
-                catch(InvalidOperationException ex)
+                catch(Exception ex)
                 {
                     // TODO: Handle exception
                 }
