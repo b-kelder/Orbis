@@ -88,6 +88,8 @@ namespace Orbis.Rendering
         private float rotation;
         private float distance;
         private float angle;
+        private Cell currentCamCell;
+        private RenderableMesh tileHighlightMesh;
 
         private Queue<RenderableMesh> meshUpdateQueue = new Queue<RenderableMesh>();
         private Task<MeshGenerationResult> meshTask;
@@ -167,6 +169,10 @@ namespace Orbis.Rendering
                     DefaultDensity = biome.DecorationDensity,
                 });
             }
+
+            // Load tile highlight mesh
+            var model = modelLoader.LoadModel("flag", "flag");
+            tileHighlightMesh = new RenderableMesh(GraphicsDevice, model.Mesh);
 
             modelLoader.FinializeLoading(GraphicsDevice);
 
@@ -346,10 +352,32 @@ namespace Orbis.Rendering
                 camMoveDelta.X += movementSpeed * 0.07f;
             }
 
-            angle = MathHelper.Clamp(angle, -90, -5);
+            angle = MathHelper.Clamp(angle, -89.9f, -5);
             distance = MathHelper.Clamp(distance, 1, 4000);
 
             camera.LookTarget = camera.LookTarget + Vector3.Transform(camMoveDelta, Matrix.CreateRotationZ(MathHelper.ToRadians(rotation)));
+            var camTile = TopographyHelper.RoundWorldToHex(new Vector2(camera.LookTarget.X, camera.LookTarget.Y));
+            currentCamCell = renderedScene.WorldMap.GetCell(camTile.X, camTile.Y);
+            if(currentCamCell != null)
+            {
+                var pos = camera.LookTarget;
+                pos.Z = currentCamCell.IsWater ? renderedScene.Settings.SeaLevel : (float)currentCamCell.Elevation;
+                camera.LookTarget = pos;
+
+                for(int i = 0; i < tileHighlightMesh.VertexData.Length; i++)
+                {
+                    tileHighlightMesh.VertexData[i].Color = currentCamCell.Owner != null ?
+                        currentCamCell.Owner.Color :
+                        new Color(230, 232, 237);
+                }
+                tileHighlightMesh.UpdateVertexBuffer();
+
+                // Draw some cell debug data
+                orbis.DrawDebugLine("Current cell: " + currentCamCell.Coordinates);
+                orbis.DrawDebugLine("Owner: " + (currentCamCell.Owner != null ? currentCamCell.Owner.Name : "Nobody"));
+                orbis.DrawDebugLine("Biome: " + currentCamCell.Biome.Name);
+                orbis.DrawDebugLine("Population: " + currentCamCell.population);
+            }
 
             // Move camera back from its target
             var camMatrix = Matrix.CreateTranslation(0, -distance, 0) *
@@ -403,6 +431,21 @@ namespace Orbis.Rendering
                 }
                 meshBatches[instance.mesh].Add(instance);
             }
+            // Draw tile inidicator if we are on the map
+            if (currentCamCell != null)
+            {
+                var pos = new Vector3(TopographyHelper.HexToWorld(currentCamCell.Coordinates),
+                    camera.LookTarget.Z);
+                meshBatches[tileHighlightMesh] = new List<RenderInstance>()
+                {
+                    new RenderInstance()
+                    {
+                        mesh = tileHighlightMesh,
+                        matrix = Matrix.CreateTranslation(pos),
+                    }
+                };
+            }
+            // Atlas debugging quad
             if (atlasDebugEnabled)
             {
                 meshBatches[atlasDebugInstance.mesh] = new List<RenderInstance>()

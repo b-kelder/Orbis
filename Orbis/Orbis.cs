@@ -22,7 +22,7 @@ namespace Orbis
     public class Orbis : Game
     {
 
-        public static readonly int TEST_SEED = 0x1111111;
+        public static readonly int TEST_SEED = 0x9213812;
         public static readonly int TEST_CIVS = 15;
         public static readonly int TEST_RADIUS = 150;
         public static readonly int TEST_TICKS = 10000;
@@ -46,9 +46,11 @@ namespace Orbis
         private SpriteFont fontDebug;
 
         private bool drawDebugText;
+        private List<string> debugLines;
 
         public Orbis()
         {
+            debugLines = new List<string>();
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
@@ -204,9 +206,22 @@ namespace Orbis
                     "FPS: " + (1 / gameTime.ElapsedGameTime.TotalSeconds).ToString("##") + "   " +
                     "Render Instances: " + sceneRenderer.RenderInstanceCount
                     , new Vector2(40, 40), Color.Red);
+
+                float y = 55;
+                const float dy = 15;
+                foreach(var line in debugLines)
+                {
+                    spriteBatch.DrawString(fontDebug, line, new Vector2(40, y), Color.Red);
+                    y += dy;
+                }
                 spriteBatch.End();
             }
+            debugLines.Clear();
+        }
 
+        public void DrawDebugLine(string text)
+        {
+            debugLines.Add(text);
         }
     }
 }
