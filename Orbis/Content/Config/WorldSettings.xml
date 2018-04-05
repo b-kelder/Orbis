@@ -6,9 +6,9 @@
 	<RiverWetness>25000</RiverWetness>
 	<LakeWetness>400000</LakeWetness>
 	<ElevationMultiplier>50</ElevationMultiplier>
-	<EdgeDistancePower>0.2</EdgeDistancePower>
+	<EdgeDistancePower>0.25</EdgeDistancePower>
 	<ElevationPower>2.76</ElevationPower>
-	<PoleTemperature>-20</PoleTemperature>
+	<PoleTemperature>-28</PoleTemperature>
 	<EquatorTemperature>40</EquatorTemperature>
 	<TemperatureCurvePower>0.6</TemperatureCurvePower>
 	<ElevationTemperatureMultiplier>-3.9</ElevationTemperatureMultiplier>
