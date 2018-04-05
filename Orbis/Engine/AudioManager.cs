@@ -108,6 +108,34 @@ namespace Orbis.Engine
         }
 
         /// <summary>
+        /// Stop a song
+        /// </summary>
+        public static void StopSong()
+        {
+            MediaPlayer.Stop();
+        }
+
+
+        /// <summary>
+        /// Pause a song
+        /// </summary>
+        public static void PauseSong()
+        {
+            MediaPlayer.Pause();
+        }
+
+        /// <summary>
+        /// Resume a song that has been paused
+        /// </summary>
+        public static void ResumeSong()
+        {
+            if(MediaPlayer.State == MediaState.Paused)
+            {
+                MediaPlayer.Resume();
+            }
+        }
+    
+        /// <summary>
         /// Load all songs
         /// </summary>
         /// <param name="content"></param>
