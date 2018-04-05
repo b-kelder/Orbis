@@ -48,7 +48,7 @@ namespace Orbis.Events.Helpers
                 // Create a Picker
                 var folderPicker = new Windows.Storage.Pickers.FolderPicker()
                 {
-                    SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+                    //SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
                 };
                 folderPicker.FileTypeFilter.Add("*");
 
