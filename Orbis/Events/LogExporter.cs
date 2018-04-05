@@ -11,6 +11,8 @@ namespace Orbis.Events
         public LogExporter()
         {
             exporters = new List<ILogExporter>();
+
+            // Set all the default exporter
             SetDefaultExporters();
         }
 
@@ -21,7 +23,7 @@ namespace Orbis.Events
         public void Export(List<Log> logs)
         {
             // Make sure we have something to write to
-            if (exporters != null && exporters.Count > 0 && logs.Count > 0)
+            if (exporters != null && exporters.Count > 0 && logs != null && logs.Count > 0)
             {
                 // Catch export while writing exceptions (Collection was modified; enumeration operation may not execute.)
                 try
@@ -82,9 +84,9 @@ namespace Orbis.Events
         private void SetDefaultExporters()
         {
             // Add an exporter to console, txt and xml
-            exporters.Add(new ConsoleExporter());
-            exporters.Add(new TextFileExporter());
-            exporters.Add(new XMLFileExporter());
+            exporters.Add(new ConsoleExporter());       // Console Exporter
+            exporters.Add(new TextFileExporter());      // Text File (.txt) Eporter
+            exporters.Add(new XMLFileExporter());       // XML exporter
         }
     }
 }
