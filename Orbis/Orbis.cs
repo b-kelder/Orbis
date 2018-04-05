@@ -13,7 +13,6 @@ using Orbis.World;
 using Orbis.UI.Windows;
 using Orbis.UI;
 
-
 namespace Orbis
 {
     /// <summary>
@@ -21,7 +20,6 @@ namespace Orbis
     /// </summary>
     public class Orbis : Game
     {
-
         public static readonly int TEST_SEED = 0x9213812;
         public static readonly int TEST_CIVS = 15;
         public static readonly int TEST_RADIUS = 150;
@@ -39,8 +37,12 @@ namespace Orbis
 
         public Scene Scene { get; set; }
         public Simulator Simulator { get; set; }
+        public XMLModel.DecorationCollection DecorationSettings { get; private set; }
+        public XMLModel.WorldSettings WorldSettings { get; private set; }
+        public XMLModel.Civilization[] CivSettings { get; private set; }
+        public BiomeCollection BiomeCollection { get; private set; }
 
-        private SceneRendererComponent sceneRenderer;
+        public SceneRendererComponent SceneRenderer { get; private set; }
 
 
         private SpriteFont fontDebug;
@@ -54,11 +56,11 @@ namespace Orbis
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
-            sceneRenderer = new SceneRendererComponent(this)
+            SceneRenderer = new SceneRendererComponent(this)
             {
                 DrawOrder = 0
             };
-            Components.Add(sceneRenderer);
+            Components.Add(SceneRenderer);
 
             input = InputHandler.GetInstance();
             UI = new UI.UIManager(this)
@@ -91,7 +93,7 @@ namespace Orbis
             base.Initialize();
         }
 
-        private void GenerateWorld(int seed, XMLModel.DecorationCollection decorationSettings, XMLModel.WorldSettings worldSettings, BiomeCollection biomeCollection, XMLModel.Civilization[] civSettings)
+        public void GenerateWorld(int seed, XMLModel.DecorationCollection decorationSettings, XMLModel.WorldSettings worldSettings, World.BiomeCollection biomeCollection, XMLModel.Civilization[] civSettings, int civs, int radius, int ticks)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -99,15 +101,15 @@ namespace Orbis
             Debug.WriteLine("Generating world for seed " + seed);
             Scene = new Scene(seed, worldSettings, decorationSettings, biomeCollection);
             var generator = new WorldGenerator(Scene, civSettings);
-            generator.GenerateWorld(TEST_RADIUS);
-            generator.GenerateCivs(TEST_CIVS);
+            generator.GenerateWorld(radius);
+            generator.GenerateCivs(civs);
 
-            Simulator = new Simulator(Scene, TEST_TICKS);
+            Simulator = new Simulator(Scene, ticks);
 
             stopwatch.Stop();
             Debug.WriteLine("Generated world in " + stopwatch.ElapsedMilliseconds + " ms");
             // Coloring data
-            sceneRenderer.OnNewWorldGenerated(Scene, seed);
+            SceneRenderer.OnNewWorldGenerated(Scene, seed);
         }
 
         /// <summary>
@@ -127,15 +129,14 @@ namespace Orbis
             //Menu Music
             //AudioManager.PlaySong("Severe Tire Damage");
 
-            XMLModel.DecorationCollection decorationSettings    = Content.Load<XMLModel.DecorationCollection>("Config/Decorations");
-            XMLModel.WorldSettings worldSettings                = Content.Load<XMLModel.WorldSettings>("Config/WorldSettings");
-            XMLModel.Civilization[] civSettings                 = Content.Load<XMLModel.Civilization[]>("Config/Civilization");
-            fontDebug                                           = Content.Load<SpriteFont>("DebugFont");
+            DecorationSettings = Content.Load<XMLModel.DecorationCollection>("Config/Decorations");
+            WorldSettings = Content.Load<XMLModel.WorldSettings>("Config/WorldSettings");
+            CivSettings = Content.Load<XMLModel.Civilization[]>("Config/Civilization");
+            fontDebug = Content.Load<SpriteFont>("DebugFont");
 
             // Biome table test
             var biomeData = Content.Load<XMLModel.BiomeCollection>("Config/Biomes");
-            var biomeCollection = new BiomeCollection(biomeData, Content);
-            GenerateWorld(TEST_SEED, decorationSettings, worldSettings, biomeCollection, civSettings);
+            BiomeCollection = new BiomeCollection(biomeData, Content);
 
             UI.CurrentWindow = new MenuUI(this);
         }
@@ -165,7 +166,7 @@ namespace Orbis
             }
 
             // Update renderer if we can
-            if (sceneRenderer.ReadyForUpdate)
+            if (SceneRenderer.ReadyForUpdate)
             {
                 Simulator.Update(gameTime);
                 Cell[] updatedCells = null;
@@ -174,7 +175,7 @@ namespace Orbis
                     updatedCells = Simulator.GetChangedCells();
                     if (updatedCells != null && updatedCells.Length > 0)
                     {
-                        sceneRenderer.UpdateScene(updatedCells);
+                        SceneRenderer.UpdateScene(updatedCells);
                     }
                 } while (updatedCells != null);
             }
@@ -209,7 +210,7 @@ namespace Orbis
                 spriteBatch.Begin();
                 spriteBatch.DrawString(fontDebug,
                     "FPS: " + (1 / gameTime.ElapsedGameTime.TotalSeconds).ToString("##") + "   " +
-                    "Render Instances: " + sceneRenderer.RenderInstanceCount
+                    "Render Instances: " + SceneRenderer.RenderInstanceCount
                     , new Vector2(40, 40), Color.Red);
 
                 float y = 55;
