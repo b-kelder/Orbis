@@ -63,6 +63,9 @@ namespace Orbis.UI.Elements
             }
         }
 
+        /// <summary>
+        ///     Is the input field visible?
+        /// </summary>
         public bool Visible
         {
             get
@@ -88,14 +91,26 @@ namespace Orbis.UI.Elements
             set
             {
                 _focused = value;
-                if (!_renderText.Text.Contains("_"))
+
+                if (value && _textSb.Length < MaxDigits && !_renderText.Text.EndsWith("_"))
                 {
                     _renderText.Text += "_";
+                }
+                else if (_renderText.Text.EndsWith("_"))
+                {
+                    _renderText.Text = _renderText.Text.TrimEnd('_');
                 }
             }
         }
         private bool _focused;
 
+        /// <summary>
+        ///     Render the input number field.
+        /// </summary>
+        /// 
+        /// <param name="spriteBatch">
+        ///     The spritebatch used for rendering.
+        /// </param>
         public void Render(SpriteBatch spriteBatch)
         {
             if (Visible)
@@ -165,14 +180,10 @@ namespace Orbis.UI.Elements
                 }
 
                 _renderText.Text = _textSb.ToString();
-                if (_textSb.Length != MaxDigits)
+                if (_textSb.Length < MaxDigits)
                 {
                     _renderText.Text += "_";
                 }
-            }
-            else if (_renderText.Text.EndsWith("_"))
-            {
-                _renderText.Text = _renderText.Text.TrimEnd('_');
             }
         }
 
@@ -184,12 +195,16 @@ namespace Orbis.UI.Elements
             // Non-focused buttons don't update.
             InputHandler input = InputHandler.GetInstance();
             Point mousePos = input.GetMousePosition();
+            bool clicked = input.IsMouseReleased(MouseButton.Left);
 
             if (Bounds.Contains(mousePos))
             {
-                Focused = true;
+                if (clicked)
+                {
+                    Focused = true;
+                }
             }
-            else
+            else if (clicked)
             {
                 Focused = false;
             }
