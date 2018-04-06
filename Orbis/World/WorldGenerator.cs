@@ -341,6 +341,10 @@ namespace Orbis.World
             {
                 cell.Biome = scene.BiomeCollection.GetLandBiome(x, y);
             }
+
+            cell.FoodMod *= cell.Biome.FoodModifier;
+            cell.ResourceMod *= cell.Biome.ResourceModifier;
+            cell.MaxHousing = (int)(cell.MaxHousing * cell.Biome.PopulationModifier);
         }
     }
 }
