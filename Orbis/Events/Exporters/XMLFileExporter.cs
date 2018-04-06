@@ -36,7 +36,7 @@ namespace Orbis.Events.Exporters
                     string timestamp = DateTime.Now.ToString();
 
                     // Write each log in a new Log node
-                    foreach (Log log in logs)
+                    foreach (Log log in logs.ToArray())
                     {
                         writer.WriteStartElement("Log");
                         writer.WriteAttributeString("exportedAt", timestamp);
