@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Orbis.Engine;
 using Orbis.UI.Utility;
+using System;
+using System.Text;
 
 namespace Orbis.UI.Elements
 {
@@ -105,22 +102,6 @@ namespace Orbis.UI.Elements
         private bool _focused;
 
         /// <summary>
-        ///     Render the input number field.
-        /// </summary>
-        /// 
-        /// <param name="spriteBatch">
-        ///     The spritebatch used for rendering.
-        /// </param>
-        public void Render(SpriteBatch spriteBatch)
-        {
-            if (Visible)
-            {
-                _background.Render(spriteBatch);
-                _renderText.Render(spriteBatch);
-            }
-        }
-
-        /// <summary>
         ///     Create a new <see cref="InputNumberField"/>.
         ///     Creates sub elements and sets default values.
         /// </summary>
@@ -188,11 +169,11 @@ namespace Orbis.UI.Elements
         }
 
         /// <summary>
-        ///     Update the button, making it check for click and hold events.
+        ///     Update the input field.
+        ///     Checks for clicks on the field to set focus for input.
         /// </summary>
         public void Update()
         {
-            // Non-focused buttons don't update.
             InputHandler input = InputHandler.GetInstance();
             Point mousePos = input.GetMousePosition();
             bool clicked = input.IsMouseReleased(MouseButton.Left);
@@ -207,6 +188,22 @@ namespace Orbis.UI.Elements
             else if (clicked)
             {
                 Focused = false;
+            }
+        }
+
+        /// <summary>
+        ///     Render the input number field.
+        /// </summary>
+        /// 
+        /// <param name="spriteBatch">
+        ///     The spritebatch used for rendering.
+        /// </param>
+        public void Render(SpriteBatch spriteBatch)
+        {
+            if (Visible)
+            {
+                _background.Render(spriteBatch);
+                _renderText.Render(spriteBatch);
             }
         }
     }
