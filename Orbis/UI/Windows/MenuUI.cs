@@ -79,9 +79,9 @@ namespace Orbis.UI.Windows
 
             AddChild(backgroundPopup = new RelativeTexture(this, new SpriteDefinition(_contentManager.GetColorTexture(Color.DarkGray), new Rectangle(0, 0, 1, 1)))
             {
-                Size = new Point(_game.Window.ClientBounds.Width / 4, _game.Window.ClientBounds.Height / 4),
+                Size = new Point(_game.Window.ClientBounds.Width / 3, _game.Window.ClientBounds.Height / 3),
                 AnchorPosition = AnchorPosition.Center,
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8, 0),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 6, 0),
                 LayerDepth = 0.4f,
                 Visible = false
             });
@@ -89,7 +89,7 @@ namespace Orbis.UI.Windows
             AddChild(text = new RelativeText(this, _contentManager.GetFont("DebugFont"))
             {
                 AnchorPosition = AnchorPosition.Center,
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10, 10),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 6 + 10, 10),
                 Text = "Generate a world based on the following settings:\r\n" +
                 "\r\nSeed: " +
                 "\r\n\r\nCivilization count: " +
@@ -151,7 +151,7 @@ namespace Orbis.UI.Windows
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(_game.Window.ClientBounds.Width / 8, _game.Window.ClientBounds.Height / 16),
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 16, _game.Window.ClientBounds.Width / 8 - _game.Window.ClientBounds.Height / 16),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 16, (int)(_game.Window.ClientBounds.Width / 7.5)),
                 LayerDepth = 0.3f,
                 Focused = false,
                 Visible = false
