@@ -108,6 +108,47 @@ namespace Orbis.Rendering
         private const bool atlasDebugEnabled = false;
         private RenderInstance atlasDebugInstance;
 
+        // Fog
+        private Color skyColor;
+        private float fogDistance = 1;
+
+        /// <summary>
+        /// Color of the sky and fog
+        /// </summary>
+        public Color SkyColor {
+            get { return skyColor; }
+            set
+            {
+                skyColor = value;
+                if(basicShader != null)
+                {
+                    basicShader.Parameters["FogColor"].SetValue(skyColor.ToVector4());
+                }
+            }
+        }
+
+        /// <summary>
+        /// Distance at which the fog is 100% density
+        /// </summary>
+        public float FogDistance {
+            get { return fogDistance; }
+            set
+            {
+                if(value > 0)
+                {
+                    fogDistance = value;
+                    if (basicShader != null)
+                    {
+                        basicShader.Parameters["FogEndDistance"].SetValue(fogDistance);
+                    }
+                    if(camera != null)
+                    {
+                        camera.ClipFar = fogDistance;
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Sets the maximum allowed density for default cell decorations.
         /// Lower values can improve performance. Range 0 to 1.
@@ -148,17 +189,18 @@ namespace Orbis.Rendering
             DecorationDensityCap = 1.0f;
             orbis = game;
             cellColorMode = CellColorMode.OwnerColor;
-        }
 
-        public override void Initialize()
-        {
-            // Camera stuff
             rotation = 0;
             distance = 20;
             angle = -60;
             camera = new Camera();
-            camera.ClipFar = 1200;
 
+            FogDistance = 350;
+            SkyColor = Color.DeepSkyBlue;
+        }
+
+        public override void Initialize()
+        {
             base.Initialize();
         }
 
@@ -170,6 +212,8 @@ namespace Orbis.Rendering
             basicShader.CurrentTechnique = basicShader.Techniques["DefaultTechnique"];
             basicShader.Parameters["ColorMapTexture"].SetValue(black);
             basicShader.Parameters["ColorInfluence"].SetValue(1.0f);
+            basicShader.Parameters["FogColor"].SetValue(SkyColor.ToVector4());
+            basicShader.Parameters["FogEndDistance"].SetValue(FogDistance);
 
             // Load models, decoration and biome data
             modelLoader = new AtlasModelLoader(2048, 2048, basicShader, Game.Content);
@@ -466,7 +510,7 @@ namespace Orbis.Rendering
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-            GraphicsDevice.Clear(Color.Aqua);
+            GraphicsDevice.Clear(SkyColor);
 
             // Required because SpriteBatch resets these
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -521,7 +565,8 @@ namespace Orbis.Rendering
 
                 foreach (var instance in batch.Value)
                 {
-                    basicShader.Parameters["WorldViewProjection"].SetValue(instance.matrix * viewMatrix * projectionMatrix);
+                    basicShader.Parameters["WorldView"].SetValue(instance.matrix * viewMatrix);
+                    basicShader.Parameters["Projection"].SetValue(projectionMatrix);
 
                     foreach (var pass in basicShader.CurrentTechnique.Passes)
                     {
