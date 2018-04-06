@@ -35,17 +35,7 @@ namespace Orbis.Events
         /// <param name="type">The type</param>
         public void AddLog(string item, string type = DEFAULT_TYPE)
         {
-            Task.Run(() =>
-            {
-                try
-                {
-                    log.Add(new Log(item, type));
-                }
-                catch (IndexOutOfRangeException ex)
-                {
-                    System.Diagnostics.Debug.WriteLine("Add to log error: " + ex);
-                }
-            });
+            log.Add(new Log(item, type));
         }
 
         /// <summary>

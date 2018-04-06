@@ -271,7 +271,7 @@
 		</Color>
 	</Item>
 	<Item>
-		<name>Côte d'Ivoire</name>
+		<name>Ivoorkust</name>
 		<Color>
 			<R>213</R>
 			<G>198</G>
@@ -1041,9 +1041,9 @@
 	<Item>
 		<name>Netherlands</name>
 		<Color>
-			<R>242</R>
-			<G>166</G>
-			<B>253</B>
+			<R>255</R>
+			<G>127</G>
+			<B>0</B>
 		</Color>
 	</Item>
 	<Item>
@@ -1420,6 +1420,14 @@
 			<R>213</R>
 			<G>54</G>
 			<B>62</B>
+		</Color>
+	</Item>
+	<Item>
+		<name>The Holy Roman Empire</name>
+		<Color>
+			<R>255</R>
+			<G>255</G>
+			<B>255</B>
 		</Color>
 	</Item>
 	<Item>
