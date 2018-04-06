@@ -79,7 +79,7 @@ namespace Orbis.Rendering
         private Dictionary<Cell, CellMappedData> cellMappedData = new Dictionary<Cell, CellMappedData>();
         private List<RenderableMesh> cellMeshes = new List<RenderableMesh>();
         private List<RenderInstance> renderInstances = new List<RenderInstance>();
-        private Scene renderedScene;
+        public Scene renderedScene;
 
         private Effect basicShader;
         private AtlasModelLoader modelLoader;

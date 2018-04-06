@@ -109,8 +109,9 @@ namespace Orbis.UI.Windows
             {
                 Size = new Point(RIGHT_UI_WIDTH, 300),
                 AnchorPosition = AnchorPosition.BottomRight,
-                RelativePosition = new Point(-RIGHT_UI_WIDTH * 2, -BOTTOM_UI_HEIGHT - 300),
-                LayerDepth = 0.5f
+                RelativePosition = new Point(-RIGHT_UI_WIDTH * 2 - 10, -BOTTOM_UI_HEIGHT - 310),
+                LayerDepth = 0,
+                Visible = false
             });
 
             AddChild(text = new RelativeText(this, _contentManager.GetFont("DebugFont"))
@@ -118,7 +119,8 @@ namespace Orbis.UI.Windows
                 Text = "Kill me pls",
                 AnchorPosition = AnchorPosition.BottomRight,
                 RelativePosition = new Point(-RIGHT_UI_WIDTH * 2, -BOTTOM_UI_HEIGHT - 300),
-                LayerDepth = 0.4f
+                LayerDepth = 0,
+                Visible = false
             });
 
             // Scene panel
@@ -201,6 +203,25 @@ namespace Orbis.UI.Windows
         /// </summary>
         public override void Update()
         {
+            if (orbis.Input.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Q))
+            {
+                text.Visible = !text.Visible;
+                cellInfoBackground.Visible = !cellInfoBackground.Visible;
+            }
+
+            if (orbis.SceneRenderer.HighlightedCell != null)
+            {
+                text.Text = new StringBuilder()
+                    .AppendLine("Current cell: " + orbis.SceneRenderer.HighlightedCell.Coordinates)
+                    .AppendLine("Owner: " + (orbis.SceneRenderer.HighlightedCell.Owner != null ? orbis.SceneRenderer.HighlightedCell.Owner.Name : "Nobody"))
+                    .AppendLine("Biome: " + orbis.SceneRenderer.HighlightedCell.Biome.Name)
+                    .AppendLine("Temperature: " + orbis.SceneRenderer.HighlightedCell.Temperature.ToString("#.#"))
+                    .AppendLine("Elevation: " + ((orbis.SceneRenderer.HighlightedCell.Elevation - orbis.SceneRenderer.renderedScene.Settings.SeaLevel) * 450).ToString("#.#"))
+                    .AppendLine("Population: " + orbis.SceneRenderer.HighlightedCell.population)
+                    .AppendLine("Food: " + orbis.SceneRenderer.HighlightedCell.food.ToString("#.#"))
+                    .ToString();
+            }
+
             if (screenResized)
             {
                 // Update RenderTarget
