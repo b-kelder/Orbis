@@ -171,7 +171,6 @@ namespace Orbis.UI.Windows
         {
             backgroundPopup.Visible = true;
             startButton.Visible = true;
-            startButton.Focused = true;
             text.Visible = true;
 
             seed.Visible = true;
@@ -216,6 +215,18 @@ namespace Orbis.UI.Windows
         public override void Update()
         {
             base.Update();
+
+            if (backgroundPopup.Visible)
+            {
+                if (seed.GetValue() > 0 && civs.GetValue() > 0 && radius.GetValue() > 0 && ticks.GetValue() > 0)
+                {
+                    startButton.Focused = true;
+                }
+                else
+                {
+                    startButton.Focused = false;
+                }
+            }
         }
 
         /// <summary>

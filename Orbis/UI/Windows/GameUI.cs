@@ -249,7 +249,7 @@ namespace Orbis.UI.Windows
                 playButton.SpriteDefinition = pause;
             }
 
-            progressBar.Progress = ((float)orbis.Simulator.CurrentTick / Orbis.TEST_TICKS);
+            progressBar.Progress = ((float)orbis.Simulator.CurrentTick / orbis.Simulator.MaxTick);
             progressBar.Message = "Date: " + orbis.Simulator.Date.ToString("MMM yyyy");
 
             base.Update();
