@@ -206,7 +206,7 @@ namespace Orbis.UI.Elements
                 civEntry.Text = entryText;
 
                 civEntry.Texture.Size = new Point(5, (int)Math.Ceiling(textSize.Y));
-                civEntry.Texture.RelativePosition = new Point(10, totalOffset - _scrollOffset);
+                civEntry.Texture.RelativePosition = new Point(5, totalOffset - _scrollOffset);
 
                 fullCivText.AppendLine(entryText);
                 fullCivText.AppendLine();
