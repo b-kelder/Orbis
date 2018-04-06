@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
 using Windows.Storage.Pickers;
+using Windows.System;
 
 namespace Orbis.Events.Helpers
 {
@@ -16,6 +17,48 @@ namespace Orbis.Events.Helpers
         private StorageFile currentfile;                                    // The current file loaded in system and to write to
         private static SemaphoreSlim writeLock = new SemaphoreSlim(1, 1);   // Write lock
         private static SemaphoreSlim pickerLock = new SemaphoreSlim(1, 1);  // Folderpicker lock
+
+        /// <summary>
+        /// Set the folder to the package local folder
+        /// </summary>
+        public void SetLocalFolder()
+        {
+            storageFolder = ApplicationData.Current.LocalFolder;
+        }
+
+        /// <summary>
+        /// Open explorer window at current specified storageFolder
+        /// </summary>
+        public async void OpenStorageFolder()
+        {
+            if (!IsStorageFolderConfiguered())
+            {
+                return;
+            }
+            await Launcher.LaunchFolderAsync(storageFolder);
+        }
+
+        /// <summary>
+        /// Open explorer window at current specified storageFolder or fallback at default folder
+        /// </summary>
+        public async void OpenStorageFolderOrDefault()
+        {
+            // If no storage folder is configuered, set default
+            if (!IsStorageFolderConfiguered())
+            {
+                SetLocalFolder();
+            }
+            await Launcher.LaunchFolderAsync(storageFolder);
+        }
+
+        /// <summary>
+        /// Check if a storage folder has been configuered
+        /// </summary>
+        /// <returns>True on configuered, false on not configuered</returns>
+        public bool IsStorageFolderConfiguered()
+        {
+            return storageFolder != null;
+        }
 
         /// <summary>
         /// Create a picker with suggested location in documents folder
@@ -78,6 +121,12 @@ namespace Orbis.Events.Helpers
         /// <returns>Operation success</returns>
         public async Task<StorageFile> CreateFile(string name, string extension = "txt", CreationCollisionOption option = CreationCollisionOption.OpenIfExists)
         {
+            // If no folder is selected, set local folder
+            if (!IsStorageFolderConfiguered())
+            {
+                SetLocalFolder();
+            }
+
             try
             {
                 string fileName = name + "." + extension;
@@ -102,6 +151,13 @@ namespace Orbis.Events.Helpers
         {
             // Wait wile lock is active
             await writeLock.WaitAsync();
+
+            // If no folder is selected, set local folder
+            if (!IsStorageFolderConfiguered())
+            {
+                SetLocalFolder();
+            }
+
             try
             {
                 await FileIO.AppendTextAsync(file, text);

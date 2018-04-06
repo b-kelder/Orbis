@@ -17,19 +17,13 @@ namespace Orbis.Events.Exporters
         {
             // We parse all data to a var, which in the end gets writen to a file.
             data = Environment.NewLine + Environment.NewLine + "Exported at: " + DateTime.Now.ToString() + Environment.NewLine + Environment.NewLine;
-
-            // Pick folder and handle cancel actions
-            bool folderPicked = await PickFolder();
-            if (folderPicked)
+            
+            await CreateFile("Orbis Log");
+            foreach (Log log in logs)
             {
-                await CreateFile("Orbis Log");
-
-                foreach (Log log in logs)
-                {
-                    data += log.ToString() + Environment.NewLine;
-                }
-                WriteToCurrentFile(data);
+                data += log.ToString() + Environment.NewLine;
             }
+            WriteToCurrentFile(data);
         }
     }
 }
