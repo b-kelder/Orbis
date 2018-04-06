@@ -15,6 +15,7 @@ namespace Orbis.UI.Windows
     {
         private ProgressBar progressBar;
         private RelativeTexture background;
+        private RelativeTexture cellInfoBackground;
         private RelativeTexture backgroundProgressBar;
         private RelativeTexture scene;
         private RelativeText text;
@@ -42,10 +43,8 @@ namespace Orbis.UI.Windows
             logger = Logger.GetInstance();
             logExporter = new LogExporter();
 
-            UIContentManager.TryGetInstance(out UIContentManager contentManager);
-
-            play = new SpriteDefinition(contentManager.GetTexture("UI/Button_Play"), new Rectangle(0, 0, 96, 64));
-            pause = new SpriteDefinition(contentManager.GetTexture("UI/Button_Pause"), new Rectangle(0, 0, 96, 64));
+            play = new SpriteDefinition(_contentManager.GetTexture("UI/Button_Play"), new Rectangle(0, 0, 96, 64));
+            pause = new SpriteDefinition(_contentManager.GetTexture("UI/Button_Pause"), new Rectangle(0, 0, 96, 64));
 
             AddChild(playButton = new Button(this, play)
             {
@@ -53,25 +52,25 @@ namespace Orbis.UI.Windows
                 RelativePosition = new Point(-(RIGHT_UI_WIDTH - 96) / 2 - 96 , -10),
                 Size = new Point(96, 64),
                 LayerDepth = 0,
-                IsFocused = true
+                Focused = true
             });
 
-            AddChild(nextButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Next"), new Rectangle(0, 0, 70, 64)))
+            AddChild(nextButton = new Button(this, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Next"), new Rectangle(0, 0, 70, 64)))
             {
                 AnchorPosition = AnchorPosition.TopRight,
                 RelativePosition = new Point(-(RIGHT_UI_WIDTH - playButton.Size.X) / 2, -10),
                 Size = new Point(70, 64),
                 LayerDepth = 0,
-                IsFocused = true
+                Focused = true
             });
 
-            AddChild(exportButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Export"), new Rectangle(0, 0, 70, 64)))
+            AddChild(exportButton = new Button(this, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Export"), new Rectangle(0, 0, 70, 64)))
             {
                 AnchorPosition = AnchorPosition.TopRight,
                 RelativePosition = new Point(-(RIGHT_UI_WIDTH - playButton.Size.X) / 2 - playButton.Size.X - 70, -10),
                 Size = new Point(70, 64),
                 LayerDepth = 0,
-                IsFocused = true
+                Focused = true
             });
 
             playButton.Click += PlayButton_Click;
@@ -88,7 +87,7 @@ namespace Orbis.UI.Windows
             });
 
             // Background for progressbar
-            AddChild(backgroundProgressBar = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(UI_COLOR), new Rectangle(0, 0, 1, 1)))
+            AddChild(backgroundProgressBar = new RelativeTexture(this, new SpriteDefinition(_contentManager.GetColorTexture(UI_COLOR), new Rectangle(0, 0, 1, 1)))
             {
                 Size = new Point(_game.Window.ClientBounds.Width - RIGHT_UI_WIDTH, BOTTOM_UI_HEIGHT),
                 AnchorPosition = AnchorPosition.BottomLeft,
@@ -97,12 +96,31 @@ namespace Orbis.UI.Windows
             });
 
             // Background for UI
-            AddChild(background = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(UI_COLOR), new Rectangle(0, 0, 1, 1)))
+            AddChild(background = new RelativeTexture(this, new SpriteDefinition(_contentManager.GetColorTexture(UI_COLOR), new Rectangle(0, 0, 1, 1)))
             {
                 Size = new Point(RIGHT_UI_WIDTH, _game.Window.ClientBounds.Height),
                 AnchorPosition = AnchorPosition.TopRight,
                 RelativePosition = new Point(-RIGHT_UI_WIDTH, 0),
                 LayerDepth = 1
+            });
+
+            // Background for UI
+            AddChild(cellInfoBackground = new RelativeTexture(this, new SpriteDefinition(_contentManager.GetColorTexture(UI_COLOR), new Rectangle(0, 0, 1, 1)))
+            {
+                Size = new Point(RIGHT_UI_WIDTH, 300),
+                AnchorPosition = AnchorPosition.BottomRight,
+                RelativePosition = new Point(-RIGHT_UI_WIDTH * 2 - 10, -BOTTOM_UI_HEIGHT - 310),
+                LayerDepth = 0,
+                Visible = false
+            });
+
+            AddChild(text = new RelativeText(this, _contentManager.GetFont("DebugFont"))
+            {
+                Text = "Kill me pls",
+                AnchorPosition = AnchorPosition.BottomRight,
+                RelativePosition = new Point(-RIGHT_UI_WIDTH * 2, -BOTTOM_UI_HEIGHT - 300),
+                LayerDepth = 0,
+                Visible = false
             });
 
             // Scene panel
@@ -161,9 +179,9 @@ namespace Orbis.UI.Windows
         /// <param name="spriteBatch"></param>
         public override void Draw(SpriteBatch spriteBatch)
         {
-            base.Draw(spriteBatch);
             // Handle the scene seperately because for some reason it doesn't want to draw when used as a regular child
             spriteBatch.Draw(scene.SpriteDefinition.SpriteSheet, scene.SpriteDefinition.SourceRectangle, Color.White);
+            base.Draw(spriteBatch);
         }
 
         /// <summary>
@@ -185,6 +203,25 @@ namespace Orbis.UI.Windows
         /// </summary>
         public override void Update()
         {
+            if (orbis.Input.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Q))
+            {
+                text.Visible = !text.Visible;
+                cellInfoBackground.Visible = !cellInfoBackground.Visible;
+            }
+
+            if (orbis.SceneRenderer.HighlightedCell != null)
+            {
+                text.Text = new StringBuilder()
+                    .AppendLine("Current cell: " + orbis.SceneRenderer.HighlightedCell.Coordinates)
+                    .AppendLine("Owner: " + (orbis.SceneRenderer.HighlightedCell.Owner != null ? orbis.SceneRenderer.HighlightedCell.Owner.Name : "Nobody"))
+                    .AppendLine("Biome: " + orbis.SceneRenderer.HighlightedCell.Biome.Name)
+                    .AppendLine("Temperature: " + orbis.SceneRenderer.HighlightedCell.Temperature.ToString("#.#"))
+                    .AppendLine("Elevation: " + ((orbis.SceneRenderer.HighlightedCell.Elevation - orbis.SceneRenderer.renderedScene.Settings.SeaLevel) * 450).ToString("#.#"))
+                    .AppendLine("Population: " + orbis.SceneRenderer.HighlightedCell.population)
+                    .AppendLine("Food: " + orbis.SceneRenderer.HighlightedCell.food.ToString("#.#"))
+                    .ToString();
+            }
+
             if (screenResized)
             {
                 // Update RenderTarget

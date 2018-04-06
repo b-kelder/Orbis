@@ -135,7 +135,7 @@ namespace Orbis.UI.Elements
             }
             else
             {
-                throw new InvalidOperationException("GUI Content manager could not be retrieved.");
+                throw new InvalidOperationException("UI content manager does not exist.");
             }
         }
 
