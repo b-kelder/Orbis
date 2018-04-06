@@ -105,7 +105,7 @@ namespace Orbis.UI.Windows
             });
 
             // Background for UI
-            AddChild(cellInfoBackground = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(UI_COLOR), new Rectangle(0, 0, 1, 1)))
+            AddChild(cellInfoBackground = new RelativeTexture(this, new SpriteDefinition(_contentManager.GetColorTexture(UI_COLOR), new Rectangle(0, 0, 1, 1)))
             {
                 Size = new Point(RIGHT_UI_WIDTH, 300),
                 AnchorPosition = AnchorPosition.BottomRight,
@@ -113,7 +113,7 @@ namespace Orbis.UI.Windows
                 LayerDepth = 0.5f
             });
 
-            AddChild(text = new RelativeText(this, contentManager.GetFont("DebugFont"))
+            AddChild(text = new RelativeText(this, _contentManager.GetFont("DebugFont"))
             {
                 Text = "Kill me pls",
                 AnchorPosition = AnchorPosition.BottomRight,
