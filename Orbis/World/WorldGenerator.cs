@@ -20,6 +20,18 @@ namespace Orbis.World
         private Scene scene;
         private XMLModel.Civilization[] civSettings;
 
+        private string[] civNamePatterns = new string[]{
+            "The {0}-{1} Alignment",
+            "The Kingdom of {0} and {1}",
+            "United States of {0} and {1}",
+            "The Covenant of {0} and {1}",
+            "Technocracy of {0} and {1} ",
+            "The High Chiefdom of {0} and {1}",
+            "The {0}-{1} Trade Federation",
+            "Republic of {0} also known as {1}",
+            "The Republic Formerly Known as {0}",
+        };
+
         /// <summary>
         /// World generator constructor
         /// </summary>
@@ -50,12 +62,15 @@ namespace Orbis.World
             {
                 // Create a civ with all base values
                 Civilization civ = new Civilization();
-                if (i >= civSettings.Length)
+                // Use combo generation when out of names or 50% of the time otherwise
+                if (i >= civSettings.Length || random.Next(0, 2) > 0)
                 {
                     // Random names if more civs requested then there are names for
                     XMLModel.Civilization civ1 = civSettings[random.Next(0, civSettings.Length)];
                     XMLModel.Civilization civ2 = civSettings[random.Next(0, civSettings.Length)];
-                    civ.Name = civ1 + " the " + civ2.name;
+                    civ.Name = String.Format(civNamePatterns[random.Next(0, civNamePatterns.Length)], civ1.name, civ2.name);
+
+
                     civ.Color = new Color(civ1.Color.R, civ2.Color.G, civ2.Color.B);
                 }
                 else
