@@ -15,13 +15,6 @@ namespace Orbis.Events.Exporters
         /// <param name="logs">The list of logs that needs to be exported</param>
         public async void Export(List<Log> logs)
         {
-            // Pick folder and handle cancel actions
-            bool folderPicked = await PickFolder();
-            if (!folderPicked)
-            {
-                return;
-            }
-
             // Create a new file, if duplicate, create unique name
             StorageFile currentFile = await CreateFile("Orbis Log", "xml", CreationCollisionOption.GenerateUniqueName);
             using (IRandomAccessStream writeStream = await currentFile.OpenAsync(FileAccessMode.ReadWrite))
@@ -50,6 +43,12 @@ namespace Orbis.Events.Exporters
                         writer.WriteElementString("Item", log.Item);
                         writer.WriteElementString("Type", log.Type);
                         writer.WriteElementString("Timestamp", log.Timestamp);
+
+                        if (log.GameTimestamp != null)
+                        {
+                            writer.WriteElementString("GameTime", log.GameTimestamp);
+                        }
+
                         writer.WriteEndElement();
                     }
                     await writer.FlushAsync();

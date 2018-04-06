@@ -1,12 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using Orbis.Engine;
 using Orbis.World;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -20,7 +16,7 @@ namespace Orbis.Simulation
         /// Current tick of the simulation
         /// </summary>
         public int CurrentTick { get; set; }
-        public DateTime Date { get; set; }
+        public static DateTime Date { get; set; }
         /// <summary>
         /// The scene to simulate
         /// </summary>
@@ -329,9 +325,10 @@ namespace Orbis.Simulation
                 // Roll a dice for the food, wealth and resource harvest
                 int roll = rand.Next(5, 25);
                 // Calculate food, wealth and resources based on cell modifiers
-                cell.food += roll * 5 * cell.FoodMod;
-                cell.resources += roll * 5 * cell.ResourceMod;
-                cell.wealth += roll * 5 * cell.WealthMod;
+                const float hard_cap = 10000;
+                cell.food = MathHelper.Clamp((float)cell.food + roll * 100 * (float)cell.FoodMod, 0, hard_cap);
+                cell.resources = MathHelper.Clamp((float)cell.resources + roll * 5 * (float)cell.ResourceMod, 0, hard_cap);
+                cell.wealth = MathHelper.Clamp((float)cell.wealth + roll * 5 * (float)cell.WealthMod, 0, hard_cap);
 
                 // Calculate the amount of people without food
                 int peopleWithNoFood = (int)Math.Ceiling(cell.population - cell.food);
@@ -339,7 +336,8 @@ namespace Orbis.Simulation
                 int birth = 3 * rand.Next(0, cell.population / 5);
                 // Calculate deaths based on cells Population and the amount of people without food
                 int death = rand.Next(0, cell.population / 5) + peopleWithNoFood;
-
+                // Eat food
+                cell.food = MathHelper.Clamp((float)cell.food - cell.population, 0, hard_cap);
                 // Check population threshold for updating tile decorations
                 if (WentOverPopulationThreshold(cell, MathHelper.Clamp(cell.population + birth - death, 0, cell.MaxHousing)))
                 {

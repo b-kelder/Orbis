@@ -8,6 +8,7 @@ using Orbis.UI.Elements;
 using Orbis.Simulation;
 using Orbis.Events;
 using Orbis.Events.Exporters;
+using System.Threading.Tasks;
 
 namespace Orbis.UI.Windows
 {
@@ -169,8 +170,10 @@ namespace Orbis.UI.Windows
             {
                 orbis.Simulator.TogglePause();
             }
-            //Create writer, add console exporter, export to console
-            logExporter.Export(Logger.GetInstance().GetLog());
+
+            //Export logs and open storage location
+            logExporter.Export(logger.GetLog());
+            logExporter.OpenStorageFolderOrDefault();
         }
 
         /// <summary>
@@ -213,7 +216,7 @@ namespace Orbis.UI.Windows
 
             if (orbis.SceneRenderer.HighlightedCell != null)
             {
-                text.Text = TextHelper.ClipText(
+                text.Text = TextHelper.WrapText(
                     _contentManager.GetFont("DebugFont"),
                     new StringBuilder()
                     .AppendLine("Current cell: " + orbis.SceneRenderer.HighlightedCell.Coordinates)
@@ -221,8 +224,11 @@ namespace Orbis.UI.Windows
                     .AppendLine("Biome: " + orbis.SceneRenderer.HighlightedCell.Biome.Name)
                     .AppendLine("Temperature: " + orbis.SceneRenderer.HighlightedCell.Temperature.ToString("#.#"))
                     .AppendLine("Elevation: " + ((orbis.SceneRenderer.HighlightedCell.Elevation - orbis.SceneRenderer.renderedScene.Settings.SeaLevel) * 450).ToString("#.#"))
-                    .AppendLine("Population: " + orbis.SceneRenderer.HighlightedCell.population)
+                    .AppendLine("Population: " + orbis.SceneRenderer.HighlightedCell.population + "/" + orbis.SceneRenderer.HighlightedCell.MaxHousing)
                     .AppendLine("Food: " + orbis.SceneRenderer.HighlightedCell.food.ToString("#.#"))
+                    .AppendLine("Modifiers (F/R/W): " + orbis.SceneRenderer.HighlightedCell.FoodMod.ToString("#.#") + "/"
+                    + orbis.SceneRenderer.HighlightedCell.ResourceMod.ToString("#.#") + "/"
+                    + orbis.SceneRenderer.HighlightedCell.WealthMod.ToString("#.#"))
                     .ToString(), RIGHT_UI_WIDTH);
             }
 
@@ -256,7 +262,7 @@ namespace Orbis.UI.Windows
             if (orbis.Simulator.MaxTick > 0)
             {
                 progressBar.Progress = ((float)orbis.Simulator.CurrentTick / orbis.Simulator.MaxTick);
-                progressBar.Message = "Date: " + orbis.Simulator.Date.ToString("MMM yyyy");
+                progressBar.Message = "Date: " + Simulator.Date.ToString("MMM yyyy");
             }
             else
             {

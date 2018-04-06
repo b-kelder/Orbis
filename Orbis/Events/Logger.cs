@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Orbis.Simulation;
+using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Orbis.Events
 {
@@ -28,15 +28,29 @@ namespace Orbis.Events
             return logger;
         }
 
+
         /// <summary>
-        /// Add a new log
+        /// Add log with item and type
         /// </summary>
         /// <param name="item">The text to log</param>
-        /// <param name="type">The type</param>
+        /// <param name="type">The type of log</param>
         public void AddLog(string item, string type = DEFAULT_TYPE)
         {
             log.Add(new Log(item, type));
         }
+
+        /// <summary>
+        /// Add log with timestamp
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="gameTime"></param>
+        /// <param name="type"></param>
+        public void AddLogWithGameTime(string item, DateTime gameTime, string type = DEFAULT_TYPE)
+        {
+            log.Add(new Log(item, type, gameTime));
+        }
+
+
 
         /// <summary>
         /// Fetch the current log

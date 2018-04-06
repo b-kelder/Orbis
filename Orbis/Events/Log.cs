@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Orbis.Simulation;
+using System;
 
 namespace Orbis.Events
 {
@@ -7,6 +8,7 @@ namespace Orbis.Events
         public string Item { get; set; }
         public string Type { get; set; }
         public string Timestamp { get; set; }
+        public string GameTimestamp { get; set; }
 
         /// <summary>
         /// Create a log object
@@ -15,9 +17,23 @@ namespace Orbis.Events
         /// <param name="type">The type of the log</param>
         public Log(string item, string type)
         {
-            Item        = item;
-            Type        = type;
-            Timestamp   = DateTime.Now.ToString();
+            Item            = item;
+            Type            = type;
+            Timestamp       = DateTime.Now.ToString();
+        }
+
+        /// <summary>
+        /// Create a log object with gametime
+        /// </summary>
+        /// <param name="item">The item to log</param>
+        /// <param name="type">The type of the log</param>
+        /// <param name="gameTime">The current gametime</param>
+        public Log(string item, string type, DateTime gameTime)
+        {
+            Item = item;
+            Type = type;
+            Timestamp = DateTime.Now.ToString();
+            GameTimestamp = gameTime.ToString("MMM yyyy");
         }
 
         /// <summary>
@@ -26,7 +42,12 @@ namespace Orbis.Events
         /// <returns></returns>
         public override string ToString()
         {
-            return Timestamp + ":" + " (" + Type + ") > " + Item;
+            string gameTime = "";
+            if (GameTimestamp != null)
+            {
+                gameTime = " | gametime:" + GameTimestamp;
+            }
+            return Timestamp + gameTime + " (" + Type + ") > " + Item;
         }
     }
 }
