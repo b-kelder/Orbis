@@ -152,7 +152,7 @@ namespace Orbis.UI.Windows
                 orbis.Simulator.TogglePause();
             }
             //Create writer, add console exporter, export to console
-            logExporter.Export(Logger.GetInstance().GetLog());
+            logExporter.Export(logger.GetLog());
         }
 
         /// <summary>
