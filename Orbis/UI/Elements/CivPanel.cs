@@ -135,7 +135,7 @@ namespace Orbis.UI.Elements
             int fullTextHeight = (int)Math.Ceiling(_textFont.MeasureString(_civText).Y);
 
             // A new render target needs to be created if the dimensions have changed or if it doesn't exist.
-            if (_fullTexture == null || _fullTexture.Height != fullTextHeight)
+            if (_fullTexture == null || _fullTexture.Height != fullTextHeight && fullTextHeight > 0)
             {
                 if (_fullTexture != null)
                 {

@@ -91,10 +91,10 @@ namespace Orbis.UI.Windows
                 AnchorPosition = AnchorPosition.Center,
                 RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10, 10),
                 Text = "Generate a world based on the following settings:\r\n" +
-                "Seed: " + 
-                "\r\nCivilization count: " +
-                "\r\nMap radius: " +
-                "\r\nMonths to simulate: ",
+                "\r\nSeed: " +
+                "\r\n\r\nCivilization count: " +
+                "\r\n\r\nMap radius: " +
+                "\r\n\r\nMonths to simulate: ",
                 Visible = false
             });
 
@@ -108,8 +108,7 @@ namespace Orbis.UI.Windows
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + b, e + 5),
-                Focused = true,
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + b, 2 * e + 5),
                 MaxDigits = 8,
                 Visible = false,
                 LayerDepth = 0.03F
@@ -118,8 +117,7 @@ namespace Orbis.UI.Windows
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + b, 2 * e + 5),
-                Focused = true,
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + b, 4 * e + 5),
                 MaxDigits = 8,
                 Visible = false,
                 LayerDepth = 0.03F
@@ -128,8 +126,7 @@ namespace Orbis.UI.Windows
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + b, 3 * e + 5),
-                Focused = true,
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + b, 6 * e + 5),
                 MaxDigits = 8,
                 Visible = false,
                 LayerDepth = 0.03F
@@ -138,8 +135,7 @@ namespace Orbis.UI.Windows
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + b, 4 * e + 5),
-                Focused = true,
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + b, 8 * e + 5),
                 MaxDigits = 8,
                 Visible = false,
                 LayerDepth = 0.03F
@@ -218,7 +214,7 @@ namespace Orbis.UI.Windows
 
             if (backgroundPopup.Visible)
             {
-                if (seed.GetValue() > 0 && civs.GetValue() > 0 && radius.GetValue() > 0 && ticks.GetValue() > 0)
+                if (seed.GetValue() > 0 && civs.GetValue() > 0 && radius.GetValue() > 0 && ticks.GetValue() > -1)
                 {
                     startButton.Focused = true;
                 }

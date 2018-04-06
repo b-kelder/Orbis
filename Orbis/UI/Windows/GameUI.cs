@@ -181,7 +181,8 @@ namespace Orbis.UI.Windows
         {
             // Handle the scene seperately because for some reason it doesn't want to draw when used as a regular child
             //spriteBatch.Draw(scene.SpriteDefinition.SpriteSheet, scene.SpriteDefinition.SourceRectangle, Color.White);
-            spriteBatch.Draw(scene.SpriteDefinition.SpriteSheet, scene.SpriteDefinition.SourceRectangle, null, Color.White, 0, Vector2.Zero, SpriteEffects.FlipHorizontally | SpriteEffects.FlipVertically, 0.5f);
+            spriteBatch.Draw(scene.SpriteDefinition.SpriteSheet, scene.SpriteDefinition.SourceRectangle, 
+                null, Color.White, 0, Vector2.Zero, SpriteEffects.None, 0.5f);
             base.Draw(spriteBatch);
         }
 

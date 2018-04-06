@@ -123,7 +123,7 @@ namespace Orbis.Simulation
         public void Update(GameTime gameTime)
         {
             // Check if the max ticks has been reached
-            if (CurrentTick >= MaxTick || pause)
+            if (MaxTick > 0 && CurrentTick >= MaxTick || pause)
             {
                 return;
             }
