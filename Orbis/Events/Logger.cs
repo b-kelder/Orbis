@@ -1,5 +1,4 @@
-﻿using Orbis.Simulation;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Orbis.Events
@@ -34,23 +33,28 @@ namespace Orbis.Events
         /// </summary>
         /// <param name="item">The text to log</param>
         /// <param name="type">The type of log</param>
-        public void AddLog(string item, string type = DEFAULT_TYPE)
+        public void Add(string item, string type = DEFAULT_TYPE)
         {
             log.Add(new Log(item, type));
         }
 
         /// <summary>
-        /// Add log with timestamp
+        /// Add log with gametimestamp
         /// </summary>
         /// <param name="item"></param>
         /// <param name="gameTime"></param>
         /// <param name="type"></param>
-        public void AddLogWithGameTime(string item, DateTime gameTime, string type = DEFAULT_TYPE)
+        public void AddWithGameTime(string item, DateTime gameTime, string type = DEFAULT_TYPE)
         {
-            log.Add(new Log(item, type, gameTime));
+            Dictionary<string, string> data = new Dictionary<string, string>
+            {
+                { "Timestamp",  DateTime.Now.ToString() },
+                { "Gametime",   gameTime.ToString("MMM yyyy") },
+                { "Type",       type },
+                { "Item",       item }
+            };
+            log.Add(new Log(data, "{0} | gametime: {1}: ({2}) > {3}"));
         }
-
-
 
         /// <summary>
         /// Fetch the current log
@@ -59,29 +63,6 @@ namespace Orbis.Events
         public List<Log> GetLog()
         {
             return log;
-        }
-
-        /// <summary>
-        /// Get a log by type
-        /// </summary>
-        /// <param name="type">The type to fetch</param>
-        /// <returns>List of logs</returns>
-        public List<Log> GetLogByType(string type)
-        {
-            // Create a local list with logs
-            List<Log> tempLog = new List<Log>();
-
-            foreach (var logItem in log)
-            {
-                // If the type matches the given type, put in new list
-                if (logItem.Type == type)
-                {
-                    tempLog.Add(logItem);
-                }
-            }
-
-            // Return local list
-            return tempLog;
         }
     }
 }

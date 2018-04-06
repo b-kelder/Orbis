@@ -19,7 +19,7 @@ namespace Orbis.Events.Exporters
             data = Environment.NewLine + Environment.NewLine + "Exported at: " + DateTime.Now.ToString() + Environment.NewLine + Environment.NewLine;
             
             await CreateFile("Orbis Log");
-            foreach (Log log in logs)
+            foreach (Log log in logs.ToArray())
             {
                 data += log.ToString() + Environment.NewLine;
             }

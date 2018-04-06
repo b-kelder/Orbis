@@ -36,19 +36,15 @@ namespace Orbis.Events.Exporters
                     string timestamp = DateTime.Now.ToString();
 
                     // Write each log in a new Log node
-                    foreach (Log log in logs)
+                    foreach (Log log in logs.ToArray())
                     {
                         writer.WriteStartElement("Log");
                         writer.WriteAttributeString("exportedAt", timestamp);
-                        writer.WriteElementString("Item", log.Item);
-                        writer.WriteElementString("Type", log.Type);
-                        writer.WriteElementString("Timestamp", log.Timestamp);
 
-                        if (log.GameTimestamp != null)
+                        foreach (KeyValuePair<string, string> data in log.GetData())
                         {
-                            writer.WriteElementString("GameTime", log.GameTimestamp);
+                            writer.WriteElementString(data.Key, data.Value);
                         }
-
                         writer.WriteEndElement();
                     }
                     await writer.FlushAsync();

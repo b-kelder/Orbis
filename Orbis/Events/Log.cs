@@ -1,39 +1,58 @@
-﻿using Orbis.Simulation;
-using System;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Orbis.Events
 {
     class Log
     {
-        public string Item { get; set; }
-        public string Type { get; set; }
-        public string Timestamp { get; set; }
-        public string GameTimestamp { get; set; }
+        private const string DEFAULT_FORMAT = "{0}: ({1}) > {2}";
+        private string format;
+        private Dictionary<string, string> data;
 
         /// <summary>
-        /// Create a log object
+        /// Create a standard log with format options
         /// </summary>
         /// <param name="item">The item to log</param>
-        /// <param name="type">The type of the log</param>
-        public Log(string item, string type)
+        /// <param name="type">The type to log</param>
+        /// <param name="format">Display format of the log object</param>
+        public Log(string item, string type, string format = DEFAULT_FORMAT)
         {
-            Item            = item;
-            Type            = type;
-            Timestamp       = DateTime.Now.ToString();
+            data = new Dictionary<string, string>
+            {
+                { "Timestamp",  DateTime.Now.ToString() },
+                { "Type",       type },
+                { "Item",       item }
+            };
+            this.format = format;
         }
 
         /// <summary>
-        /// Create a log object with gametime
+        /// Create a custom log object with option to format
         /// </summary>
-        /// <param name="item">The item to log</param>
-        /// <param name="type">The type of the log</param>
-        /// <param name="gameTime">The current gametime</param>
-        public Log(string item, string type, DateTime gameTime)
+        /// <param name="data">The data to log with key and value</param>
+        /// <param name="format">Display format of the log object</param>
+        public Log(Dictionary<string, string> data, string format = DEFAULT_FORMAT)
         {
-            Item = item;
-            Type = type;
-            Timestamp = DateTime.Now.ToString();
-            GameTimestamp = gameTime.ToString("MMM yyyy");
+            this.data   = data;
+            this.format = format;
+        }
+
+        /// <summary>
+        /// Returns the log object data
+        /// </summary>
+        /// <returns>The data</returns>
+        public Dictionary<string, string> GetData()
+        {
+            return data;
+        }
+
+        /// <summary>
+        /// Get the current configuered format used to format log objects
+        /// </summary>
+        /// <returns>The string format</returns>
+        public string GetFormat()
+        {
+            return format;
         }
 
         /// <summary>
@@ -42,12 +61,14 @@ namespace Orbis.Events
         /// <returns></returns>
         public override string ToString()
         {
-            string gameTime = "";
-            if (GameTimestamp != null)
-            {
-                gameTime = " | gametime:" + GameTimestamp;
-            }
-            return Timestamp + gameTime + " (" + Type + ") > " + Item;
+            // Variable to hold the value array of the data Dictionary
+            string[] arrayData = new string[data.Count];
+
+            // Copy data to array
+            data.Values.CopyTo(arrayData, 0);
+
+            // Return formatted string in configuered format
+            return String.Format(format, arrayData);
         }
     }
 }
