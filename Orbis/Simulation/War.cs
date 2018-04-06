@@ -48,7 +48,7 @@ namespace Orbis.Simulation
             Defender.Wars.Add(this);
 
             _logger = Logger.GetInstance();
-            _logger.AddLogWithGameTime(Attacker.Name + " has declared war on ." + Defender.Name, Simulator.Date, "war");
+            _logger.AddWithGameTime(Attacker.Name + " has declared war on ." + Defender.Name, Simulator.Date, "war");
         }
 
         /// <summary>
@@ -76,21 +76,21 @@ namespace Orbis.Simulation
                 //+ (0.4 * Attacker.Population + 10 * Attacker.Wars.Count)
                 //- (0.4 * Defender.Population + 10 * Defender.Wars.Count));
 
-                _logger.AddLogWithGameTime("Battle result for battle between " + Attacker.Name + " and " + Defender.Name + ": " + battleResult + ".", Simulator.Date, "war");
+                _logger.AddWithGameTime("Battle result for battle between " + Attacker.Name + " and " + Defender.Name + ": " + battleResult + ".", Simulator.Date, "war");
 
                 if (battleResult > _upperBound)
                 {
                     result.Winner = Attacker;
                     result.OccupiedTerritory = GetOccupiedTerritory(Attacker, Defender);
 
-                    _logger.AddLogWithGameTime(Attacker.Name + "(" + Attacker.Population + ") has won a battle against " + Defender.Name + "(" + Defender.Population + ")", Simulator.Date, "war");
+                    _logger.AddWithGameTime(Attacker.Name + "(" + Attacker.Population + ") has won a battle against " + Defender.Name + "(" + Defender.Population + ")", Simulator.Date, "war");
                 }
                 else if (battleResult < _lowerBound)
                 {
                     result.Winner = Defender;
                     result.OccupiedTerritory = GetOccupiedTerritory(Defender, Attacker);
 
-                    _logger.AddLogWithGameTime(Defender.Name + "(" + Defender.Population + ") has won a battle against " + Attacker.Name + "(" + Attacker.Population + ")", Simulator.Date, "war");
+                    _logger.AddWithGameTime(Defender.Name + "(" + Defender.Population + ") has won a battle against " + Attacker.Name + "(" + Attacker.Population + ")", Simulator.Date, "war");
                 }
 
                 int endScore = _random.Next(1, 6) - _battleBalance + _duration;
@@ -100,7 +100,7 @@ namespace Orbis.Simulation
 
             if (warEnded)
             {
-                _logger.AddLogWithGameTime("The war between " + Attacker.Name + "(" + Attacker.Population + ") and " + Defender.Name + "(" + Defender.Population + ") has ended. (Duration: " + _duration + ")", Simulator.Date, "war");
+                _logger.AddWithGameTime("The war between " + Attacker.Name + "(" + Attacker.Population + ") and " + Defender.Name + "(" + Defender.Population + ") has ended. (Duration: " + _duration + ")", Simulator.Date, "war");
 
                 Attacker.Wars.Remove(this);
                 Defender.Wars.Remove(this);

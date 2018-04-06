@@ -34,7 +34,7 @@ namespace Orbis.Events
         /// </summary>
         /// <param name="item">The text to log</param>
         /// <param name="type">The type of log</param>
-        public void AddLog(string item, string type = DEFAULT_TYPE)
+        public void Add(string item, string type = DEFAULT_TYPE)
         {
             log.Add(new Log(item, type));
         }
@@ -45,7 +45,7 @@ namespace Orbis.Events
         /// <param name="item"></param>
         /// <param name="gameTime"></param>
         /// <param name="type"></param>
-        public void AddLogWithGameTime(string item, DateTime gameTime, string type = DEFAULT_TYPE)
+        public void AddWithGameTime(string item, DateTime gameTime, string type = DEFAULT_TYPE)
         {
             log.Add(new Log(item, type, gameTime));
         }
