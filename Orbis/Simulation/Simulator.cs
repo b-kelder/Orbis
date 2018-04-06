@@ -1,12 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using Orbis.Engine;
 using Orbis.World;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -20,7 +16,7 @@ namespace Orbis.Simulation
         /// Current tick of the simulation
         /// </summary>
         public int CurrentTick { get; set; }
-        public DateTime Date { get; set; }
+        public static DateTime Date { get; set; }
         /// <summary>
         /// The scene to simulate
         /// </summary>
@@ -69,6 +65,12 @@ namespace Orbis.Simulation
             ongoingWars = new List<War>();
             removeOwner = new ConcurrentDictionary<Cell, Civilization>();
         }
+
+        public static DateTime GetDate()
+        {
+            return Date;
+        }
+    
 
         /// <summary>
         /// Toggle between paused and running state

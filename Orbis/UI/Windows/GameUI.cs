@@ -262,7 +262,7 @@ namespace Orbis.UI.Windows
             if (orbis.Simulator.MaxTick > 0)
             {
                 progressBar.Progress = ((float)orbis.Simulator.CurrentTick / orbis.Simulator.MaxTick);
-                progressBar.Message = "Date: " + orbis.Simulator.Date.ToString("MMM yyyy");
+                progressBar.Message = "Date: " + Simulator.Date.ToString("MMM yyyy");
             }
             else
             {
