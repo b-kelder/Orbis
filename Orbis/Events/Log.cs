@@ -5,10 +5,9 @@ namespace Orbis.Events
     class Log
     {
         private const string DEFAULT_FORMAT = "{0}: ({1}) > {2}";
-        private string[] data;
         private string format;
+        private string[] data;
 
-         
         /// <summary>
         /// Create a log object
         /// </summary>

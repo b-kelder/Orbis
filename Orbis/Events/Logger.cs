@@ -46,11 +46,10 @@ namespace Orbis.Events
         /// <param name="type"></param>
         public void AddWithGameTime(string item, DateTime gameTime, string type = DEFAULT_TYPE)
         {
-            string[] data = { item, gameTime.ToString("MMM yyyy"), type, item };
-            log.Add(new Log(data, "{3} | gametime: {0}: ({1}) > {2}"));
+            // Create a special log with custom format.
+            string[] data = { DateTime.Now.ToString(), gameTime.ToString("MMM yyyy"), type, item };
+            log.Add(new Log(data, "{0} | gametime: {1}: ({2}) > {3}"));
         }
-
-
 
         /// <summary>
         /// Fetch the current log
