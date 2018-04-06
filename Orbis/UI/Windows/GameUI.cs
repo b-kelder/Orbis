@@ -15,6 +15,7 @@ namespace Orbis.UI.Windows
     {
         private ProgressBar progressBar;
         private RelativeTexture background;
+        private RelativeTexture cellInfoBackground;
         private RelativeTexture backgroundProgressBar;
         private RelativeTexture scene;
         private RelativeText text;
@@ -105,6 +106,23 @@ namespace Orbis.UI.Windows
                 LayerDepth = 1
             });
 
+            // Background for UI
+            AddChild(cellInfoBackground = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(UI_COLOR), new Rectangle(0, 0, 1, 1)))
+            {
+                Size = new Point(RIGHT_UI_WIDTH, 300),
+                AnchorPosition = AnchorPosition.BottomRight,
+                RelativePosition = new Point(-RIGHT_UI_WIDTH * 2, -BOTTOM_UI_HEIGHT - 300),
+                LayerDepth = 0.5f
+            });
+
+            AddChild(text = new RelativeText(this, contentManager.GetFont("DebugFont"))
+            {
+                Text = "Kill me pls",
+                AnchorPosition = AnchorPosition.BottomRight,
+                RelativePosition = new Point(-RIGHT_UI_WIDTH * 2, -BOTTOM_UI_HEIGHT - 300),
+                LayerDepth = 0.4f
+            });
+
             // Scene panel
             var sceneSize = new Point(_game.Window.ClientBounds.Width - RIGHT_UI_WIDTH, _game.Window.ClientBounds.Height - BOTTOM_UI_HEIGHT);
             AddChild(scene = new RelativeTexture(this, new SpriteDefinition(
@@ -161,9 +179,9 @@ namespace Orbis.UI.Windows
         /// <param name="spriteBatch"></param>
         public override void Draw(SpriteBatch spriteBatch)
         {
-            base.Draw(spriteBatch);
             // Handle the scene seperately because for some reason it doesn't want to draw when used as a regular child
             spriteBatch.Draw(scene.SpriteDefinition.SpriteSheet, scene.SpriteDefinition.SourceRectangle, Color.White);
+            base.Draw(spriteBatch);
         }
 
         /// <summary>

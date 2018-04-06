@@ -316,7 +316,7 @@ namespace Orbis.Simulation
             foreach (var cell in civilization.Territory)
             {
                 // If Population is negative or zero
-                if (cell.population <= 0)
+                if (cell.population <= 0 && !cell.IsWater)
                 {
                     // Add the cell to a list to remove its owner
                     removeOwner.TryAdd(cell, civilization);
