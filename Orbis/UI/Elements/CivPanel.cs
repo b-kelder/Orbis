@@ -104,12 +104,18 @@ namespace Orbis.UI.Elements
                     RelativePosition = new Point(-15, 0)
                 };
 
+                int index = 0;
                 foreach (Civilization civ in civs)
                 {
                     _civTexturePairs.Add(civ, new Entry()
                     {
                         Texture = manager.GetColorTexture(civ.Color)
                     });
+                    index++;
+                    if (index >= 100)
+                    {
+                        break;
+                    }
                 }
             }
             else
@@ -146,6 +152,7 @@ namespace Orbis.UI.Elements
             spriteBatch.Begin(SpriteSortMode.BackToFront);
             foreach (var civTexturePair in _civTexturePairs)
             {
+                
                 var civEntry = civTexturePair.Value;
                 spriteBatch.Draw(civEntry.Texture,
                     new Rectangle(civEntry.EntryRect.Location, new Point(5, civEntry.EntryRect.Height)),
