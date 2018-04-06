@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Orbis.Events.Exporters;
+using Orbis.Events.Helpers;
 
 namespace Orbis.Events
 {
-    class LogExporter
+    class LogExporter : DeviceWriterHelper
     {
         private List<ILogExporter> exporters;
 
