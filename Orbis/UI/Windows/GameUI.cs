@@ -8,6 +8,7 @@ using Orbis.UI.Elements;
 using Orbis.Simulation;
 using Orbis.Events;
 using Orbis.Events.Exporters;
+using System.Threading.Tasks;
 
 namespace Orbis.UI.Windows
 {
@@ -169,8 +170,10 @@ namespace Orbis.UI.Windows
             {
                 orbis.Simulator.TogglePause();
             }
-            //Create writer, add console exporter, export to console
-            logExporter.Export(Logger.GetInstance().GetLog());
+
+            //Export logs and open storage location
+            logExporter.Export(logger.GetLog());
+            logExporter.OpenStorageFolderOrDefault();
         }
 
         /// <summary>
