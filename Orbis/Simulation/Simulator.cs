@@ -66,12 +66,6 @@ namespace Orbis.Simulation
             removeOwner = new ConcurrentDictionary<Cell, Civilization>();
         }
 
-        public static DateTime GetDate()
-        {
-            return Date;
-        }
-    
-
         /// <summary>
         /// Toggle between paused and running state
         /// </summary>
