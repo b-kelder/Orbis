@@ -1,39 +1,36 @@
-﻿using Orbis.Simulation;
-using System;
+﻿using System;
 
 namespace Orbis.Events
 {
     class Log
     {
-        public string Item { get; set; }
-        public string Type { get; set; }
-        public string Timestamp { get; set; }
-        public string GameTimestamp { get; set; }
+        private const string DEFAULT_FORMAT = "{0}: ({1}) > {2}";
+        private string[] data;
+        private string format;
 
+         
         /// <summary>
         /// Create a log object
         /// </summary>
         /// <param name="item">The item to log</param>
         /// <param name="type">The type of the log</param>
-        public Log(string item, string type)
+        public Log(string item, string type, string format = DEFAULT_FORMAT)
         {
-            Item            = item;
-            Type            = type;
-            Timestamp       = DateTime.Now.ToString();
+            data[0]         = item;
+            data[1]         = type;
+            data[2]         = DateTime.Now.ToString();
+            this.format     = format;
         }
 
         /// <summary>
-        /// Create a log object with gametime
+        /// Log a string array
         /// </summary>
-        /// <param name="item">The item to log</param>
-        /// <param name="type">The type of the log</param>
-        /// <param name="gameTime">The current gametime</param>
-        public Log(string item, string type, DateTime gameTime)
+        /// <param name="data">The data to log</param>
+        /// <param name="format">The format to use</param>
+        public Log(string[] data, string format = DEFAULT_FORMAT)
         {
-            Item = item;
-            Type = type;
-            Timestamp = DateTime.Now.ToString();
-            GameTimestamp = gameTime.ToString("MMM yyyy");
+            this.data   = data;
+            this.format = format;
         }
 
         /// <summary>
@@ -42,12 +39,7 @@ namespace Orbis.Events
         /// <returns></returns>
         public override string ToString()
         {
-            string gameTime = "";
-            if (GameTimestamp != null)
-            {
-                gameTime = " | gametime:" + GameTimestamp;
-            }
-            return Timestamp + gameTime + " (" + Type + ") > " + Item;
+            return String.Format(format, data);
         }
     }
 }

@@ -7,13 +7,13 @@ using Orbis.Events.Helpers;
 
 namespace Orbis.Events.Exporters
 {
-    class XMLFileExporter : DeviceWriterHelper, ILogExporter
+    class XMLFileExporter : DeviceWriterHelper
     {
         /// <summary>
         /// Export a list of logs to an XML file
         /// </summary>
         /// <param name="logs">The list of logs that needs to be exported</param>
-        public async void Export(List<Log> logs)
+        /*public async void Export(List<Log> logs)
         {
             // Create a new file, if duplicate, create unique name
             StorageFile currentFile = await CreateFile("Orbis Log", "xml", CreationCollisionOption.GenerateUniqueName);
@@ -54,6 +54,6 @@ namespace Orbis.Events.Exporters
                     await writer.FlushAsync();
                 }
             }
-        }
+        }*/
     }
 }
