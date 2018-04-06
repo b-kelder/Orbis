@@ -20,6 +20,11 @@ namespace Orbis.UI.Windows
         private Button quitButton;
         private StateManager stateManager;
 
+        private InputNumberField seed;
+        private InputNumberField civs;
+        private InputNumberField radius;
+        private InputNumberField ticks;
+
         private Color BACKGROUND_COLOR = Color.LightGray;
         private RelativeText text;
 
@@ -86,12 +91,65 @@ namespace Orbis.UI.Windows
                 AnchorPosition = AnchorPosition.Center,
                 RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10, 10),
                 Text = "Generate a world based on the following settings:\r\n" +
-                "Seed: " + Orbis.TEST_SEED + 
-                "\r\nCivilization count: " + Orbis.TEST_CIVS +
-                "\r\nMap radius: " + Orbis.TEST_RADIUS +
-                "\r\nMonths to simulate: " + Orbis.TEST_TICKS,
+                "Seed: " + 
+                "\r\nCivilization count: " +
+                "\r\nMap radius: " +
+                "\r\nMonths to simulate: ",
                 Visible = false
             });
+
+            SpriteFont font = _contentManager.GetFont("DebugFont");
+
+            int b = (int)Math.Ceiling(font.MeasureString("Civilization count: ").X);
+            int e = (int)Math.Ceiling(font.MeasureString("S").Y);
+            int fieldWidth = (int)Math.Ceiling(font.MeasureString("99999999").X);
+
+            AddChild(seed = new InputNumberField(this)
+            {
+                AnchorPosition = AnchorPosition.Center,
+                Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + b, e + 5),
+                Focused = true,
+                MaxDigits = 8,
+                Visible = false,
+                LayerDepth = 0.03F
+            });
+            AddChild(civs = new InputNumberField(this)
+            {
+                AnchorPosition = AnchorPosition.Center,
+                Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + b, 2 * e + 5),
+                Focused = true,
+                MaxDigits = 8,
+                Visible = false,
+                LayerDepth = 0.03F
+            });
+            AddChild(radius = new InputNumberField(this)
+            {
+                AnchorPosition = AnchorPosition.Center,
+                Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + b, 3 * e + 5),
+                Focused = true,
+                MaxDigits = 8,
+                Visible = false,
+                LayerDepth = 0.03F
+            });
+            AddChild(ticks = new InputNumberField(this)
+            {
+                AnchorPosition = AnchorPosition.Center,
+                Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + b, 4 * e + 5),
+                Focused = true,
+                MaxDigits = 8,
+                Visible = false,
+                LayerDepth = 0.03F
+            });
+
+            game.Window.TextInput += seed.Window_TextInput;
+            game.Window.TextInput += civs.Window_TextInput;
+            game.Window.TextInput += radius.Window_TextInput;
+            game.Window.TextInput += ticks.Window_TextInput;
+
 
             AddChild(startButton = new Button(this, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Start"), new Rectangle(0, 0, 200, 57)))
             {
@@ -116,6 +174,11 @@ namespace Orbis.UI.Windows
             startButton.Focused = true;
             text.Visible = true;
 
+            seed.Visible = true;
+            civs.Visible = true;
+            radius.Visible = true;
+            ticks.Visible = true;
+
             popupButton.Focused = false;
             optionsButton.Focused = false;
             quitButton.Focused = false;
@@ -133,7 +196,7 @@ namespace Orbis.UI.Windows
 
         private void StartButton_Click(object sender, EventArgs e)
         {
-            orbis.GenerateWorld(Orbis.TEST_SEED, orbis.DecorationSettings, orbis.WorldSettings, orbis.BiomeCollection, orbis.CivSettings, Orbis.TEST_CIVS, Orbis.TEST_RADIUS, Orbis.TEST_TICKS);
+            orbis.GenerateWorld(seed.GetValue(), orbis.DecorationSettings, orbis.WorldSettings, orbis.BiomeCollection, orbis.CivSettings, civs.GetValue(), radius.GetValue(), ticks.GetValue());
             orbis.UI.CurrentWindow = new GameUI(orbis);
             stateManager.SetActiveState(StateManager.State.GAME);
         }
