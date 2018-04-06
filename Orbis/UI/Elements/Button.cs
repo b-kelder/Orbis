@@ -51,12 +51,6 @@ namespace Orbis.UI.Elements
             }
         }
 
-
-        /// <summary>
-        ///     Is the button focused?.
-        /// </summary>
-        public bool IsFocused { get; set; }
-
         /// <summary>
         ///     The layer depth of the button.
         /// </summary>
@@ -136,21 +130,17 @@ namespace Orbis.UI.Elements
         ///     The text displayed on the button.
         /// </summary>
         public string Text { get => _textString; set => _textString = value; }
-
-        public bool Visible
-        {
-            get
-            {
-                return visible;
-            }
-            set
-            {
-                visible = value;
-            }
-        }
-        private bool visible = true;
-
         private string _textString;
+
+        /// <summary>
+        ///     Is the button visible?
+        /// </summary>
+        public bool Visible { get; set; }
+
+        /// <summary>
+        ///     Is the button in focus?
+        /// </summary>
+        public bool Focused { get; set; }
 
         /// <summary>
         ///     Create a new <see cref="Button"/>.
@@ -172,7 +162,9 @@ namespace Orbis.UI.Elements
             {
                 _hasText = false;
             }
-            IsFocused = false;
+
+            Focused = false;
+            Visible = false;
         }
 
         /// <summary>
@@ -207,7 +199,7 @@ namespace Orbis.UI.Elements
         public void Update()
         {
             // Non-focused buttons don't update.
-            if (IsFocused)
+            if (Focused)
             {
                 InputHandler input = InputHandler.GetInstance();
                 Point mousePos = Mouse.GetState().Position;

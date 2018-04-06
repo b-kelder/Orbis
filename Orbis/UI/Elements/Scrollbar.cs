@@ -11,7 +11,7 @@ namespace Orbis.UI.Elements
     /// </summary>
     /// 
     /// <author>Kaj van der Veen</author>
-    public class Scrollbar : RelativeElement, IUpdatableElement
+    public class Scrollbar : RelativeElement, IUpdatableElement, IRenderableElement
     {
         // Used to display the background.
         private RelativeTexture _background;
@@ -93,7 +93,38 @@ namespace Orbis.UI.Elements
         /// <summary>
         ///     Is the scrollbar in focus?
         /// </summary>
-        public bool IsFocused { get; set; }
+        public bool Focused
+        {
+            get
+            {
+                return _upButton.Focused;
+            }
+            set
+            {
+                // Apply to all relevant child elements.
+                _upButton.Focused = value;
+                _downButton.Focused = value;
+            }
+        }
+
+        /// <summary>
+        ///     Is the scrollbar visible?
+        /// </summary>
+        public bool Visible
+        {
+            get
+            {
+                return _background.Visible;
+            }
+            set
+            {
+                // Apply to all child elements.
+                _background.Visible = value;
+                _upButton.Visible = value;
+                _downButton.Visible = value;
+                _handle.Visible = value;
+            }
+        }
 
         /// <summary>
         ///     Create a new <see cref="Scrollbar"/>.
@@ -131,14 +162,16 @@ namespace Orbis.UI.Elements
             {
                 RelativePosition = Point.Zero,
                 Size = new Point(15, 15),
-                IsFocused = true
+                Focused = true,
+                Visible = true
             };
             _downButton = new Button(this, downButtonDef)
             {
                 AnchorPosition = AnchorPosition.BottomLeft,
                 RelativePosition = new Point(0, -15),
                 Size = new Point(15, 15),
-                IsFocused = true
+                Focused = true,
+                Visible = true
             };
             _handle = new RelativeTexture(this, handleDef)
             {
@@ -195,7 +228,7 @@ namespace Orbis.UI.Elements
         public void Update()
         {
             // Non-focused scrollbars are not updated.
-            if (IsFocused)
+            if (Focused)
             {
                 // Updating the buttons is only necessary when the mouse is over the scrollbar.
                 Point mousePos = Mouse.GetState().Position;

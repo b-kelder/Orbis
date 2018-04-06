@@ -65,18 +65,15 @@ namespace Orbis.UI.Elements
             }
         }
 
-        public bool Visible
-        {
-            get
-            {
-                return visible;
-            }
-            set
-            {
-                visible = value;
-            }
-        }
-        private bool visible = true;
+        /// <summary>
+        ///     Is the civ panel visible?
+        /// </summary>
+        public bool Visible { get; set; }
+
+        /// <summary>
+        ///     Is the civ panel in focus?
+        /// </summary>
+        public bool Focused { get; set; }
 
         /// <summary>
         ///     Create a new <see cref="CivPanel"/>.
@@ -93,24 +90,33 @@ namespace Orbis.UI.Elements
             _civTexturePairs = new Dictionary<Civilization, Entry>();
             _viewPort = Rectangle.Empty;
 
+            Visible = true;
+            Focused = true;
+
             if (UIContentManager.TryGetInstance(out UIContentManager manager))
             {
                 _textFont = manager.GetFont("DebugFont");
-            }
 
-            _scrollbar = new Scrollbar(this)
-            {
-                AnchorPosition = AnchorPosition.TopRight,
-                Size = new Point(15, this.Size.Y),
-                RelativePosition = new Point(-15, 0)
-            };
+                _scrollbar = new Scrollbar(this)
+                {
+                    AnchorPosition = AnchorPosition.TopRight,
+                    Size = new Point(15, this.Size.Y),
+                    RelativePosition = new Point(-15, 0)
+                };
 
-            foreach (Civilization civ in civs)
-            {
-                _civTexturePairs.Add(civ, new Entry() {
-                    Texture = manager.GetColorTexture(civ.Color)
-                });
+                foreach (Civilization civ in civs)
+                {
+                    _civTexturePairs.Add(civ, new Entry()
+                    {
+                        Texture = manager.GetColorTexture(civ.Color)
+                    });
+                }
             }
+            else
+            {
+                throw new InvalidOperationException("UI Content manager does not exist.");
+            }
+            
         }
 
         /// <summary>
@@ -179,12 +185,12 @@ namespace Orbis.UI.Elements
                 int textHeight = (int)Math.Ceiling(_textFont.MeasureString(_civText).Y);
                 if (textHeight > Size.Y)
                 {
-                    _scrollbar.IsFocused = true;
+                    _scrollbar.Focused = true;
                     _scrollbar.Render(spriteBatch);
                 }
                 else
                 {
-                    _scrollbar.IsFocused = false;
+                    _scrollbar.Focused = false;
                 }
 
                 spriteBatch.Draw(_fullTexture,

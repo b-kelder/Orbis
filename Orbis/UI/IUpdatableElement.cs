@@ -11,5 +11,10 @@
         ///     Perform this frame's update.
         /// </summary>
         void Update();
+
+        /// <summary>
+        ///     Is the element in focus?
+        /// </summary>
+        bool Focused { get; set; }
     }
 }

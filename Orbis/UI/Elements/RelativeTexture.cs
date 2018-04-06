@@ -56,21 +56,12 @@ namespace Orbis.UI.Elements
                 _spriteDef = (value.SpriteSheet != null) ? value : throw new ArgumentNullException();
             }
         }
-
-        public bool Visible
-        {
-            get
-            {
-                return visible;
-            }
-            set
-            {
-                visible = value;
-            }
-        }
-        private bool visible = true;
-
         private SpriteDefinition _spriteDef;
+
+        /// <summary>
+        ///     Is the texture visible?
+        /// </summary>
+        public bool Visible { get; set; }
 
         /// <summary>
         ///     Create a new <see cref="RelativeTexture"/>.

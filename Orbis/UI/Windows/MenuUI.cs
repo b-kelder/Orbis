@@ -53,7 +53,7 @@ namespace Orbis.UI.Windows
                 Size = new Point(_game.Window.ClientBounds.Width / 6, _game.Window.ClientBounds.Height / 12),
                 RelativePosition = new Point(-_game.Window.ClientBounds.Width / 12, -_game.Window.ClientBounds.Height / 8 + 100),
                 LayerDepth = 0.5f,
-                IsFocused = true
+                Focused = true
             });
 
             AddChild(optionsButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Settings"), new Rectangle(0, 0, 200, 57)))
@@ -62,7 +62,7 @@ namespace Orbis.UI.Windows
                 Size = new Point(_game.Window.ClientBounds.Width / 6, _game.Window.ClientBounds.Height / 12),
                 RelativePosition = new Point(-_game.Window.ClientBounds.Width / 12, 0 + 100),
                 LayerDepth = 0.5f,
-                IsFocused = true
+                Focused = true
             });
 
             AddChild(quitButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Quit"), new Rectangle(0, 0, 200, 57)))
@@ -71,7 +71,7 @@ namespace Orbis.UI.Windows
                 Size = new Point(_game.Window.ClientBounds.Width / 6, _game.Window.ClientBounds.Height / 12),
                 RelativePosition = new Point(-_game.Window.ClientBounds.Width / 12, _game.Window.ClientBounds.Height / 8 + 100),
                 LayerDepth = 0.5f,
-                IsFocused = true
+                Focused = true
             });
 
             AddChild(backgroundPopup = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(Color.DarkGray), new Rectangle(0, 0, 1, 1)))
@@ -101,7 +101,7 @@ namespace Orbis.UI.Windows
                 Size = new Point(_game.Window.ClientBounds.Width / 8, _game.Window.ClientBounds.Height / 16),
                 RelativePosition = new Point(-_game.Window.ClientBounds.Width / 16, _game.Window.ClientBounds.Width / 8 - _game.Window.ClientBounds.Height / 16),
                 LayerDepth = 0.3f,
-                IsFocused = false,
+                Focused = false,
                 Visible = false
             });
 
@@ -115,12 +115,12 @@ namespace Orbis.UI.Windows
         {
             backgroundPopup.Visible = true;
             startButton.Visible = true;
-            startButton.IsFocused = true;
+            startButton.Focused = true;
             text.Visible = true;
 
-            popupButton.IsFocused = false;
-            optionsButton.IsFocused = false;
-            quitButton.IsFocused = false;
+            popupButton.Focused = false;
+            optionsButton.Focused = false;
+            quitButton.Focused = false;
         }
 
         private void QuitButton_Click(object sender, EventArgs e)

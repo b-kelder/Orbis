@@ -53,7 +53,7 @@ namespace Orbis.UI.Windows
                 RelativePosition = new Point(-(RIGHT_UI_WIDTH - 96) / 2 - 96 , -10),
                 Size = new Point(96, 64),
                 LayerDepth = 0,
-                IsFocused = true
+                Focused = true
             });
 
             AddChild(nextButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Next"), new Rectangle(0, 0, 70, 64)))
@@ -62,7 +62,7 @@ namespace Orbis.UI.Windows
                 RelativePosition = new Point(-(RIGHT_UI_WIDTH - playButton.Size.X) / 2, -10),
                 Size = new Point(70, 64),
                 LayerDepth = 0,
-                IsFocused = true
+                Focused = true
             });
 
             AddChild(exportButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Export"), new Rectangle(0, 0, 70, 64)))
@@ -71,7 +71,7 @@ namespace Orbis.UI.Windows
                 RelativePosition = new Point(-(RIGHT_UI_WIDTH - playButton.Size.X) / 2 - playButton.Size.X - 70, -10),
                 Size = new Point(70, 64),
                 LayerDepth = 0,
-                IsFocused = true
+                Focused = true
             });
 
             playButton.Click += PlayButton_Click;
