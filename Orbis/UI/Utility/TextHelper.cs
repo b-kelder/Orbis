@@ -45,9 +45,19 @@ namespace Orbis.UI.Utility
                 wrappedLines.Add(wrappedLine);
             }
 
-            foreach (string wrappedLine in wrappedLines)
+            int lineCount = wrappedLines.Count;
+            for (int lineIndex = 0; lineIndex < lineCount; lineIndex++)
             {
-                builder.AppendLine(wrappedLine);
+                string wrappedLine = wrappedLines[lineIndex];
+                // Add the wrapped line and a line break for all but the last line.
+                if (lineIndex < lineCount - 1)
+                {
+                    builder.AppendLine(wrappedLine);
+                }
+                else
+                {
+                    builder.Append(wrappedLine);
+                }
             }
 
             return builder.ToString();
@@ -74,7 +84,7 @@ namespace Orbis.UI.Utility
         {
             // The text is wrapped to fit in the button.
             float textWidth;
-            var wrapped = text;
+            string wrapped = text;
             bool fits;
 
             // First measurement needs to be done regardless.
@@ -92,6 +102,7 @@ namespace Orbis.UI.Utility
                 }
             } while (!fits);
 
+            // Any trailing spaces are removed; they shouldn't matter for the clipped text.
             return wrapped.TrimEnd(' ');
         }
 
@@ -111,6 +122,7 @@ namespace Orbis.UI.Utility
         /// </returns>
         private static string WrapLine(SpriteFont font, string line, float maxWidth)
         {
+            // A stringbuilder is used to create the wrapped line.
             StringBuilder lineBuilder = new StringBuilder();
             float spaceWidth = font.MeasureString(" ").X;
             float lineWidth = 0F;
@@ -156,7 +168,7 @@ namespace Orbis.UI.Utility
                     {
                         // Add the word on a new line.
                         lineBuilder.Append("\n" + word + " ");
-                        lineWidth = spaceWidth;
+                        lineWidth = spaceWidth + wordWidth;
                     }
                 }
             }
