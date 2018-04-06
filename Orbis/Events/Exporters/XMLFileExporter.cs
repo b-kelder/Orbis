@@ -43,6 +43,12 @@ namespace Orbis.Events.Exporters
                         writer.WriteElementString("Item", log.Item);
                         writer.WriteElementString("Type", log.Type);
                         writer.WriteElementString("Timestamp", log.Timestamp);
+
+                        if (log.GameTimestamp != null)
+                        {
+                            writer.WriteElementString("GameTime", log.GameTimestamp);
+                        }
+
                         writer.WriteEndElement();
                     }
                     await writer.FlushAsync();
