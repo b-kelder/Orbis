@@ -227,6 +227,7 @@ namespace Orbis.UI.Elements
 
                 entrySb.AppendLine(TextHelper.WrapText(_textFont, civ.Name, Size.X - 30));
                 entrySb.AppendLine("  Is Alive: " + civ.IsAlive);
+                entrySb.AppendLine("  Is at war: " + civ.AtWar);
                 entrySb.AppendLine("  Population: " + civ.Population);
                 entrySb.AppendLine("  Size: " + (civ.Territory.Count * 3141) + " KM^2");
                 entrySb.AppendLine("  Wealth: " + (int)civ.TotalWealth + " KG AU");

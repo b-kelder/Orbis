@@ -88,7 +88,10 @@ namespace Orbis.UI.Elements
             set
             {
                 _focused = value;
-                _renderText.Text += "_";
+                if (!_renderText.Text.Contains("_"))
+                {
+                    _renderText.Text += "_";
+                }
             }
         }
         private bool _focused;
