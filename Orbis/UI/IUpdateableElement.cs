@@ -5,7 +5,7 @@
     /// </summary>
     /// 
     /// <author>Kaj van der Veen</author>
-    public interface IUpdatableElement
+    public interface IUpdateableElement
     {
         /// <summary>
         ///     Perform this frame's update.

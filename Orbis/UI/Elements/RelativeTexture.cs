@@ -74,6 +74,7 @@ namespace Orbis.UI.Elements
             LayerDepth = 0F;
             Size = Point.Zero;
             SpriteEffects = SpriteEffects.None;
+            Visible = true;
         }
 
         /// <summary>

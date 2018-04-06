@@ -42,10 +42,8 @@ namespace Orbis.UI.Windows
             logger = Logger.GetInstance();
             logExporter = new LogExporter();
 
-            UIContentManager.TryGetInstance(out UIContentManager contentManager);
-
-            play = new SpriteDefinition(contentManager.GetTexture("UI/Button_Play"), new Rectangle(0, 0, 96, 64));
-            pause = new SpriteDefinition(contentManager.GetTexture("UI/Button_Pause"), new Rectangle(0, 0, 96, 64));
+            play = new SpriteDefinition(_contentManager.GetTexture("UI/Button_Play"), new Rectangle(0, 0, 96, 64));
+            pause = new SpriteDefinition(_contentManager.GetTexture("UI/Button_Pause"), new Rectangle(0, 0, 96, 64));
 
             AddChild(playButton = new Button(this, play)
             {
@@ -56,7 +54,7 @@ namespace Orbis.UI.Windows
                 Focused = true
             });
 
-            AddChild(nextButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Next"), new Rectangle(0, 0, 70, 64)))
+            AddChild(nextButton = new Button(this, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Next"), new Rectangle(0, 0, 70, 64)))
             {
                 AnchorPosition = AnchorPosition.TopRight,
                 RelativePosition = new Point(-(RIGHT_UI_WIDTH - playButton.Size.X) / 2, -10),
@@ -65,7 +63,7 @@ namespace Orbis.UI.Windows
                 Focused = true
             });
 
-            AddChild(exportButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Export"), new Rectangle(0, 0, 70, 64)))
+            AddChild(exportButton = new Button(this, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Export"), new Rectangle(0, 0, 70, 64)))
             {
                 AnchorPosition = AnchorPosition.TopRight,
                 RelativePosition = new Point(-(RIGHT_UI_WIDTH - playButton.Size.X) / 2 - playButton.Size.X - 70, -10),
@@ -88,7 +86,7 @@ namespace Orbis.UI.Windows
             });
 
             // Background for progressbar
-            AddChild(backgroundProgressBar = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(UI_COLOR), new Rectangle(0, 0, 1, 1)))
+            AddChild(backgroundProgressBar = new RelativeTexture(this, new SpriteDefinition(_contentManager.GetColorTexture(UI_COLOR), new Rectangle(0, 0, 1, 1)))
             {
                 Size = new Point(_game.Window.ClientBounds.Width - RIGHT_UI_WIDTH, BOTTOM_UI_HEIGHT),
                 AnchorPosition = AnchorPosition.BottomLeft,
@@ -97,7 +95,7 @@ namespace Orbis.UI.Windows
             });
 
             // Background for UI
-            AddChild(background = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(UI_COLOR), new Rectangle(0, 0, 1, 1)))
+            AddChild(background = new RelativeTexture(this, new SpriteDefinition(_contentManager.GetColorTexture(UI_COLOR), new Rectangle(0, 0, 1, 1)))
             {
                 Size = new Point(RIGHT_UI_WIDTH, _game.Window.ClientBounds.Height),
                 AnchorPosition = AnchorPosition.TopRight,

@@ -29,18 +29,10 @@ namespace Orbis.UI.Elements
         }
         private SpriteFont _font;
 
-        public bool Visible
-        {
-            get
-            {
-                return visible;
-            }
-            set
-            {
-                visible = value;
-            }
-        }
-        private bool visible = true;
+        /// <summary>
+        ///     Is the text visible?
+        /// </summary>
+        public bool Visible { get; set; }
 
         /// <summary>
         ///     The layer depth of the text.
@@ -107,6 +99,7 @@ namespace Orbis.UI.Elements
             TextColor = Color.Black;
             LayerDepth = 0F;
             SpriteEffects = SpriteEffects.None;
+            Visible = true;
         }
 
         /// <summary>

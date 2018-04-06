@@ -23,7 +23,7 @@ namespace Orbis
     public class Orbis : Game
     {
         public static readonly int TEST_SEED = 1000;
-        public static readonly int TEST_CIVS = 30;
+        public static readonly int TEST_CIVS = 15;
         public static readonly int TEST_RADIUS = 128;
         public static readonly int TEST_TICKS = 10000;
 
@@ -176,15 +176,6 @@ namespace Orbis
                         SceneRenderer.UpdateScene(updatedCells);
                     }
                 } while (updatedCells != null);
-            }
-
-            if (Input.IsKeyDown(Keys.S, new Keys[] { Keys.LeftShift, Keys.K, Keys.Y}))
-            {
-                Exit();
-            }
-            if (Input.IsKeyDown(Keys.P))
-            {
-                Simulator.TogglePause();
             }
 
             if(Input.IsKeyDown(Keys.F1))

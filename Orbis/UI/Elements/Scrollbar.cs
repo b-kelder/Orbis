@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Orbis.UI.Utility;
+using Orbis.Engine;
 using System;
 
 namespace Orbis.UI.Elements
@@ -11,7 +12,7 @@ namespace Orbis.UI.Elements
     /// </summary>
     /// 
     /// <author>Kaj van der Veen</author>
-    public class Scrollbar : RelativeElement, IUpdatableElement, IRenderableElement
+    public class Scrollbar : RelativeElement, IUpdateableElement, IRenderableElement
     {
         // Used to display the background.
         private RelativeTexture _background;
@@ -71,6 +72,8 @@ namespace Orbis.UI.Elements
             }
         }
         private float _scrollPos;
+
+        public int ScrollLength { get; set; }
 
         /// <summary>
         ///     The size of the scrollbar.
@@ -207,7 +210,7 @@ namespace Orbis.UI.Elements
         /// </summary>
         private void _downButton_Hold(object sender, EventArgs e)
         {
-            ScrollPosition = MathHelper.Clamp(ScrollPosition + 1F, 0F, 100F);
+            ScrollPosition = MathHelper.Clamp(ScrollPosition + 2F / (ScrollLength / _background.Size.Y), 0F, 100F);
 
             UpdateHandlePosition();
         }
@@ -217,7 +220,7 @@ namespace Orbis.UI.Elements
         /// </summary>
         private void _upButton_Hold(object sender, EventArgs e)
         {
-            ScrollPosition = MathHelper.Clamp(ScrollPosition - 1F, 0F, 100F);
+            ScrollPosition = MathHelper.Clamp(ScrollPosition - 2F / (ScrollLength / _background.Size.Y), 0F, 100F);
 
             UpdateHandlePosition();
         }
@@ -230,12 +233,24 @@ namespace Orbis.UI.Elements
             // Non-focused scrollbars are not updated.
             if (Focused)
             {
+                InputHandler input = InputHandler.GetInstance();
+
                 // Updating the buttons is only necessary when the mouse is over the scrollbar.
-                Point mousePos = Mouse.GetState().Position;
+                Point mousePos = input.GetMousePosition();
                 if (Bounds.Contains(mousePos))
                 {
                     _upButton.Update();
                     _downButton.Update();
+
+                    // Update position for dragging within the scrollbar.
+                    if (_background.Bounds.Contains(mousePos))
+                    {
+                        if (input.IsMouseHold(MouseButton.Left))
+                        {
+                            ScrollPosition = (mousePos.Y - _background.Bounds.Top) / (float)_background.Bounds.Height * 100F;
+                            UpdateHandlePosition();
+                        }
+                    }
                 }
             }
         }

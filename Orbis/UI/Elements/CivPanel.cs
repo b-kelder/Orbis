@@ -13,7 +13,7 @@ namespace Orbis.UI.Elements
     /// </summary>
     /// 
     /// <author>Kaj van der Veen</author>
-    public class CivPanel : RelativeElement, IRenderableElement, IUpdatableElement
+    public class CivPanel : RelativeElement, IRenderableElement, IUpdateableElement
     {
         // Used to keep track of the entries in the panel.
         private Dictionary<Civilization, Entry> _civTexturePairs;
@@ -199,7 +199,7 @@ namespace Orbis.UI.Elements
                     Color.White, 0f,
                     Vector2.Zero,
                     SpriteEffects.None,
-                    LayerDepth - 0.01F);
+                    LayerDepth - 0.001F);
             }
         }
 
@@ -222,7 +222,7 @@ namespace Orbis.UI.Elements
                 entrySb.AppendLine("  Is Alive: " + civ.IsAlive);
                 entrySb.AppendLine("  Population: " + civ.Population);
                 entrySb.AppendLine("  Size: " + (civ.Territory.Count * 3141) + " KM^2");
-                entrySb.AppendLine("  Wealth: " + (int)civ.TotalWealth + "KG AU");
+                entrySb.AppendLine("  Wealth: " + (int)civ.TotalWealth + " KG AU");
                 entrySb.Append("  Resources: " + (int)civ.TotalResource + " KG");
 
                 string entryText = entrySb.ToString();
@@ -236,13 +236,15 @@ namespace Orbis.UI.Elements
                 fullCivText.AppendLine(entryText);
                 fullCivText.AppendLine();
 
-                totalOffset += (int)Math.Ceiling(textSize.Y + 18);
+                totalOffset += (int)Math.Ceiling(textSize.Y + _textFont.LineSpacing);
             }
 
             _civText = fullCivText.ToString();
 
-            int fullTextHeight = (int)Math.Ceiling(_textFont.MeasureString(_civText).Y) - 18;
-            _viewPort.Y = (int)Math.Floor(0 + (_scrollbar.ScrollPosition / 100) * (fullTextHeight - Size.Y));
+            
+            int fullTextHeight = (int)Math.Ceiling(_textFont.MeasureString(_civText).Y);
+            _scrollbar.ScrollLength = fullTextHeight;
+            _viewPort.Y = (int)Math.Floor(0 + ((_scrollbar.ScrollPosition / 100)) * (fullTextHeight - Size.Y));
         }
 
         /// <summary>

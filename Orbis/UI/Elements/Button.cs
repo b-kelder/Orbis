@@ -11,7 +11,7 @@ namespace Orbis.UI.Elements
     /// </summary>
     /// 
     /// <author>Kaj van der Veen</author>
-    public class Button : RelativeElement, IUpdatableElement, IRenderableElement
+    public class Button : RelativeElement, IUpdateableElement, IRenderableElement
     {
         // Does the button have text?
         private Boolean _hasText;
@@ -163,8 +163,8 @@ namespace Orbis.UI.Elements
                 _hasText = false;
             }
 
-            Focused = false;
-            Visible = false;
+            Focused = true;
+            Visible = true;
         }
 
         /// <summary>
@@ -202,7 +202,7 @@ namespace Orbis.UI.Elements
             if (Focused)
             {
                 InputHandler input = InputHandler.GetInstance();
-                Point mousePos = Mouse.GetState().Position;
+                Point mousePos = input.GetMousePosition();
 
                 if (Bounds.Contains(mousePos) && input.IsMouseReleased(MouseButton.Left))
                 {
