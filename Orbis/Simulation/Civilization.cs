@@ -13,6 +13,19 @@ namespace Orbis.Simulation
 {
     public class Civilization
     {
+        #region Constants
+        // Default Base modifiers
+        private static double DEFAULT_BASE_EXPAND = 1;
+        private static double DEFAULT_BASE_EXTERMINATE = 1;
+
+        // Used for war decisions.
+        private static int HATE_THRESHOLD = -100;       // Minimum dislike for starting wars.
+        private static float HATE_MOD = 1.5F;           // Modifier applied to hate for decisions.
+        private static float WAR_COOLDOWN_MOD = 2F;     // Modifier applied to war cooldown for decisions.
+        private static int WAR_COOLDOWN_VALUE = 20;     // Value added to war cooldown after a war ends.
+        private static int WAR_COOLDOWN_DECAY = 1;      // Amount by which the war cooldown decays each month.
+        #endregion
+
         /// <summary>
         /// The name of the civ
         /// </summary>
@@ -24,18 +37,14 @@ namespace Orbis.Simulation
         /// <summary>
         /// Is currently at war
         /// </summary>
-        public bool AtWar
-        {
-            get
-            {
-                return (Wars.Count != 0);
-            }
-        }
+        public bool AtWar { get => _currentWars.Count != 0; }
 
         /// <summary>
-        /// The current wars for this Civ.
+        /// The number of wars this civilization is involved in.
         /// </summary>
-        public List<War> Wars { get; set; }
+        public int WarCount { get => _currentWars.Count; }
+        private List<War> _currentWars;
+        private int _warCooldown;
 
         /// <summary>
         /// The cells owned by this civ
@@ -46,10 +55,7 @@ namespace Orbis.Simulation
         /// All neighbour cells of the civs territory
         /// </summary>
         public HashSet<Cell> Neighbours { get; set; }
-        /// <summary>
-        ///     All civs this civ borders.
-        /// </summary>
-        public HashSet<Civilization> BorderCivs { get; set; }
+
         /// <summary>
         ///     The opinion this civ has of neighbouring civs.
         /// </summary>
@@ -81,25 +87,17 @@ namespace Orbis.Simulation
         public double TotalWealth { get; set; }
         public double TotalResource { get; set; }
 
-        public double BaseExpand = 1;
-        public double BaseExploit = 1;
-        public double BaseExplore = 1;
-        public double BaseExterminate = 1;
-
-        private double housingNeed = 1;
-        private double foodNeed = 1;
-        private double resourceNeed = 1;
-        private double wealthNeed = 1;
+        public double BaseExpand = DEFAULT_BASE_EXPAND;
+        public double BaseExterminate = DEFAULT_BASE_EXTERMINATE;
 
         public Civilization()
         {
             IsAlive = true;
             Territory = new HashSet<Cell>();
             Neighbours = new HashSet<Cell>();
-            Wars = new List<War>();
-            BorderCivs = new HashSet<Civilization>();
+            _currentWars = new List<War>();
             CivOpinions = new Dictionary<Civilization, int>();
-
+            _warCooldown = 0;
         }
 
         /// <summary>
@@ -108,24 +106,39 @@ namespace Orbis.Simulation
         /// <returns></returns>
         public SimulationAction DetermineAction()
         {
-            SimulationAction action = new SimulationAction(this, Simulation4XAction.DONOTHING, null);
+            // Start by trimming dead neighbours from the opinions.
+            int neighbourCivs = CivOpinions.Count;
+            for (int i = 0; i < neighbourCivs; i++)
+            {
+                Civilization neighbour = CivOpinions.ElementAt(i).Key;
+                if (!neighbour.IsAlive)
+                {
+                    CivOpinions.Remove(neighbour);
+                    i--;
+                    neighbourCivs--;
+                }
+            }
+
+            SimulationAction action = new SimulationAction(this, CivDecision.DONOTHING, null);
+
+            _warCooldown = MathHelper.Clamp(_warCooldown - WAR_COOLDOWN_DECAY, 0, 100);
 
             if (AtWar)
             {
                 return null;
             }
 
-            double expand = 1, exploit = 1, explore = 1, exterminate = 1;
+            double expand = 1, exterminate = 1;
 
             expand *= BaseExpand + (Population / (double)TotalHousing);
-            exploit *= BaseExploit;
-            explore *= BaseExplore;
 
-            // TODO: make picking targets use logic instead of "The first one I hate (which is the first guy I border) will do".
-            Civilization iHate = BorderCivs.FirstOrDefault(c => CivOpinions[c] <= -100);
-            exterminate *= BaseExterminate + (iHate != null ? ((Math.Abs(CivOpinions[iHate]) - 100) / 20) : 0);
+            // Find the most suitable war target.
+            KeyValuePair<Civilization, int> warTarget = CivOpinions.OrderBy(c => c.Value).FirstOrDefault(c => c.Value < HATE_THRESHOLD);
+            exterminate *= BaseExterminate;
+            exterminate += _warCooldown * WAR_COOLDOWN_MOD;
+            exterminate = (warTarget.Key != null) ? exterminate + Math.Abs(warTarget.Value) * HATE_MOD : 0;
 
-            if (expand > exploit && expand > explore && expand > exterminate)
+            if (expand > exterminate)
             {
                 if (Neighbours.Count <= 0)
                 {
@@ -144,35 +157,22 @@ namespace Orbis.Simulation
                     }
                 }
 
-                action.Action = Simulation4XAction.EXPAND;
+                action.Action = CivDecision.EXPAND;
                 action.Params = new object[] { cell };
             }
-            else if (exploit > expand && exploit > explore && exploit > exterminate)
+            else
             {
-                action.Action = Simulation4XAction.EXPLOIT;
-                action.Params = null;
-            }
-            else if (explore > expand && explore > exploit && explore > exterminate)
-            {
-                action.Action = Simulation4XAction.EXPLORE;
-                action.Params = null;
-            }
-            else if (exterminate > expand && exterminate > exploit && exterminate > explore)
-            {
-                if (iHate != null)
-                {
-                    action.Action = Simulation4XAction.EXTERMINATE;
-                    action.Params = new object[] { iHate };
-                }
+                action.Action = CivDecision.EXTERMINATE;
+                action.Params = new object[] { warTarget.Key };
             }
 
-            return (action.Action != Simulation4XAction.DONOTHING) ? action : null;
+            return (action.Action != CivDecision.DONOTHING) ? action : null;
         }
 
         public double CalculateCellValue(Cell cell)
         {
             // Calculate value based on needs.
-            double val = (cell.MaxHousing / 1000 * housingNeed) + (cell.FoodMod * foodNeed) + (cell.ResourceMod * resourceNeed) + (cell.WealthMod * wealthNeed);
+            double val = (cell.MaxHousing / 1000) + (cell.FoodMod) + (cell.ResourceMod) + (cell.WealthMod);
 
             if (cell.Owner == null)
             {
@@ -257,7 +257,7 @@ namespace Orbis.Simulation
 
                     if (c.Owner != null)
                     {
-                        if (BorderCivs.Add(c.Owner))
+                        if (!CivOpinions.ContainsKey(c.Owner))
                         {
                             CivOpinions.Add(c.Owner, -20);
                         }
@@ -275,6 +275,17 @@ namespace Orbis.Simulation
             cell.population = 100;
 
             return true;
+        }
+
+        public void StartWar(War war)
+        {
+            _currentWars.Add(war);
+        }
+
+        public void EndWar(War war)
+        {
+            _currentWars.Remove(war);
+            _warCooldown = MathHelper.Clamp(_warCooldown + WAR_COOLDOWN_VALUE, 0, 100);
         }
     }
 }

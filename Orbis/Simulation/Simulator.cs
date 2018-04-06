@@ -378,7 +378,7 @@ namespace Orbis.Simulation
                 // Try to dequeue the next action
                 if (actionQueue.TryDequeue(out SimulationAction action))
                 {
-                    if (action.Action == Simulation4XAction.EXPAND)
+                    if (action.Action == CivDecision.EXPAND)
                     {
                         // Get the cell to claim
                         Cell cell = (Cell)action.Params[0];
@@ -389,7 +389,7 @@ namespace Orbis.Simulation
                             changed.Add(cell);
                         }
                     }
-                    else if (action.Action == Simulation4XAction.EXTERMINATE)
+                    else if (action.Action == CivDecision.EXTERMINATE)
                     {
                         // Get the civ to declare war on
                         Civilization defender = (Civilization)action.Params[0];
@@ -397,14 +397,6 @@ namespace Orbis.Simulation
                         War war = new War(Scene, action.Civilization, defender);
                         // Add to the ongoing war list
                         ongoingWars.Add(war);
-                    }
-                    else if (action.Action == Simulation4XAction.EXPLOIT)
-                    {
-                        // TODO: BOOST STUFF??
-                    }
-                    else if (action.Action == Simulation4XAction.EXPLORE)
-                    {
-                        // TODO: EXPLORATION??
                     }
                 }
             }

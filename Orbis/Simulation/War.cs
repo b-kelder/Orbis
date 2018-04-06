@@ -10,17 +10,28 @@ namespace Orbis.Simulation
     /// <summary>
     ///     Represents a war between two civilizations.
     /// </summary>
-    /// <author>
-    ///     Kaj van der Veen
-    /// </author>
+    /// 
+    /// <author> Kaj van der Veen</author>
     public class War
     {
+        #region Constants
+        // Calculation values.
+        private static int BATTLE_VICTORY_THRESHOLD = 3;    // The battle result value above which a battle is won by the attacker.
+        private static int BATTLE_DEFEAT_THRESHOLD = 0;     // The battle result value below which a battle is lost by the attacker.
+        private static float DURATION_MOD = 0.3F;           // The value by which the duration is multiplied for the battle result.
+        private static int WAR_END_THRESHOLD = 20;          // The minimum end score value required for a war to end.
+
+        // Logger messages.
+        private static string WAR_START = "{0} has declared war on {1}.";                               // Displayed when a war is declared.
+        private static string BATTLE_WON = "{0} has defeated {1} in battle.";                           // Displayed when a battle is won.
+        private static string BATTLE_STALEMATE = "A battle between {0} and {1} ended in a stalemate.";  // Displayed when a battle ends in a tie.
+        private static string WAR_END = "The war between {0} and {1} has ended.";                       // Displayed when a war ends.
+        #endregion
+
         public Civilization Attacker { get; set; }
         public Civilization Defender { get; set; }
 
         private Random _random;
-        private int _upperBound;
-        private int _lowerBound;
         private Scene _scene;
         private int _battleBalance;
         private int _duration;
@@ -36,19 +47,17 @@ namespace Orbis.Simulation
         public War(Scene scene, Civilization attacker, Civilization defender)
         {
             _random = new Random(scene.Seed);
-            _upperBound = 3;
-            _lowerBound = 0;
             _scene = scene;
             _battleBalance = 0;
             _duration = 1;
             Attacker = attacker;
             Defender = defender;
 
-            Attacker.Wars.Add(this);
-            Defender.Wars.Add(this);
+            Attacker.StartWar(this);
+            Defender.StartWar(this);
 
             _logger = Logger.GetInstance();
-            _logger.AddLog(Attacker.Name + " has declared war on ." + Defender.Name, "war");
+            _logger.AddLog(string.Format(WAR_START, Attacker.Name, Defender.Name));
         }
 
         /// <summary>
@@ -67,50 +76,43 @@ namespace Orbis.Simulation
             }
             else
             {
-                int battleResult = (int)Math.Floor(_random.Next(-2, 3) * (0.3 * _duration) +
+                int battleResult = (int)Math.Floor(_random.Next(-2, 3) * (DURATION_MOD * _duration) +
                     + ((double)Attacker.Population / Defender.Population)
                     + ((double)Attacker.TotalWealth / Defender.TotalWealth)
-                    + ( Defender.Wars.Count - Attacker.Wars.Count));
+                    + ( Defender.WarCount - Attacker.WarCount));
 
+                System.Diagnostics.Debug.WriteLine("Battle result for battle between " + Attacker.Name + " and " + Defender.Name + ": " + battleResult);
 
-                //+ (0.4 * Attacker.Population + 10 * Attacker.Wars.Count)
-                //- (0.4 * Defender.Population + 10 * Defender.Wars.Count));
-
-                _logger.AddLog("Battle result for battle between " + Attacker.Name + " and " + Defender.Name + ": " + battleResult + ".", "war");
-
-                if (battleResult > _upperBound)
+                if (battleResult > BATTLE_VICTORY_THRESHOLD)
                 {
                     result.Winner = Attacker;
                     result.OccupiedTerritory = GetOccupiedTerritory(Attacker, Defender);
 
-                    _logger.AddLog(Attacker.Name + "(" + Attacker.Population + ") has won a battle against " + Defender.Name + "(" + Defender.Population + ")", "war");
+                    _logger.AddLog(string.Format(BATTLE_WON, Attacker.Name, Defender.Name), "war");
                 }
-                else if (battleResult < _lowerBound)
+                else if (battleResult < BATTLE_DEFEAT_THRESHOLD)
                 {
                     result.Winner = Defender;
                     result.OccupiedTerritory = GetOccupiedTerritory(Defender, Attacker);
 
-                    _logger.AddLog(Defender.Name + "(" + Defender.Population + ") has won a battle against " + Attacker.Name + "(" + Attacker.Population + ")", "war");
+                    _logger.AddLog(string.Format(BATTLE_WON, Defender.Name, Attacker.Name), "war");
+                }
+                else
+                {
+                    _logger.AddLog(string.Format(BATTLE_STALEMATE, Attacker.Name, Defender.Name), "war");
                 }
 
                 int endScore = _random.Next(1, 6) - _battleBalance + _duration;
 
-                warEnded = (endScore > 20);
+                warEnded = (endScore > WAR_END_THRESHOLD);
             }
 
             if (warEnded)
             {
-                _logger.AddLog("The war between " + Attacker.Name + "(" + Attacker.Population + ") and " + Defender.Name + "(" + Defender.Population + ") has ended. (Duration: " + _duration + ")", "war");
+                _logger.AddLog(String.Format(WAR_END, Attacker.Name, Defender.Name), "war");
 
-                Attacker.Wars.Remove(this);
-                Defender.Wars.Remove(this);
-
-                // Add real war cooldown for civs.
-                Attacker.BorderCivs.Remove(Defender);
-                Attacker.CivOpinions.Remove(Defender);
-
-                Defender.BorderCivs.Remove(Attacker);
-                Defender.CivOpinions.Remove(Attacker);
+                Attacker.EndWar(this);
+                Defender.EndWar(this);
             }
 
             _duration++;
@@ -134,7 +136,6 @@ namespace Orbis.Simulation
         /// </returns>
         private Cell[] GetOccupiedTerritory(Civilization winner, Civilization loser)
         {
-
             HashSet<Cell> cells = new HashSet<Cell>();
             foreach (Cell cell in winner.Neighbours)
             {
