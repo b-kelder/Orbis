@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Orbis.Engine;
 using Orbis.UI.Utility;
 
 namespace Orbis.UI.Elements
@@ -14,7 +15,7 @@ namespace Orbis.UI.Elements
     ///     An input field in the Orbis UI that the user can enter numbers into.
     /// </summary>
     /// <author>Kaj van der Veen</author>
-    public class InputNumberField : RelativeElement, IRenderableElement
+    public class InputNumberField : RelativeElement, IRenderableElement, IUpdateableElement
     {
         private RelativeTexture _background;
         private RelativeText _renderText;
@@ -169,6 +170,25 @@ namespace Orbis.UI.Elements
             else if (_renderText.Text.EndsWith("_"))
             {
                 _renderText.Text = _renderText.Text.TrimEnd('_');
+            }
+        }
+
+        /// <summary>
+        ///     Update the button, making it check for click and hold events.
+        /// </summary>
+        public void Update()
+        {
+            // Non-focused buttons don't update.
+            InputHandler input = InputHandler.GetInstance();
+            Point mousePos = input.GetMousePosition();
+
+            if (Bounds.Contains(mousePos))
+            {
+                Focused = true;
+            }
+            else
+            {
+                Focused = false;
             }
         }
     }

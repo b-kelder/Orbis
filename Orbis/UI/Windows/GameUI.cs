@@ -110,7 +110,7 @@ namespace Orbis.UI.Windows
                 Size = new Point(RIGHT_UI_WIDTH, 300),
                 AnchorPosition = AnchorPosition.BottomRight,
                 RelativePosition = new Point(-RIGHT_UI_WIDTH * 2 - 10, -BOTTOM_UI_HEIGHT - 310),
-                LayerDepth = 0,
+                LayerDepth = 0.0000001f,
                 Visible = false
             });
 
@@ -180,7 +180,9 @@ namespace Orbis.UI.Windows
         public override void Draw(SpriteBatch spriteBatch)
         {
             // Handle the scene seperately because for some reason it doesn't want to draw when used as a regular child
-            spriteBatch.Draw(scene.SpriteDefinition.SpriteSheet, scene.SpriteDefinition.SourceRectangle, Color.White);
+            //spriteBatch.Draw(scene.SpriteDefinition.SpriteSheet, scene.SpriteDefinition.SourceRectangle, Color.White);
+            spriteBatch.Draw(scene.SpriteDefinition.SpriteSheet, scene.SpriteDefinition.SourceRectangle, 
+                null, Color.White, 0, Vector2.Zero, SpriteEffects.None, 0.5f);
             base.Draw(spriteBatch);
         }
 
@@ -249,7 +251,7 @@ namespace Orbis.UI.Windows
                 playButton.SpriteDefinition = pause;
             }
 
-            progressBar.Progress = ((float)orbis.Simulator.CurrentTick / Orbis.TEST_TICKS);
+            progressBar.Progress = ((float)orbis.Simulator.CurrentTick / orbis.Simulator.MaxTick);
             progressBar.Message = "Date: " + orbis.Simulator.Date.ToString("MMM yyyy");
 
             base.Update();
