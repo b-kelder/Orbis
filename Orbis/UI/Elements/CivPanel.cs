@@ -18,6 +18,16 @@ namespace Orbis.UI.Elements
         // Used to keep track of the entries in the panel.
         private Dictionary<Civilization, Entry> _civTexturePairs;
 
+        private Rectangle _checkBounds
+        {
+            get
+            {
+                Rectangle bounds = Bounds;
+                // Checked bounds are bigger than the real bounds to ensure in-time rendering.
+                return new Rectangle(bounds.X, bounds.Y - 150, bounds.Width, bounds.Height + 300);
+            }
+        } 
+
         // Used to clip the overflow of the panel.
         private RasterizerState _clipState;
 
@@ -159,7 +169,11 @@ namespace Orbis.UI.Elements
                 spriteBatch.Begin(SpriteSortMode.BackToFront, rasterizerState: _clipState);
                 foreach (var civTexturePair in _civTexturePairs)
                 {
-                    civTexturePair.Value.Texture.Render(spriteBatch);
+                    RelativeTexture civTexture = civTexturePair.Value.Texture;
+                    if (_checkBounds.Contains(civTexture.Bounds))
+                    {
+                        civTexture.Render(spriteBatch);
+                    }
                 }
 
                 _civText.Render(spriteBatch);
@@ -190,34 +204,50 @@ namespace Orbis.UI.Elements
                 Civilization civ = civTexturePair.Key;
                 Entry civEntry = civTexturePair.Value;
 
-                // If the name for the entry hasn't been wrapped yet, it should be.
-                if (string.IsNullOrWhiteSpace(civEntry.WrappedName))
+                // The first update, dimensions of the entries and related values are calculated.
+                if (string.IsNullOrWhiteSpace(civEntry.WrappedName) || civEntry.EntryHeight == 0)
                 {
                     civEntry.WrappedName = TextHelper.WrapText(_textFont, civ.Name, Size.X - 30);
+
+                    // A stringbuilder is filled with default values to calculate the entry height.
+                    StringBuilder heightSb = new StringBuilder();
+                    heightSb.AppendLine(civEntry.WrappedName);
+                    heightSb.AppendLine("_");
+                    heightSb.AppendLine("_");
+                    heightSb.AppendLine("_");
+                    heightSb.AppendLine("_");
+                    heightSb.AppendLine("_");
+                    heightSb.Append("_");
+
+                    // The default value is inserted as a placeholder to make the full civ text offset correct.
+                    civEntry.Text = heightSb.ToString();
+
+                    civEntry.EntryHeight = (int)Math.Ceiling(_textFont.MeasureString(heightSb.ToString()).Y);  // Value rounded upwards to ensure there is enough space;
+
+                    civEntry.Texture.Size = new Point(5, civEntry.EntryHeight);
                 }
 
-                StringBuilder entrySb = new StringBuilder();
-                entrySb.AppendLine(civEntry.WrappedName);
-                entrySb.AppendLine("  Is Alive: " + civ.IsAlive);
-                entrySb.AppendLine("  Is at war: " + civ.AtWar);
-                entrySb.AppendLine("  Population: " + civ.Population);
-                entrySb.AppendLine("  Size: " + (civ.Territory.Count * 3141) + " KM^2");
-                entrySb.AppendLine("  Wealth: " + (int)civ.TotalWealth + " KG AU");
-                entrySb.Append("  Resources: " + (int)civ.TotalResource + " KG");
-
-                // If there is no entry height for the entry yet, it is calculated.
-                int entryHeight = (civEntry.EntryHeight != 0) ? civEntry.EntryHeight : (int)Math.Ceiling(_textFont.MeasureString(entrySb.ToString()).Y);  // Value rounded upwards to ensure there is enough space.
-
-                string entryText = entrySb.ToString();
-                civEntry.Text = entryText;
-
-                civEntry.Texture.Size = new Point(5, entryHeight);
                 civEntry.Texture.RelativePosition = new Point(5, totalOffset - _scrollOffset);
 
-                fullCivText.AppendLine(entryText);
+                if (_checkBounds.Contains(civEntry.Texture.Bounds))
+                {
+                    StringBuilder entrySb = new StringBuilder();
+                    entrySb.AppendLine(civEntry.WrappedName);
+                    entrySb.AppendLine("  Is Alive: " + civ.IsAlive);
+                    entrySb.AppendLine("  Is at war: " + civ.AtWar);
+                    entrySb.AppendLine("  Population: " + civ.Population);
+                    entrySb.AppendLine("  Size: " + (civ.Territory.Count * 3141) + " KM^2");
+                    entrySb.AppendLine("  Wealth: " + (int)civ.TotalWealth + " KG AU");
+                    entrySb.Append("  Resources: " + (int)civ.TotalResource + " KG");
+
+                    string entryText = entrySb.ToString();
+                    civEntry.Text = entryText;
+                }
+                
+                fullCivText.AppendLine(civEntry.Text);
                 fullCivText.AppendLine();
 
-                totalOffset += entryHeight + _textFont.LineSpacing;
+                totalOffset += civEntry.EntryHeight + _textFont.LineSpacing;
             }
 
             _civText.Text = fullCivText.ToString();
@@ -231,7 +261,7 @@ namespace Orbis.UI.Elements
         /// <remarks>
         ///     Used to be a struct, but the garbage collector kept deleting the values.
         /// </remarks>
-        private struct Entry
+        private class Entry
         {
             /// <summary>
             ///     The height of the entry.
