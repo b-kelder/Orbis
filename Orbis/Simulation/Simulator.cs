@@ -30,10 +30,11 @@ namespace Orbis.Simulation
         /// </summary>
         public double TickLengthInSeconds { get; set; }
 
+        public int MaxTick { get; set; }
+
         // Private Variables
         private ConcurrentQueue<Cell[]> cellsChanged;
         private ConcurrentQueue<SimulationAction> actionQueue;
-        private int maxTick;
         private int civCount;
         private double elapsedTime = 0;
         private Random rand;
@@ -52,7 +53,7 @@ namespace Orbis.Simulation
         {
             // Set vars
             Scene = scene;
-            maxTick = simulationLength;
+            MaxTick = simulationLength;
             civCount = scene.Civilizations.Count;
             TickLengthInSeconds = 0;
 
@@ -122,7 +123,7 @@ namespace Orbis.Simulation
         public void Update(GameTime gameTime)
         {
             // Check if the max ticks has been reached
-            if (CurrentTick >= maxTick || pause)
+            if (MaxTick > 0 && CurrentTick >= MaxTick || pause)
             {
                 return;
             }
@@ -316,7 +317,7 @@ namespace Orbis.Simulation
             foreach (var cell in civilization.Territory)
             {
                 // If Population is negative or zero
-                if (cell.population <= 0)
+                if (cell.population <= 0 && !cell.IsWater)
                 {
                     // Add the cell to a list to remove its owner
                     removeOwner.TryAdd(cell, civilization);

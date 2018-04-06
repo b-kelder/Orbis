@@ -15,6 +15,7 @@ namespace Orbis.UI.Windows
     {
         private ProgressBar progressBar;
         private RelativeTexture background;
+        private RelativeTexture cellInfoBackground;
         private RelativeTexture backgroundProgressBar;
         private RelativeTexture scene;
         private RelativeText text;
@@ -103,6 +104,25 @@ namespace Orbis.UI.Windows
                 LayerDepth = 1
             });
 
+            // Background for UI
+            AddChild(cellInfoBackground = new RelativeTexture(this, new SpriteDefinition(_contentManager.GetColorTexture(UI_COLOR), new Rectangle(0, 0, 1, 1)))
+            {
+                Size = new Point(RIGHT_UI_WIDTH, 300),
+                AnchorPosition = AnchorPosition.BottomRight,
+                RelativePosition = new Point(-RIGHT_UI_WIDTH * 2 - 10, -BOTTOM_UI_HEIGHT - 310),
+                LayerDepth = 0.0000001f,
+                Visible = false
+            });
+
+            AddChild(text = new RelativeText(this, _contentManager.GetFont("DebugFont"))
+            {
+                Text = "Kill me pls",
+                AnchorPosition = AnchorPosition.BottomRight,
+                RelativePosition = new Point(-RIGHT_UI_WIDTH * 2, -BOTTOM_UI_HEIGHT - 300),
+                LayerDepth = 0,
+                Visible = false
+            });
+
             // Scene panel
             var sceneSize = new Point(_game.Window.ClientBounds.Width - RIGHT_UI_WIDTH, _game.Window.ClientBounds.Height - BOTTOM_UI_HEIGHT);
             AddChild(scene = new RelativeTexture(this, new SpriteDefinition(
@@ -159,9 +179,11 @@ namespace Orbis.UI.Windows
         /// <param name="spriteBatch"></param>
         public override void Draw(SpriteBatch spriteBatch)
         {
-            base.Draw(spriteBatch);
             // Handle the scene seperately because for some reason it doesn't want to draw when used as a regular child
-            spriteBatch.Draw(scene.SpriteDefinition.SpriteSheet, scene.SpriteDefinition.SourceRectangle, Color.White);
+            //spriteBatch.Draw(scene.SpriteDefinition.SpriteSheet, scene.SpriteDefinition.SourceRectangle, Color.White);
+            spriteBatch.Draw(scene.SpriteDefinition.SpriteSheet, scene.SpriteDefinition.SourceRectangle, 
+                null, Color.White, 0, Vector2.Zero, SpriteEffects.None, 0.5f);
+            base.Draw(spriteBatch);
         }
 
         /// <summary>
@@ -183,6 +205,25 @@ namespace Orbis.UI.Windows
         /// </summary>
         public override void Update()
         {
+            if (orbis.Input.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Q))
+            {
+                text.Visible = !text.Visible;
+                cellInfoBackground.Visible = !cellInfoBackground.Visible;
+            }
+
+            if (orbis.SceneRenderer.HighlightedCell != null)
+            {
+                text.Text = new StringBuilder()
+                    .AppendLine("Current cell: " + orbis.SceneRenderer.HighlightedCell.Coordinates)
+                    .AppendLine("Owner: " + (orbis.SceneRenderer.HighlightedCell.Owner != null ? orbis.SceneRenderer.HighlightedCell.Owner.Name : "Nobody"))
+                    .AppendLine("Biome: " + orbis.SceneRenderer.HighlightedCell.Biome.Name)
+                    .AppendLine("Temperature: " + orbis.SceneRenderer.HighlightedCell.Temperature.ToString("#.#"))
+                    .AppendLine("Elevation: " + ((orbis.SceneRenderer.HighlightedCell.Elevation - orbis.SceneRenderer.renderedScene.Settings.SeaLevel) * 450).ToString("#.#"))
+                    .AppendLine("Population: " + orbis.SceneRenderer.HighlightedCell.population)
+                    .AppendLine("Food: " + orbis.SceneRenderer.HighlightedCell.food.ToString("#.#"))
+                    .ToString();
+            }
+
             if (screenResized)
             {
                 // Update RenderTarget
@@ -210,7 +251,7 @@ namespace Orbis.UI.Windows
                 playButton.SpriteDefinition = pause;
             }
 
-            progressBar.Progress = ((float)orbis.Simulator.CurrentTick / Orbis.TEST_TICKS);
+            progressBar.Progress = ((float)orbis.Simulator.CurrentTick / orbis.Simulator.MaxTick);
             progressBar.Message = "Date: " + orbis.Simulator.Date.ToString("MMM yyyy");
 
             base.Update();
