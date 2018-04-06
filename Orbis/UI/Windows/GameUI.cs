@@ -116,7 +116,7 @@ namespace Orbis.UI.Windows
 
             AddChild(text = new RelativeText(this, _contentManager.GetFont("DebugFont"))
             {
-                Text = "Kill me pls",
+                Text = "",
                 AnchorPosition = AnchorPosition.BottomRight,
                 RelativePosition = new Point(-RIGHT_UI_WIDTH * 2, -BOTTOM_UI_HEIGHT - 300),
                 LayerDepth = 0,
@@ -213,7 +213,9 @@ namespace Orbis.UI.Windows
 
             if (orbis.SceneRenderer.HighlightedCell != null)
             {
-                text.Text = new StringBuilder()
+                text.Text = TextHelper.ClipText(
+                    _contentManager.GetFont("DebugFont"),
+                    new StringBuilder()
                     .AppendLine("Current cell: " + orbis.SceneRenderer.HighlightedCell.Coordinates)
                     .AppendLine("Owner: " + (orbis.SceneRenderer.HighlightedCell.Owner != null ? orbis.SceneRenderer.HighlightedCell.Owner.Name : "Nobody"))
                     .AppendLine("Biome: " + orbis.SceneRenderer.HighlightedCell.Biome.Name)
@@ -221,7 +223,7 @@ namespace Orbis.UI.Windows
                     .AppendLine("Elevation: " + ((orbis.SceneRenderer.HighlightedCell.Elevation - orbis.SceneRenderer.renderedScene.Settings.SeaLevel) * 450).ToString("#.#"))
                     .AppendLine("Population: " + orbis.SceneRenderer.HighlightedCell.population)
                     .AppendLine("Food: " + orbis.SceneRenderer.HighlightedCell.food.ToString("#.#"))
-                    .ToString();
+                    .ToString(), RIGHT_UI_WIDTH);
             }
 
             if (screenResized)
@@ -251,8 +253,16 @@ namespace Orbis.UI.Windows
                 playButton.SpriteDefinition = pause;
             }
 
-            progressBar.Progress = ((float)orbis.Simulator.CurrentTick / orbis.Simulator.MaxTick);
-            progressBar.Message = "Date: " + orbis.Simulator.Date.ToString("MMM yyyy");
+            if (orbis.Simulator.MaxTick > 0)
+            {
+                progressBar.Progress = ((float)orbis.Simulator.CurrentTick / orbis.Simulator.MaxTick);
+                progressBar.Message = "Date: " + orbis.Simulator.Date.ToString("MMM yyyy");
+            }
+            else
+            {
+                progressBar.Visible = false;
+            }
+            
 
             base.Update();
         }
