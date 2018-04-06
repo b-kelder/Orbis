@@ -7,13 +7,13 @@ using Orbis.Events.Helpers;
 
 namespace Orbis.Events.Exporters
 {
-    class XMLFileExporter : DeviceWriterHelper
+    class XMLFileExporter : DeviceWriterHelper, ILogExporter
     {
         /// <summary>
         /// Export a list of logs to an XML file
         /// </summary>
         /// <param name="logs">The list of logs that needs to be exported</param>
-        /*public async void Export(List<Log> logs)
+        public async void Export(List<Log> logs)
         {
             // Create a new file, if duplicate, create unique name
             StorageFile currentFile = await CreateFile("Orbis Log", "xml", CreationCollisionOption.GenerateUniqueName);
@@ -40,20 +40,16 @@ namespace Orbis.Events.Exporters
                     {
                         writer.WriteStartElement("Log");
                         writer.WriteAttributeString("exportedAt", timestamp);
-                        writer.WriteElementString("Item", log.Item);
-                        writer.WriteElementString("Type", log.Type);
-                        writer.WriteElementString("Timestamp", log.Timestamp);
 
-                        if (log.GameTimestamp != null)
+                        foreach (KeyValuePair<string, string> data in log.GetData())
                         {
-                            writer.WriteElementString("GameTime", log.GameTimestamp);
+                            writer.WriteElementString(data.Key, data.Value);
                         }
-
                         writer.WriteEndElement();
                     }
                     await writer.FlushAsync();
                 }
             }
-        }*/
+        }
     }
 }

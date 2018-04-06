@@ -36,7 +36,25 @@ namespace Orbis.Events
             this.data   = data;
             this.format = format;
         }
- 
+
+        /// <summary>
+        /// Returns the log object data
+        /// </summary>
+        /// <returns>The data</returns>
+        public Dictionary<string, string> GetData()
+        {
+            return data;
+        }
+
+        /// <summary>
+        /// Get the current configuered format used to format log objects
+        /// </summary>
+        /// <returns>The string format</returns>
+        public string GetFormat()
+        {
+            return format;
+        }
+
         /// <summary>
         /// Convert the log to string
         /// </summary>
