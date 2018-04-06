@@ -42,12 +42,10 @@ namespace Orbis.Events.Helpers
                     FolderPicker folderPicker = new FolderPicker()
                     {
                         SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                        ViewMode = PickerViewMode.Thumbnail
+                        ViewMode = PickerViewMode.Thumbnail,
+                        FileTypeFilter = { ".txt", ".xml", ".json" },
                     };
-                    folderPicker.FileTypeFilter.Add(".txt");
-                    folderPicker.FileTypeFilter.Add(".xml");
-                    folderPicker.FileTypeFilter.Add(".json");
-
+                
                     // Pick the folder and make sure one returned
                     StorageFolder folder = await folderPicker.PickSingleFolderAsync();
                     if (folder != null)
