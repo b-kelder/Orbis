@@ -18,14 +18,16 @@ namespace Orbis.UI.Elements
         // Used to keep track of the entries in the panel.
         private Dictionary<Civilization, Entry> _civTexturePairs;
 
+        // Used to clip the overflow of the panel.
+        private RasterizerState _clipState;
+
         // Used to handle overflow and scrolling.
-        private RenderTarget2D _fullTexture;
         private Scrollbar _scrollbar;
-        private Rectangle _viewPort;
+        private int _scrollOffset;
 
         // Used for the text in the panel.
-        private string _civText = "a";
         private SpriteFont _textFont;
+        private RelativeText _civText;
 
         /// <summary>
         ///     The size of the civ panel.
@@ -39,7 +41,6 @@ namespace Orbis.UI.Elements
             set
             {
                 base.Size = value;
-                _viewPort.Size = value;
                 _scrollbar.Size = new Point(15, Size.Y);
             }
         }
@@ -87,15 +88,14 @@ namespace Orbis.UI.Elements
         /// </param>
         public CivPanel(IPositionedElement parent, IEnumerable<Civilization> civs) : base(parent)
         {
-            _civTexturePairs = new Dictionary<Civilization, Entry>();
-            _viewPort = Rectangle.Empty;
-
-            Visible = true;
-            Focused = true;
-
             if (UIContentManager.TryGetInstance(out UIContentManager manager))
             {
+                _civTexturePairs = new Dictionary<Civilization, Entry>();
+                _scrollOffset = 0;
+                Visible = true;
+                Focused = true;
                 _textFont = manager.GetFont("DebugFont");
+                _civText = new RelativeText(this, _textFont);
 
                 _scrollbar = new Scrollbar(this)
                 {
@@ -104,18 +104,14 @@ namespace Orbis.UI.Elements
                     RelativePosition = new Point(-15, 0)
                 };
 
-                int index = 0;
+                
                 foreach (Civilization civ in civs)
                 {
                     _civTexturePairs.Add(civ, new Entry()
                     {
-                        Texture = manager.GetColorTexture(civ.Color)
+                        EntryHeight = 0,
+                        Texture = new RelativeTexture(this, new SpriteDefinition(manager.GetColorTexture(civ.Color), new Rectangle(0, 0, 1, 1)))
                     });
-                    index++;
-                    if (index >= 100)
-                    {
-                        break;
-                    }
                 }
             }
             else
@@ -123,56 +119,6 @@ namespace Orbis.UI.Elements
                 throw new InvalidOperationException("UI Content manager does not exist.");
             }
             
-        }
-
-        /// <summary>
-        ///     Perform the pre-render procedure for the civPanel.
-        /// </summary>
-        public void PreRender(SpriteBatch spriteBatch)
-        {
-            spriteBatch.End();
-
-            int fullTextHeight = (int)Math.Ceiling(_textFont.MeasureString(_civText).Y);
-
-            // A new render target needs to be created if the dimensions have changed or if it doesn't exist.
-            if (_fullTexture == null || _fullTexture.Height != fullTextHeight && fullTextHeight > 0)
-            {
-                if (_fullTexture != null)
-                {
-                    // Clean up used resources if it exists.
-                    _fullTexture.Dispose();
-                }
-                _fullTexture = new RenderTarget2D(spriteBatch.GraphicsDevice, Size.X - 25, fullTextHeight);
-            }
-
-            // The spritebatch will be used to draw the elements to a texture that will be used to keep overflow for scrolling.
-            spriteBatch.GraphicsDevice.SetRenderTarget(_fullTexture);
-            spriteBatch.GraphicsDevice.Clear(Color.Transparent);
-
-            spriteBatch.Begin(SpriteSortMode.BackToFront);
-            foreach (var civTexturePair in _civTexturePairs)
-            {
-                
-                var civEntry = civTexturePair.Value;
-                spriteBatch.Draw(civEntry.Texture,
-                    new Rectangle(civEntry.EntryRect.Location, new Point(5, civEntry.EntryRect.Height)),
-                    null,
-                    Color.White,
-                    0F,
-                    Vector2.Zero,
-                    SpriteEffects.None,
-                    LayerDepth - 0.001F);
-            }
-
-            spriteBatch.DrawString(_textFont, _civText, new Vector2(15, 0), Color.Black);
-
-            spriteBatch.End();
-
-            // The graphics device is reset to draw to the back bufer.
-            spriteBatch.GraphicsDevice.SetRenderTarget(null);
-
-            // The spritebatch is started again to continue the previous flow of drawing on the back buffer.
-            spriteBatch.Begin(SpriteSortMode.BackToFront);
         }
 
         /// <summary>
@@ -186,10 +132,7 @@ namespace Orbis.UI.Elements
         {
             if (Visible)
             {
-                // To allow scrolling, the overflowing elements need to be rendered to a render target first.
-                PreRender(spriteBatch);
-
-                int textHeight = (int)Math.Ceiling(_textFont.MeasureString(_civText).Y);
+                int textHeight = _civText.Size.Y;
                 if (textHeight > Size.Y)
                 {
                     _scrollbar.Focused = true;
@@ -200,13 +143,31 @@ namespace Orbis.UI.Elements
                     _scrollbar.Focused = false;
                 }
 
-                spriteBatch.Draw(_fullTexture,
-                    Bounds,
-                    _viewPort,
-                    Color.White, 0f,
-                    Vector2.Zero,
-                    SpriteEffects.None,
-                    LayerDepth - 0.001F);
+                spriteBatch.End();
+
+                if (_clipState == null)
+                {
+                    _clipState = new RasterizerState()
+                    {
+                        ScissorTestEnable = true
+                    };
+                }
+
+                RasterizerState prevRasterizerState = spriteBatch.GraphicsDevice.RasterizerState;
+                spriteBatch.GraphicsDevice.ScissorRectangle = Bounds;
+
+                spriteBatch.Begin(SpriteSortMode.BackToFront, rasterizerState: _clipState);
+                foreach (var civTexturePair in _civTexturePairs)
+                {
+                    civTexturePair.Value.Texture.Render(spriteBatch);
+                }
+
+                _civText.Render(spriteBatch);
+
+                spriteBatch.End();
+
+                // The spritebatch is started again to continue the previous flow of drawing.
+                spriteBatch.Begin(SpriteSortMode.BackToFront, rasterizerState: prevRasterizerState);
             }
         }
 
@@ -217,15 +178,26 @@ namespace Orbis.UI.Elements
         {
             _scrollbar.Update();
 
+            int fullTextHeight = _civText.Size.Y;
+            _scrollbar.ScrollLength = fullTextHeight;
+            _scrollOffset = (int)Math.Floor(0 + ((_scrollbar.ScrollPosition / 100)) * (fullTextHeight - Size.Y));
+
             // Every entry in the list needs to be calculated for this frame.
-            var totalOffset = 0;
+            int totalOffset = 0;
             StringBuilder fullCivText = new StringBuilder();
             foreach (var civTexturePair in _civTexturePairs)
             {
-                var civ = civTexturePair.Key;
-                StringBuilder entrySb = new StringBuilder();
+                Civilization civ = civTexturePair.Key;
+                Entry civEntry = civTexturePair.Value;
 
-                entrySb.AppendLine(TextHelper.WrapText(_textFont, civ.Name, Size.X - 30));
+                // If the name for the entry hasn't been wrapped yet, it should be.
+                if (string.IsNullOrWhiteSpace(civEntry.WrappedName))
+                {
+                    civEntry.WrappedName = TextHelper.WrapText(_textFont, civ.Name, Size.X - 30);
+                }
+
+                StringBuilder entrySb = new StringBuilder();
+                entrySb.AppendLine(civEntry.WrappedName);
                 entrySb.AppendLine("  Is Alive: " + civ.IsAlive);
                 entrySb.AppendLine("  Is at war: " + civ.AtWar);
                 entrySb.AppendLine("  Population: " + civ.Population);
@@ -233,26 +205,23 @@ namespace Orbis.UI.Elements
                 entrySb.AppendLine("  Wealth: " + (int)civ.TotalWealth + " KG AU");
                 entrySb.Append("  Resources: " + (int)civ.TotalResource + " KG");
 
-                string entryText = entrySb.ToString();
+                // If there is no entry height for the entry yet, it is calculated.
+                int entryHeight = (civEntry.EntryHeight != 0) ? civEntry.EntryHeight : (int)Math.Ceiling(_textFont.MeasureString(entrySb.ToString()).Y);  // Value rounded upwards to ensure there is enough space.
 
-                // An entry is used to keep track of related values.
-                var civEntry = civTexturePair.Value;
-                Vector2 textSize = _textFont.MeasureString(entryText);
+                string entryText = entrySb.ToString();
                 civEntry.Text = entryText;
-                civEntry.EntryRect = new Rectangle(5, totalOffset, Size.X - 25, (int)Math.Ceiling(textSize.Y));
+
+                civEntry.Texture.Size = new Point(5, entryHeight);
+                civEntry.Texture.RelativePosition = new Point(5, totalOffset - _scrollOffset);
 
                 fullCivText.AppendLine(entryText);
                 fullCivText.AppendLine();
 
-                totalOffset += (int)Math.Ceiling(textSize.Y + _textFont.LineSpacing);
+                totalOffset += entryHeight + _textFont.LineSpacing;
             }
 
-            _civText = fullCivText.ToString();
-
-            
-            int fullTextHeight = (int)Math.Ceiling(_textFont.MeasureString(_civText).Y);
-            _scrollbar.ScrollLength = fullTextHeight;
-            _viewPort.Y = (int)Math.Floor(0 + ((_scrollbar.ScrollPosition / 100)) * (fullTextHeight - Size.Y));
+            _civText.Text = fullCivText.ToString();
+            _civText.RelativePosition = new Point(15, 0 - _scrollOffset);
         }
 
         /// <summary>
@@ -262,8 +231,18 @@ namespace Orbis.UI.Elements
         /// <remarks>
         ///     Used to be a struct, but the garbage collector kept deleting the values.
         /// </remarks>
-        private class Entry
+        private struct Entry
         {
+            /// <summary>
+            ///     The height of the entry.
+            /// </summary>
+            public int EntryHeight { get; set; }
+
+            /// <summary>
+            ///     The wrapped name of the civ.
+            /// </summary>
+            public string WrappedName { get; set; }
+
             /// <summary>
             ///     The text displayed in this entry.
             /// </summary>
@@ -272,12 +251,7 @@ namespace Orbis.UI.Elements
             /// <summary>
             ///     The texture of the colored bar in the entry.
             /// </summary>
-            public Texture2D Texture { get; set; }
-
-            /// <summary>
-            ///     The position and size of the entry.
-            /// </summary>
-            public Rectangle EntryRect { get; set; }
+            public RelativeTexture Texture { get; set; }
         }
     }
 }
