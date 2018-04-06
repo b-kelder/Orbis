@@ -28,18 +28,16 @@ namespace Orbis.UI.Windows
             orbis = (Orbis)game;
             stateManager = StateManager.GetInstance();
 
-            UIContentManager.TryGetInstance(out UIContentManager contentManager);
-
             // Background for UI
-            AddChild(background = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(BACKGROUND_COLOR), new Rectangle(0, 0, 1, 1)))
+            AddChild(background = new RelativeTexture(this, new SpriteDefinition(_contentManager.GetColorTexture(BACKGROUND_COLOR), new Rectangle(0, 0, 1, 1)))
             {
                 Size = new Point(_game.Window.ClientBounds.Width, _game.Window.ClientBounds.Height),
                 AnchorPosition = AnchorPosition.TopLeft,
                 RelativePosition = new Point(0, 0),
-                LayerDepth = 1
+                LayerDepth = 1,
             });
 
-            AddChild(logo = new RelativeTexture(this, new SpriteDefinition(contentManager.GetTexture("UI/Orbis-Icon"), new Rectangle(0, 0, 1520, 1520)))
+            AddChild(logo = new RelativeTexture(this, new SpriteDefinition(_contentManager.GetTexture("UI/Orbis-Icon"), new Rectangle(0, 0, 1520, 1520)))
             {
                 Size = new Point(_game.Window.ClientBounds.Width / 4, _game.Window.ClientBounds.Width / 4),
                 AnchorPosition = AnchorPosition.Center,
@@ -47,34 +45,34 @@ namespace Orbis.UI.Windows
                 LayerDepth = 0.5f
             });
 
-            AddChild(popupButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Start"), new Rectangle(0, 0, 200, 57)))
+            AddChild(popupButton = new Button(this, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Start"), new Rectangle(0, 0, 200, 57)))
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(_game.Window.ClientBounds.Width / 6, _game.Window.ClientBounds.Height / 12),
                 RelativePosition = new Point(-_game.Window.ClientBounds.Width / 12, -_game.Window.ClientBounds.Height / 8 + 100),
                 LayerDepth = 0.5f,
-                IsFocused = true
+                Focused = true
             });
 
-            AddChild(optionsButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Settings"), new Rectangle(0, 0, 200, 57)))
+            AddChild(optionsButton = new Button(this, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Settings"), new Rectangle(0, 0, 200, 57)))
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(_game.Window.ClientBounds.Width / 6, _game.Window.ClientBounds.Height / 12),
                 RelativePosition = new Point(-_game.Window.ClientBounds.Width / 12, 0 + 100),
                 LayerDepth = 0.5f,
-                IsFocused = true
+                Focused = true
             });
 
-            AddChild(quitButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Quit"), new Rectangle(0, 0, 200, 57)))
+            AddChild(quitButton = new Button(this, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Quit"), new Rectangle(0, 0, 200, 57)))
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(_game.Window.ClientBounds.Width / 6, _game.Window.ClientBounds.Height / 12),
                 RelativePosition = new Point(-_game.Window.ClientBounds.Width / 12, _game.Window.ClientBounds.Height / 8 + 100),
                 LayerDepth = 0.5f,
-                IsFocused = true
+                Focused = true
             });
 
-            AddChild(backgroundPopup = new RelativeTexture(this, new SpriteDefinition(contentManager.GetColorTexture(Color.DarkGray), new Rectangle(0, 0, 1, 1)))
+            AddChild(backgroundPopup = new RelativeTexture(this, new SpriteDefinition(_contentManager.GetColorTexture(Color.DarkGray), new Rectangle(0, 0, 1, 1)))
             {
                 Size = new Point(_game.Window.ClientBounds.Width / 4, _game.Window.ClientBounds.Height / 4),
                 AnchorPosition = AnchorPosition.Center,
@@ -83,7 +81,7 @@ namespace Orbis.UI.Windows
                 Visible = false
             });
 
-            AddChild(text = new RelativeText(this, contentManager.GetFont("DebugFont"))
+            AddChild(text = new RelativeText(this, _contentManager.GetFont("DebugFont"))
             {
                 AnchorPosition = AnchorPosition.Center,
                 RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10, 10),
@@ -95,13 +93,13 @@ namespace Orbis.UI.Windows
                 Visible = false
             });
 
-            AddChild(startButton = new Button(this, new SpriteDefinition(contentManager.GetTexture("UI/Button_Start"), new Rectangle(0, 0, 200, 57)))
+            AddChild(startButton = new Button(this, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Start"), new Rectangle(0, 0, 200, 57)))
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(_game.Window.ClientBounds.Width / 8, _game.Window.ClientBounds.Height / 16),
                 RelativePosition = new Point(-_game.Window.ClientBounds.Width / 16, _game.Window.ClientBounds.Width / 8 - _game.Window.ClientBounds.Height / 16),
                 LayerDepth = 0.3f,
-                IsFocused = false,
+                Focused = false,
                 Visible = false
             });
 
@@ -115,12 +113,12 @@ namespace Orbis.UI.Windows
         {
             backgroundPopup.Visible = true;
             startButton.Visible = true;
-            startButton.IsFocused = true;
+            startButton.Focused = true;
             text.Visible = true;
 
-            popupButton.IsFocused = false;
-            optionsButton.IsFocused = false;
-            quitButton.IsFocused = false;
+            popupButton.Focused = false;
+            optionsButton.Focused = false;
+            quitButton.Focused = false;
         }
 
         private void QuitButton_Click(object sender, EventArgs e)

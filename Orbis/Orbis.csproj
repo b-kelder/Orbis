@@ -121,10 +121,10 @@
     <Compile Include="Rendering\DecorationData.cs" />
     <Compile Include="UI\Elements\CivPanel.cs" />
     <Compile Include="UI\Elements\RelativeElement.cs" />
-    <Compile Include="UI\IUpdatableElement.cs" />
+    <Compile Include="UI\IUpdateableElement.cs" />
     <Compile Include="UI\Elements\RelativeText.cs" />
     <Compile Include="UI\Elements\Button.cs" />
-    <Compile Include="UI\Elements\InputTextField.cs" />
+    <Compile Include="UI\Elements\InputNumberField.cs" />
     <Compile Include="UI\IRenderableElement.cs" />
     <Compile Include="UI\Elements\RelativeTexture.cs" />
     <Compile Include="UI\IPositionedElement.cs" />

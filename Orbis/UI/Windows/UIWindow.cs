@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using System;
+using Orbis.UI.Utility;
 
 namespace Orbis.UI.Windows
 {
@@ -9,12 +11,15 @@ namespace Orbis.UI.Windows
     /// </summary>
     /// 
     /// <author>Kaj van der Veen</author>
-    public abstract class UIWindow : IPositionedElement, IUpdatableElement
+    public abstract class UIWindow : IPositionedElement, IUpdateableElement
     {
         // Used for getting window size and text input.
         protected Game _game;
 
         protected List<IRenderableElement> _children;
+        protected List<IUpdateableElement> _updateableChildren;
+
+        protected UIContentManager _contentManager;
 
         /// <summary>
         ///     The screen bounds of the window.
@@ -32,14 +37,32 @@ namespace Orbis.UI.Windows
         public Point Position => Point.Zero; // Windows always have the position (0,0).
 
         /// <summary>
+        ///     Is the window in focus? (yes)
+        /// </summary>
+        public bool Focused
+        {
+            get
+            {
+                return true;
+            }
+            set { } // Windows are always focused so they can't be set.
+        }
+
+        /// <summary>
         ///     Create a new <see cref="UIWindow"/>.
         /// </summary>
         /// <param name="game"></param>
         public UIWindow(Game game)
         {
+            if (!UIContentManager.TryGetInstance(out _contentManager))
+            {
+                throw new InvalidOperationException("Window could not retrieve UI content manager.");
+            }
+
             _game = game;
             _game.Window.ClientSizeChanged += Window_ClientSizeChanged;
             _children = new List<IRenderableElement>();
+            _updateableChildren = new List<IUpdateableElement>();
         }
 
         /// <summary>
@@ -64,23 +87,25 @@ namespace Orbis.UI.Windows
         /// </summary>
         public virtual void Update()
         {
-            foreach (var child in _children)
+            foreach (var child in _updateableChildren)
             {
-                if (child is IUpdatableElement)
-                {
-                    ((IUpdatableElement)child).Update();
-                }
+                child.Update();
             }
         }
 
         public void AddChild(IRenderableElement element)
         {
             _children.Add(element);
+            if (element is IUpdateableElement)
+            {
+                _updateableChildren.Add(element as IUpdateableElement);
+            }
         }
 
         public void RemoveChild(IRenderableElement element)
         {
             _children.Remove(element);
+            _updateableChildren.Remove(element as IUpdateableElement);
         }
     }
 }
