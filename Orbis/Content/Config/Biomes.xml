@@ -11,9 +11,9 @@
 					<G>0</G>
 					<B>255</B>
 				</Color>
-				<FoodModifier>1</FoodModifier>
-				<ResourceModifier>1</ResourceModifier>
-				<PopulationModifier>1</PopulationModifier>
+				<FoodModifier>0.6</FoodModifier>
+				<ResourceModifier>0.1</ResourceModifier>
+				<PopulationModifier>0.5</PopulationModifier>
 				<HexModel>
 					<Name>hex</Name>
 					<Texture>hex_water</Texture>
@@ -29,9 +29,9 @@
 					<G>255</G>
 					<B>255</B>
 				</Color>
-				<FoodModifier>1</FoodModifier>
-				<ResourceModifier>1</ResourceModifier>
-				<PopulationModifier>1</PopulationModifier>
+				<FoodModifier>0.1</FoodModifier>
+				<ResourceModifier>0.1</ResourceModifier>
+				<PopulationModifier>0.2</PopulationModifier>
 				<HexModel>
 					<Name>hex</Name>
 					<Texture>hex_ice</Texture>
@@ -47,9 +47,9 @@
 					<G>201</G>
 					<B>201</B>
 				</Color>
-				<FoodModifier>1</FoodModifier>
-				<ResourceModifier>1</ResourceModifier>
-				<PopulationModifier>1</PopulationModifier>
+				<FoodModifier>0.1</FoodModifier>
+				<ResourceModifier>0.1</ResourceModifier>
+				<PopulationModifier>0.2</PopulationModifier>
 				<HexModel>
 					<Name>hex</Name>
 					<Texture>hex_ice2</Texture>
@@ -67,7 +67,7 @@
 				</Color>
 				<FoodModifier>1</FoodModifier>
 				<ResourceModifier>1</ResourceModifier>
-				<PopulationModifier>1</PopulationModifier>
+				<PopulationModifier>1.1</PopulationModifier>
 				<HexModel>
 					<Name>hex</Name>
 					<Texture>hex_grass</Texture>
@@ -84,8 +84,8 @@
 					<B>76</B>
 				</Color>
 				<FoodModifier>1</FoodModifier>
-				<ResourceModifier>1</ResourceModifier>
-				<PopulationModifier>1</PopulationModifier>
+				<ResourceModifier>1.1</ResourceModifier>
+				<PopulationModifier>0.9</PopulationModifier>
 				<HexModel>
 					<Name>hex</Name>
 					<Texture>hex_woodland</Texture>
@@ -101,9 +101,9 @@
 					<G>248</G>
 					<B>190</B>
 				</Color>
-				<FoodModifier>1</FoodModifier>
+				<FoodModifier>0.6</FoodModifier>
 				<ResourceModifier>1</ResourceModifier>
-				<PopulationModifier>1</PopulationModifier>
+				<PopulationModifier>0.7</PopulationModifier>
 				<HexModel>
 					<Name>hex</Name>
 					<Texture>hex_tundra</Texture>
@@ -119,9 +119,9 @@
 					<G>146</G>
 					<B>90</B>
 				</Color>
-				<FoodModifier>1</FoodModifier>
+				<FoodModifier>0.8</FoodModifier>
 				<ResourceModifier>1</ResourceModifier>
-				<PopulationModifier>1</PopulationModifier>
+				<PopulationModifier>0.7</PopulationModifier>
 				<HexModel>
 					<Name>hex</Name>
 					<Texture>hex_boreal</Texture>
@@ -137,9 +137,9 @@
 					<G>242</G>
 					<B>0</B>
 				</Color>
-				<FoodModifier>1</FoodModifier>
+				<FoodModifier>0.5</FoodModifier>
 				<ResourceModifier>1</ResourceModifier>
-				<PopulationModifier>1</PopulationModifier>
+				<PopulationModifier>1.2</PopulationModifier>
 				<HexModel>
 					<Name>hex</Name>
 					<Texture>hex_desert</Texture>
@@ -155,9 +155,9 @@
 					<G>213</G>
 					<B>9</B>
 				</Color>
-				<FoodModifier>1</FoodModifier>
+				<FoodModifier>0.7</FoodModifier>
 				<ResourceModifier>1</ResourceModifier>
-				<PopulationModifier>1</PopulationModifier>
+				<PopulationModifier>1.1</PopulationModifier>
 				<HexModel>
 					<Name>hex</Name>
 					<Texture>hex_savanna</Texture>
@@ -173,9 +173,9 @@
 					<G>73</G>
 					<B>10</B>
 				</Color>
-				<FoodModifier>1</FoodModifier>
-				<ResourceModifier>1</ResourceModifier>
-				<PopulationModifier>1</PopulationModifier>
+				<FoodModifier>1.2</FoodModifier>
+				<ResourceModifier>1.1</ResourceModifier>
+				<PopulationModifier>0.8</PopulationModifier>
 				<HexModel>
 					<Name>hex</Name>
 					<Texture>hex_rainforest</Texture>
