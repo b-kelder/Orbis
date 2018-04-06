@@ -104,10 +104,12 @@ namespace Orbis.UI.Elements
                     RelativePosition = new Point(-15, 0)
                 };
 
+                
                 foreach (Civilization civ in civs)
                 {
                     _civTexturePairs.Add(civ, new Entry()
                     {
+                        EntryHeight = 0,
                         Texture = new RelativeTexture(this, new SpriteDefinition(manager.GetColorTexture(civ.Color), new Rectangle(0, 0, 1, 1)))
                     });
                 }
@@ -157,9 +159,7 @@ namespace Orbis.UI.Elements
                 spriteBatch.Begin(SpriteSortMode.BackToFront, rasterizerState: _clipState);
                 foreach (var civTexturePair in _civTexturePairs)
                 {
-
-                    var civEntry = civTexturePair.Value;
-                    civEntry.Texture.Render(spriteBatch);
+                    civTexturePair.Value.Texture.Render(spriteBatch);
                 }
 
                 _civText.Render(spriteBatch);
@@ -183,14 +183,21 @@ namespace Orbis.UI.Elements
             _scrollOffset = (int)Math.Floor(0 + ((_scrollbar.ScrollPosition / 100)) * (fullTextHeight - Size.Y));
 
             // Every entry in the list needs to be calculated for this frame.
-            var totalOffset = 0;
+            int totalOffset = 0;
             StringBuilder fullCivText = new StringBuilder();
             foreach (var civTexturePair in _civTexturePairs)
             {
-                var civ = civTexturePair.Key;
-                StringBuilder entrySb = new StringBuilder();
+                Civilization civ = civTexturePair.Key;
+                Entry civEntry = civTexturePair.Value;
 
-                entrySb.AppendLine(TextHelper.WrapText(_textFont, civ.Name, Size.X - 30));
+                // If the name for the entry hasn't been wrapped yet, it should be.
+                if (string.IsNullOrWhiteSpace(civEntry.WrappedName))
+                {
+                    civEntry.WrappedName = TextHelper.WrapText(_textFont, civ.Name, Size.X - 30);
+                }
+
+                StringBuilder entrySb = new StringBuilder();
+                entrySb.AppendLine(civEntry.WrappedName);
                 entrySb.AppendLine("  Is Alive: " + civ.IsAlive);
                 entrySb.AppendLine("  Is at war: " + civ.AtWar);
                 entrySb.AppendLine("  Population: " + civ.Population);
@@ -198,20 +205,19 @@ namespace Orbis.UI.Elements
                 entrySb.AppendLine("  Wealth: " + (int)civ.TotalWealth + " KG AU");
                 entrySb.Append("  Resources: " + (int)civ.TotalResource + " KG");
 
-                string entryText = entrySb.ToString();
+                // If there is no entry height for the entry yet, it is calculated.
+                int entryHeight = (civEntry.EntryHeight != 0) ? civEntry.EntryHeight : (int)Math.Ceiling(_textFont.MeasureString(entrySb.ToString()).Y);  // Value rounded upwards to ensure there is enough space.
 
-                // An entry is used to keep track of related values.
-                var civEntry = civTexturePair.Value;
-                Vector2 textSize = _textFont.MeasureString(entryText);
+                string entryText = entrySb.ToString();
                 civEntry.Text = entryText;
 
-                civEntry.Texture.Size = new Point(5, (int)Math.Ceiling(textSize.Y));
+                civEntry.Texture.Size = new Point(5, entryHeight);
                 civEntry.Texture.RelativePosition = new Point(5, totalOffset - _scrollOffset);
 
                 fullCivText.AppendLine(entryText);
                 fullCivText.AppendLine();
 
-                totalOffset += (int)Math.Ceiling(textSize.Y + _textFont.LineSpacing);
+                totalOffset += entryHeight + _textFont.LineSpacing;
             }
 
             _civText.Text = fullCivText.ToString();
@@ -227,6 +233,16 @@ namespace Orbis.UI.Elements
         /// </remarks>
         private struct Entry
         {
+            /// <summary>
+            ///     The height of the entry.
+            /// </summary>
+            public int EntryHeight { get; set; }
+
+            /// <summary>
+            ///     The wrapped name of the civ.
+            /// </summary>
+            public string WrappedName { get; set; }
+
             /// <summary>
             ///     The text displayed in this entry.
             /// </summary>
