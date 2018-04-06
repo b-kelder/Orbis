@@ -216,7 +216,7 @@ namespace Orbis.UI.Windows
 
             if (orbis.SceneRenderer.HighlightedCell != null)
             {
-                text.Text = TextHelper.ClipText(
+                text.Text = TextHelper.WrapText(
                     _contentManager.GetFont("DebugFont"),
                     new StringBuilder()
                     .AppendLine("Current cell: " + orbis.SceneRenderer.HighlightedCell.Coordinates)
