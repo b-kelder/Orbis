@@ -398,7 +398,7 @@ namespace Orbis.Simulation
                         if (ongoingWars.Find(w => (w.Defender == action.Civilization && w.Attacker == defender)) != null) continue;
 
                         // Create a new war
-                        War war = new War(Scene, action.Civilization, defender);
+                        War war = new War(action.Civilization, defender, Scene.Seed);
                         // Add to the ongoing war list
                         ongoingWars.Add(war);
                     }

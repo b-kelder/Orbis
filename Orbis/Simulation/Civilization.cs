@@ -15,25 +15,43 @@ namespace Orbis.Simulation
     {
         #region Constants
         // Default Base modifiers
-        private static double DEFAULT_BASE_EXPAND = 1;
-        private static double DEFAULT_BASE_EXTERMINATE = 1;
+        private const double DEFAULT_BASE_EXPAND = 1;
+        private const double DEFAULT_BASE_EXTERMINATE = 1;
 
         // Used for war decisions.
-        private static int HATE_THRESHOLD = -100;       // Minimum dislike for starting wars.
-        private static float HATE_MOD = 1.5F;           // Modifier applied to hate for decisions.
-        private static float WAR_COOLDOWN_MOD = 2F;     // Modifier applied to war cooldown for decisions.
-        private static int WAR_COOLDOWN_VALUE = 20;     // Value added to war cooldown after a war ends.
-        private static int WAR_COOLDOWN_DECAY = 1;      // Amount by which the war cooldown decays each month.
+        private const int HATE_THRESHOLD = -100;       // Minimum dislike for starting wars.
+        private const float HATE_MOD = 0.1F;           // Modifier applied to hate for decisions.
+        private const float WAR_COOLDOWN_MOD = 2F;     // Modifier applied to war cooldown for decisions.
+        private const int WAR_COOLDOWN_VALUE = 20;     // Value added to war cooldown after a war ends.
+        private const int WAR_COOLDOWN_DECAY = 1;      // Amount by which the war cooldown decays each month.
         #endregion
 
         /// <summary>
         /// The name of the civ
         /// </summary>
         public string Name { get; set; }
+
         /// <summary>
         /// If the civ has died
         /// </summary>
-        public bool IsAlive { get; set; }
+        public bool IsAlive
+        {
+            get => _isAlive;
+            set
+            {
+                _isAlive = value;
+
+                if (!value)
+                {
+                    foreach (Cell cell in Territory)
+                    {
+                        cell.Owner = null;
+                    }
+                }
+            }
+        }
+
+        private bool _isAlive;
         /// <summary>
         /// Is currently at war
         /// </summary>
@@ -135,15 +153,15 @@ namespace Orbis.Simulation
             // Find the most suitable war target.
             KeyValuePair<Civilization, int> warTarget = CivOpinions.OrderBy(c => c.Value).FirstOrDefault(c => c.Value < HATE_THRESHOLD);
             exterminate *= BaseExterminate;
-            exterminate += _warCooldown * WAR_COOLDOWN_MOD;
-            exterminate = (warTarget.Key != null) ? exterminate + Math.Abs(warTarget.Value) * HATE_MOD : 0;
+            exterminate -= _warCooldown * WAR_COOLDOWN_MOD;
+            exterminate = (warTarget.Key != null) ? exterminate + MathHelper.Clamp(Math.Abs(warTarget.Value) * HATE_MOD, 0, 10): 0;
 
             if (expand > exterminate)
             {
                 if (Neighbours.Count <= 0)
                 {
                     LoseCell(Territory.FirstOrDefault());
-                    return action;
+                    return null;
                 }
 
                 Cell cell = Neighbours.First();
@@ -172,7 +190,7 @@ namespace Orbis.Simulation
         public double CalculateCellValue(Cell cell)
         {
             // Calculate value based on needs.
-            double val = (cell.MaxHousing / 1000) + (cell.FoodMod) + (cell.ResourceMod) + (cell.WealthMod);
+            double val = (cell.MaxHousing / 1000d) + (cell.FoodMod) + (cell.ResourceMod) + (cell.WealthMod);
 
             if (cell.Owner == null)
             {
@@ -270,7 +288,7 @@ namespace Orbis.Simulation
             Neighbours.Remove(cell);
             TotalHousing += cell.MaxHousing;
 
-            cell.population = 100;
+            cell.population = (!cell.IsWater) ? 100 : 0;
 
             return true;
         }

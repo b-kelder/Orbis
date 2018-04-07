@@ -17,8 +17,7 @@ namespace Orbis.Simulation
         #region Constants
         // Calculation values.
         private const int BATTLE_VICTORY_THRESHOLD = 3;    // The battle result value above which a battle is won by the attacker.
-        private const int BATTLE_DEFEAT_THRESHOLD = 0;     // The battle result value below which a battle is lost by the attacker.
-        private static float DURATION_MOD = 0.3F;           // The value by which the duration is multiplied for the battle result.
+        private const int BATTLE_DEFEAT_THRESHOLD = 12;     // The battle result value below which a battle is lost by the attacker.
         private const int WAR_END_THRESHOLD = 20; // The minimum end score value required for a war to end.
 
         // Logger messages.
@@ -32,7 +31,6 @@ namespace Orbis.Simulation
         public Civilization Defender { get; set; }
 
         private Random _random;
-        private Scene _scene;
         private int _battleBalance;
         private int _duration;
         private Logger _logger;
@@ -44,10 +42,10 @@ namespace Orbis.Simulation
         /// </summary>
         /// <param name="attacker">The initiator of the war.</param>
         /// <param name="defender">The defending civ.</param>
-        public War(Scene scene, Civilization attacker, Civilization defender)
+        /// <param name="seed">The seed used for random outcomes.</param>
+        public War( Civilization attacker, Civilization defender, int seed)
         {
-            _random = new Random(scene.Seed);
-            _scene = scene;
+            _random = new Random(seed);
             _battleBalance = 0;
             _duration = 1;
             Attacker = attacker;
@@ -76,17 +74,17 @@ namespace Orbis.Simulation
             }
             else
             {
-                int battleResult = (int)Math.Floor(_random.Next(-1, 2)
-                    * (((double)Attacker.Population / Defender.Population)
-                    + ((Attacker.TotalWealth / Defender.TotalWealth)))
+                // Result strongly favours the bigger civ, however there is a chance of the smaller civ pushing back.
+                int battleResult = (int)Math.Floor( _random.Next(1, 4)
+                    + ((double)Attacker.Population / Defender.Population)
+                    + (Attacker.TotalWealth / Defender.TotalWealth)
                     + (Defender.WarCount - Attacker.WarCount));
-
-                System.Diagnostics.Debug.WriteLine("Battle result for battle between " + Attacker.Name + " and " + Defender.Name + ": " + battleResult);
 
                 if (battleResult > BATTLE_VICTORY_THRESHOLD)
                 {
                     result.Winner = Attacker;
                     result.OccupiedTerritory = GetOccupiedTerritory(Attacker, Defender);
+                    _battleBalance++;
 
                     _logger.AddWithGameTime(string.Format(BATTLE_WON, Attacker.Name, Defender.Name), Simulator.Date, "war");
                 }
@@ -94,6 +92,7 @@ namespace Orbis.Simulation
                 {
                     result.Winner = Defender;
                     result.OccupiedTerritory = GetOccupiedTerritory(Defender, Attacker);
+                    _battleBalance--;
 
                     _logger.AddWithGameTime(string.Format(BATTLE_WON, Defender.Name, Attacker.Name), Simulator.Date, "war");
                 }
@@ -103,9 +102,10 @@ namespace Orbis.Simulation
                 }
 
                 int endScore = _random.Next(1, 6) - _battleBalance + _duration;
+
                 System.Diagnostics.Debug.WriteLine("End score for war between " + Attacker.Name + " and " + Defender.Name + ": " + endScore);
 
-                warEnded = (endScore > WAR_END_THRESHOLD);
+                warEnded = (endScore > WAR_END_THRESHOLD || endScore < -WAR_END_THRESHOLD);
             }
 
             if (warEnded)
