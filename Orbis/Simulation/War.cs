@@ -16,16 +16,16 @@ namespace Orbis.Simulation
     {
         #region Constants
         // Calculation values.
-        private static int BATTLE_VICTORY_THRESHOLD = 3;    // The battle result value above which a battle is won by the attacker.
-        private static int BATTLE_DEFEAT_THRESHOLD = 0;     // The battle result value below which a battle is lost by the attacker.
+        private const int BATTLE_VICTORY_THRESHOLD = 3;    // The battle result value above which a battle is won by the attacker.
+        private const int BATTLE_DEFEAT_THRESHOLD = 0;     // The battle result value below which a battle is lost by the attacker.
         private static float DURATION_MOD = 0.3F;           // The value by which the duration is multiplied for the battle result.
-        private static int WAR_END_THRESHOLD = 20;          // The minimum end score value required for a war to end.
+        private const int WAR_END_THRESHOLD = 20; // The minimum end score value required for a war to end.
 
         // Logger messages.
-        private static string WAR_START = "{0} has declared war on {1}.";                               // Displayed when a war is declared.
-        private static string BATTLE_WON = "{0} has defeated {1} in battle.";                           // Displayed when a battle is won.
-        private static string BATTLE_STALEMATE = "A battle between {0} and {1} ended in a stalemate.";  // Displayed when a battle ends in a tie.
-        private static string WAR_END = "The war between {0} and {1} has ended.";                       // Displayed when a war ends.
+        private const string WAR_START = "{0} has declared war on {1}.";                               // Displayed when a war is declared.
+        private const string BATTLE_WON = "{0} has defeated {1} in battle.";                           // Displayed when a battle is won.
+        private const string BATTLE_STALEMATE = "A battle between {0} and {1} ended in a stalemate.";  // Displayed when a battle ends in a tie.
+        private const string WAR_END = "The war between {0} and {1} has ended.";                       // Displayed when a war ends.
         #endregion
 
         public Civilization Attacker { get; set; }
@@ -57,7 +57,7 @@ namespace Orbis.Simulation
             Defender.StartWar(this);
 
             _logger = Logger.GetInstance();
-            _logger.AddWithGameTime(string.Format(WAR_START, Attacker.Name, Defender.Name, Simulator.Date, "war");
+            _logger.AddWithGameTime(string.Format(WAR_START, Attacker.Name, Defender.Name), Simulator.Date, "war");
         }
 
         /// <summary>
@@ -76,10 +76,10 @@ namespace Orbis.Simulation
             }
             else
             {
-                int battleResult = (int)Math.Floor(_random.Next(-2, 3) * (DURATION_MOD * _duration) +
-                    + ((double)Attacker.Population / Defender.Population)
-                    + ((double)Attacker.TotalWealth / Defender.TotalWealth)
-                    + ( Defender.WarCount - Attacker.WarCount));
+                int battleResult = (int)Math.Floor(_random.Next(-1, 2)
+                    * (((double)Attacker.Population / Defender.Population)
+                    + ((Attacker.TotalWealth / Defender.TotalWealth)))
+                    + (Defender.WarCount - Attacker.WarCount));
 
                 System.Diagnostics.Debug.WriteLine("Battle result for battle between " + Attacker.Name + " and " + Defender.Name + ": " + battleResult);
 
@@ -103,18 +103,13 @@ namespace Orbis.Simulation
                 }
 
                 int endScore = _random.Next(1, 6) - _battleBalance + _duration;
+                System.Diagnostics.Debug.WriteLine("End score for war between " + Attacker.Name + " and " + Defender.Name + ": " + endScore);
 
                 warEnded = (endScore > WAR_END_THRESHOLD);
             }
 
             if (warEnded)
             {
-                Attacker.Wars.Remove(this);
-                Defender.Wars.Remove(this);
-
-                Attacker.BorderCivs.Remove(Defender);
-                Attacker.CivOpinions.Remove(Defender);
-
                 Attacker.EndWar(this);
                 Defender.EndWar(this);
 

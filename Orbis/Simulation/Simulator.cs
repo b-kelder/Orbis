@@ -3,6 +3,7 @@ using Orbis.World;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -392,6 +393,10 @@ namespace Orbis.Simulation
                     {
                         // Get the civ to declare war on
                         Civilization defender = (Civilization)action.Params[0];
+
+                        // Ensure that two countries aren't at war twice at the same time.
+                        if (ongoingWars.Find(w => (w.Defender == action.Civilization && w.Attacker == defender)) != null) continue;
+
                         // Create a new war
                         War war = new War(Scene, action.Civilization, defender);
                         // Add to the ongoing war list

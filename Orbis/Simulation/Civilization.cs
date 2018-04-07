@@ -211,17 +211,19 @@ namespace Orbis.Simulation
             cell.Owner = null;
             HashSet<Cell> newNeighbours = new HashSet<Cell>();
 
-            foreach (Cell c in cell.Neighbours)
+            for (var neighbourIndex = 0; neighbourIndex < cell.Neighbours.Count; neighbourIndex++)
             {
+                Cell c = cell.Neighbours[neighbourIndex];
                 Neighbours.Remove(c);
-                if (c.Owner == this)
+
+                if (c.Owner != this) continue;
+
+                for (var newNeighbourIndex = 0; newNeighbourIndex < c.Neighbours.Count; newNeighbourIndex++)
                 {
-                    foreach (Cell cc in c.Neighbours)
+                    Cell cc = c.Neighbours[newNeighbourIndex];
+                    if (cc.Owner != this)
                     {
-                        if (cc.Owner != this)
-                        {
-                            newNeighbours.Add(cc);
-                        }
+                        newNeighbours.Add(cc);
                     }
                 }
             }
@@ -241,31 +243,27 @@ namespace Orbis.Simulation
         /// <returns>True if succesfull</returns>
         public bool ClaimCell(Cell cell)
         {
-            if (cell.Owner != null)
-            {
-                cell.Owner.LoseCell(cell);
-            }
+            cell.Owner?.LoseCell(cell);
 
             cell.Owner = this;
             Territory.Add(cell);
 
-            foreach (Cell c in cell.Neighbours)
+            for (var neighbourIndex = 0; neighbourIndex < cell.Neighbours.Count; neighbourIndex++)
             {
-                if (c.Owner != this)
-                {
-                    Neighbours.Add(c);
+                Cell c = cell.Neighbours[neighbourIndex];
+                if (c.Owner == this) continue;
 
-                    if (c.Owner != null)
-                    {
-                        if (!CivOpinions.ContainsKey(c.Owner))
-                        {
-                            CivOpinions.Add(c.Owner, -20);
-                        }
-                        else
-                        {
-                            CivOpinions[c.Owner] -= 20;
-                        }
-                    }
+                Neighbours.Add(c);
+
+                if (c.Owner == null) continue;
+
+                if (!CivOpinions.ContainsKey(c.Owner))
+                {
+                    CivOpinions.Add(c.Owner, -20);
+                }
+                else
+                {
+                    CivOpinions[c.Owner] -= 20;
                 }
             }
 
