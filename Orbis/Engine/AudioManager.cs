@@ -9,7 +9,9 @@ using System.IO;
 namespace Orbis.Engine
 {
     /// <summary>
+    /// Author: AukeM
     /// Class based on: https://github.com/CartBlanche/MonoGame-Samples/blob/master/NetRumble/AudioManager.cs
+    /// Manage audio: songs/soundeffects
     /// </summary>
     class AudioManager
     {
@@ -20,7 +22,7 @@ namespace Orbis.Engine
         private const string FILE_DIR_EFFECT    = FILE_DIR_ROOT + "/Effects";
 
         // Main Audio config
-        private const float DEFAULT_VOLUME      = 0.05F;
+        private const float DEFAULT_VOLUME      = 0.5F;
         private const bool DEFAULT_REPEATING    = false;
 
         // Variable Audio config
@@ -32,12 +34,11 @@ namespace Orbis.Engine
 
         private static AudioManager audioManager;
 
-
         private AudioManager()
         {
             songLib         = new Dictionary<string, Song>();
             effectLib       = new Dictionary<string, SoundEffectInstance>();
-            audioEnabled    = false;
+            audioEnabled    = true;
         }
 
         /// <summary>

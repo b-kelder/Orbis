@@ -5,6 +5,10 @@ using System.Threading.Tasks;
 
 namespace Orbis.Events.Exporters
 {
+    /// <summary>
+    /// Author: AukeM
+    /// Exporter for console logging
+    /// </summary>
     class ConsoleExporter : ILogExporter
     {
         /// <summary>

@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace Orbis.Events
 {
+    /// <summary>
+    /// Author: AukeM
+    /// Log events with default function or custom formats
+    /// </summary>
     class Logger
     {
         private const string DEFAULT_TYPE = "normal";   // Default log type
@@ -27,6 +31,14 @@ namespace Orbis.Events
             return logger;
         }
 
+        /// <summary>
+        /// Add a log object
+        /// </summary>
+        /// <param name="log">The log object to log</param>
+        public void Add(Log log)
+        {
+            logger.Add(log);
+        }
 
         /// <summary>
         /// Add log with item and type

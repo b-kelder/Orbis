@@ -7,8 +7,6 @@ using Orbis.UI.Utility;
 using Orbis.UI.Elements;
 using Orbis.Simulation;
 using Orbis.Events;
-using Orbis.Events.Exporters;
-using System.Threading.Tasks;
 
 namespace Orbis.UI.Windows
 {

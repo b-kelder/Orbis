@@ -9,6 +9,10 @@ using Windows.System;
 
 namespace Orbis.Events.Helpers
 {
+    /// <summary>
+    /// Author: AukeM
+    /// Helper class with functionality to write to user system
+    /// </summary>
     abstract class DeviceWriterHelper
     {
         private const string FOLDER_TOKEN = "GeneralFolderToken";           // Token which identifies the folder location (used for cache)

@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Orbis.Events.Helpers;
+using Windows.Storage;
 
 namespace Orbis.Events.Exporters
 {
+    /// <summary>
+    /// Author: AukeM
+    /// Exporter for text file exporting
+    /// </summary>
     class TextFileExporter : DeviceWriterHelper, ILogExporter
     {
         // Used to write all logs to, when all logs are written, export the data string
@@ -18,7 +23,7 @@ namespace Orbis.Events.Exporters
             // We parse all data to a var, which in the end gets writen to a file.
             data = Environment.NewLine + Environment.NewLine + "Exported at: " + DateTime.Now.ToString() + Environment.NewLine + Environment.NewLine;
             
-            await CreateFile("Orbis Log");
+            await CreateFile("Orbis Log", "txt", CreationCollisionOption.GenerateUniqueName);
             foreach (Log log in logs.ToArray())
             {
                 data += log.ToString() + Environment.NewLine;

@@ -3,6 +3,10 @@ using Orbis.States.State;
 
 namespace Orbis.States
 {
+    /// <summary>
+    /// Author: AukeM
+    /// Manage game states (e.g: different music in menu/game)
+    /// </summary>
     class StateManager
     {
         private Dictionary<State, IState> states;
