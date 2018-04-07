@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Orbis.Events;
-using Orbis.Events.Exporters;
+
 using Orbis.World;
 
 namespace Orbis.Simulation
@@ -57,7 +57,7 @@ namespace Orbis.Simulation
             Defender.StartWar(this);
 
             _logger = Logger.GetInstance();
-            _logger.AddLog(string.Format(WAR_START, Attacker.Name, Defender.Name));
+            _logger.AddWithGameTime(string.Format(WAR_START, Attacker.Name, Defender.Name, Simulator.Date, "war");
         }
 
         /// <summary>
@@ -88,18 +88,18 @@ namespace Orbis.Simulation
                     result.Winner = Attacker;
                     result.OccupiedTerritory = GetOccupiedTerritory(Attacker, Defender);
 
-                    _logger.AddLog(string.Format(BATTLE_WON, Attacker.Name, Defender.Name), "war");
+                    _logger.AddWithGameTime(string.Format(BATTLE_WON, Attacker.Name, Defender.Name), Simulator.Date, "war");
                 }
                 else if (battleResult < BATTLE_DEFEAT_THRESHOLD)
                 {
                     result.Winner = Defender;
                     result.OccupiedTerritory = GetOccupiedTerritory(Defender, Attacker);
 
-                    _logger.AddLog(string.Format(BATTLE_WON, Defender.Name, Attacker.Name), "war");
+                    _logger.AddWithGameTime(string.Format(BATTLE_WON, Defender.Name, Attacker.Name), Simulator.Date, "war");
                 }
                 else
                 {
-                    _logger.AddLog(string.Format(BATTLE_STALEMATE, Attacker.Name, Defender.Name), "war");
+                    _logger.AddWithGameTime(string.Format(BATTLE_STALEMATE, Attacker.Name, Defender.Name), Simulator.Date, "war");
                 }
 
                 int endScore = _random.Next(1, 6) - _battleBalance + _duration;
@@ -109,10 +109,16 @@ namespace Orbis.Simulation
 
             if (warEnded)
             {
-                _logger.AddLog(String.Format(WAR_END, Attacker.Name, Defender.Name), "war");
+                Attacker.Wars.Remove(this);
+                Defender.Wars.Remove(this);
+
+                Attacker.BorderCivs.Remove(Defender);
+                Attacker.CivOpinions.Remove(Defender);
 
                 Attacker.EndWar(this);
                 Defender.EndWar(this);
+
+                _logger.AddWithGameTime(string.Format(WAR_END, Attacker.Name, Defender.Name), Simulator.Date, "war");
             }
 
             _duration++;

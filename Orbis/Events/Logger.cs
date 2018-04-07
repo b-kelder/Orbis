@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Orbis.Events
 {
+    /// <summary>
+    /// Author: AukeM
+    /// Log events with default function or custom formats
+    /// </summary>
     class Logger
     {
         private const string DEFAULT_TYPE = "normal";   // Default log type
@@ -29,13 +32,40 @@ namespace Orbis.Events
         }
 
         /// <summary>
-        /// Add a new log
+        /// Add a log object
+        /// </summary>
+        /// <param name="log">The log object to log</param>
+        public void Add(Log log)
+        {
+            logger.Add(log);
+        }
+
+        /// <summary>
+        /// Add log with item and type
         /// </summary>
         /// <param name="item">The text to log</param>
-        /// <param name="type">The type</param>
-        public void AddLog(string item, string type = DEFAULT_TYPE)
+        /// <param name="type">The type of log</param>
+        public void Add(string item, string type = DEFAULT_TYPE)
         {
             log.Add(new Log(item, type));
+        }
+
+        /// <summary>
+        /// Add log with gametimestamp
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="gameTime"></param>
+        /// <param name="type"></param>
+        public void AddWithGameTime(string item, DateTime gameTime, string type = DEFAULT_TYPE)
+        {
+            Dictionary<string, string> data = new Dictionary<string, string>
+            {
+                { "Timestamp",  DateTime.Now.ToString() },
+                { "Gametime",   gameTime.ToString("MMM yyyy") },
+                { "Type",       type },
+                { "Item",       item }
+            };
+            log.Add(new Log(data, "{0} | gametime: {1}: ({2}) > {3}"));
         }
 
         /// <summary>
@@ -45,29 +75,6 @@ namespace Orbis.Events
         public List<Log> GetLog()
         {
             return log;
-        }
-
-        /// <summary>
-        /// Get a log by type
-        /// </summary>
-        /// <param name="type">The type to fetch</param>
-        /// <returns>List of logs</returns>
-        public List<Log> GetLogByType(string type)
-        {
-            // Create a local list with logs
-            List<Log> tempLog = new List<Log>();
-
-            foreach (var logItem in log)
-            {
-                // If the type matches the given type, put in new list
-                if (logItem.Type == type)
-                {
-                    tempLog.Add(logItem);
-                }
-            }
-
-            // Return local list
-            return tempLog;
         }
     }
 }

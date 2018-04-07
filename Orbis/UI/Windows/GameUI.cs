@@ -7,8 +7,6 @@ using Orbis.UI.Utility;
 using Orbis.UI.Elements;
 using Orbis.Simulation;
 using Orbis.Events;
-using Orbis.Events.Exporters;
-using System.Threading.Tasks;
 
 namespace Orbis.UI.Windows
 {
@@ -262,7 +260,7 @@ namespace Orbis.UI.Windows
             if (orbis.Simulator.MaxTick > 0)
             {
                 progressBar.Progress = ((float)orbis.Simulator.CurrentTick / orbis.Simulator.MaxTick);
-                progressBar.Message = "Date: " + orbis.Simulator.Date.ToString("MMM yyyy");
+                progressBar.Message = "Date: " + Simulator.Date.ToString("MMM yyyy");
             }
             else
             {

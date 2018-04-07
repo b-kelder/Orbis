@@ -9,7 +9,9 @@ using System.IO;
 namespace Orbis.Engine
 {
     /// <summary>
+    /// Author: AukeM
     /// Class based on: https://github.com/CartBlanche/MonoGame-Samples/blob/master/NetRumble/AudioManager.cs
+    /// Manage audio: songs/soundeffects
     /// </summary>
     class AudioManager
     {
@@ -19,9 +21,12 @@ namespace Orbis.Engine
         private const string FILE_DIR_SONGS     = FILE_DIR_ROOT + "/Songs";
         private const string FILE_DIR_EFFECT    = FILE_DIR_ROOT + "/Effects";
 
-        // Audio config
-        private const float DEFAULT_VOLUME      = 0.05F;
+        // Main Audio config
+        private const float DEFAULT_VOLUME      = 0.5F;
         private const bool DEFAULT_REPEATING    = false;
+
+        // Variable Audio config
+        private static bool audioEnabled;
 
         // Libs for songs/effects
         private static Dictionary<string, Song> songLib;
@@ -29,11 +34,11 @@ namespace Orbis.Engine
 
         private static AudioManager audioManager;
 
-
         private AudioManager()
         {
-            songLib     = new Dictionary<string, Song>();
-            effectLib   = new Dictionary<string, SoundEffectInstance>();
+            songLib         = new Dictionary<string, Song>();
+            effectLib       = new Dictionary<string, SoundEffectInstance>();
+            audioEnabled    = true;
         }
 
         /// <summary>
@@ -54,7 +59,16 @@ namespace Orbis.Engine
         public static void LoadContent(ContentManager content)
         {
             LoadSongs(content);
-            //LoadEffects(content);
+            //LoadEffects(content); // Disabled as we do not have effects.
+        }
+
+        /// <summary>
+        /// Enable or disable audio
+        /// </summary>
+        /// <param name="enabled"></param>
+        public static void EnableAudio(bool enabled)
+        {
+            audioEnabled = enabled;
         }
 
         /// <summary>
@@ -65,6 +79,13 @@ namespace Orbis.Engine
         /// <param name="volume">The volume</param>
         public static void PlaySong(string name, bool repeating = DEFAULT_REPEATING, float volume = DEFAULT_VOLUME)
         {
+            // Only play if audio is enabled
+            if (!audioEnabled)
+            {
+                Debug.WriteLine("AUDIO MANAGER: audio not playing as it has been disabled in config.");
+                return;
+            }
+
             if (audioManager == null || effectLib == null)
             {
                 Debug.WriteLine("No AudioManager or no songs present.");
@@ -90,6 +111,13 @@ namespace Orbis.Engine
         /// <param name="name">The name of the effect</param>
         public static void PlayEffect(string name)
         {
+            // Only play if audio is enabled
+            if (!audioEnabled)
+            {
+                Debug.WriteLine("AUDIO MANAGER: audio not playing as it has been disabled in config.");
+                return;
+            }
+
             if (audioManager == null || effectLib == null)
             {
                 Debug.WriteLine("No AudioManager or no effects present.");

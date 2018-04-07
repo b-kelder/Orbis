@@ -7,6 +7,10 @@ using Orbis.Events.Helpers;
 
 namespace Orbis.Events.Exporters
 {
+    /// <summary>
+    /// Author: AukeM
+    /// Exporter class for xml files
+    /// </summary>
     class XMLFileExporter : DeviceWriterHelper, ILogExporter
     {
         /// <summary>
@@ -36,13 +40,16 @@ namespace Orbis.Events.Exporters
                     string timestamp = DateTime.Now.ToString();
 
                     // Write each log in a new Log node
-                    foreach (Log log in logs)
+                    foreach (Log log in logs.ToArray())
                     {
                         writer.WriteStartElement("Log");
                         writer.WriteAttributeString("exportedAt", timestamp);
-                        writer.WriteElementString("Item", log.Item);
-                        writer.WriteElementString("Type", log.Type);
-                        writer.WriteElementString("Timestamp", log.Timestamp);
+
+                        // Write al log data dynamically
+                        foreach (KeyValuePair<string, string> data in log.GetData())
+                        {
+                            writer.WriteElementString(data.Key, data.Value);
+                        }
                         writer.WriteEndElement();
                     }
                     await writer.FlushAsync();

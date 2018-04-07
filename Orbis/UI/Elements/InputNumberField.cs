@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Orbis.Engine;
 using Orbis.UI.Utility;
+using System;
+using System.Text;
 
 namespace Orbis.UI.Elements
 {
@@ -63,6 +60,9 @@ namespace Orbis.UI.Elements
             }
         }
 
+        /// <summary>
+        ///     Is the input field visible?
+        /// </summary>
         public bool Visible
         {
             get
@@ -88,22 +88,18 @@ namespace Orbis.UI.Elements
             set
             {
                 _focused = value;
-                if (!_renderText.Text.Contains("_"))
+
+                if (value && _textSb.Length < MaxDigits && !_renderText.Text.EndsWith("_"))
                 {
                     _renderText.Text += "_";
+                }
+                else if (_renderText.Text.EndsWith("_"))
+                {
+                    _renderText.Text = _renderText.Text.TrimEnd('_');
                 }
             }
         }
         private bool _focused;
-
-        public void Render(SpriteBatch spriteBatch)
-        {
-            if (Visible)
-            {
-                _background.Render(spriteBatch);
-                _renderText.Render(spriteBatch);
-            }
-        }
 
         /// <summary>
         ///     Create a new <see cref="InputNumberField"/>.
@@ -165,33 +161,49 @@ namespace Orbis.UI.Elements
                 }
 
                 _renderText.Text = _textSb.ToString();
-                if (_textSb.Length != MaxDigits)
+                if (_textSb.Length < MaxDigits)
                 {
                     _renderText.Text += "_";
                 }
             }
-            else if (_renderText.Text.EndsWith("_"))
+        }
+
+        /// <summary>
+        ///     Update the input field.
+        ///     Checks for clicks on the field to set focus for input.
+        /// </summary>
+        public void Update()
+        {
+            InputHandler input = InputHandler.GetInstance();
+            Point mousePos = input.GetMousePosition();
+            bool clicked = input.IsMouseReleased(MouseButton.Left);
+
+            if (Bounds.Contains(mousePos))
             {
-                _renderText.Text = _renderText.Text.TrimEnd('_');
+                if (clicked)
+                {
+                    Focused = true;
+                }
+            }
+            else if (clicked)
+            {
+                Focused = false;
             }
         }
 
         /// <summary>
-        ///     Update the button, making it check for click and hold events.
+        ///     Render the input number field.
         /// </summary>
-        public void Update()
+        /// 
+        /// <param name="spriteBatch">
+        ///     The spritebatch used for rendering.
+        /// </param>
+        public void Render(SpriteBatch spriteBatch)
         {
-            // Non-focused buttons don't update.
-            InputHandler input = InputHandler.GetInstance();
-            Point mousePos = input.GetMousePosition();
-
-            if (Bounds.Contains(mousePos))
+            if (Visible)
             {
-                Focused = true;
-            }
-            else
-            {
-                Focused = false;
+                _background.Render(spriteBatch);
+                _renderText.Render(spriteBatch);
             }
         }
     }
