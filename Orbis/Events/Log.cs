@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace Orbis.Events
 {
+    /// <summary>
+    /// Author: AukeM
+    /// Log object used to log data
+    /// </summary>
     class Log
     {
         private const string DEFAULT_FORMAT = "{0}: ({1}) > {2}";

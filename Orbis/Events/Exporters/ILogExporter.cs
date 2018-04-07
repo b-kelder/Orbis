@@ -2,6 +2,10 @@
 
 namespace Orbis.Events.Exporters
 {
+    /// <summary>
+    /// Author: AukeM
+    /// Interface used for exporter handlers.
+    /// </summary>
     interface ILogExporter
     {
         /// <summary>

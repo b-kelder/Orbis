@@ -5,6 +5,10 @@ using Orbis.Events.Helpers;
 
 namespace Orbis.Events
 {
+    /// <summary>
+    /// Author: AukeM
+    /// Log exporter to export logs to configuered formats
+    /// </summary>
     class LogExporter : DeviceWriterHelper
     {
         private List<ILogExporter> exporters;
@@ -13,7 +17,7 @@ namespace Orbis.Events
         {
             exporters = new List<ILogExporter>();
 
-            // Set all the default exporter
+            // Set all the default exporters
             SetDefaultExporters();
         }
 

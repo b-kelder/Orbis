@@ -9,7 +9,7 @@ using System.Diagnostics;
 namespace Orbis.World
 {
     /// <summary>
-    /// Author: Bram Kelder, Wouter Brookhuis, Kaj v.d. Veen, Auke Muller
+    /// Author: Bram Kelder, Wouter Brookhuis, Kaj v.d. Veen, AukeM
     /// </summary>
     class WorldGenerator
     {
