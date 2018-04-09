@@ -130,7 +130,7 @@ namespace Orbis.UI.Windows
             {
                 if (orbis.SceneRenderer.DecorationDensityCap != decorationDensity.GetValue() / 100)
                 {
-                    orbis.SceneRenderer.FogDistance = decorationDensity.GetValue() / 100;
+                    orbis.SceneRenderer.DecorationDensityCap = decorationDensity.GetValue() / 100;
                 }
             }
 
