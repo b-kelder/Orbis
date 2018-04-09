@@ -213,5 +213,14 @@ namespace Orbis.Engine
                 Debug.WriteLine(ex);
             }
         }
+
+        /// <summary>
+        /// Gets the enabled state
+        /// </summary>
+        /// <returns>Returns the enabled state</returns>
+        public static bool IsEnabled()
+        {
+            return audioEnabled;
+        }
     }
 }
