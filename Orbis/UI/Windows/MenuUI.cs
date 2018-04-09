@@ -166,9 +166,9 @@ namespace Orbis.UI.Windows
             // Add startbutton to the popup menu
             AddChild(startButton = new Button(popupBackground, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Start"), new Rectangle(0, 0, 228, 64)))
             {
-                AnchorPosition = AnchorPosition.BottomLeft,
+                AnchorPosition = AnchorPosition.BottomRight,
                 Size = new Point(_game.Window.ClientBounds.Width / 8, _game.Window.ClientBounds.Height / 16),
-                RelativePosition = new Point(10, -_game.Window.ClientBounds.Height / 16 - 10),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 - 10, -_game.Window.ClientBounds.Height / 16 - 10),
                 LayerDepth = 0.3f,
                 Focused = false,
                 Visible = false
@@ -177,9 +177,9 @@ namespace Orbis.UI.Windows
             // Add startbutton to the popup menu
             AddChild(closeButton = new Button(popupBackground, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Back"), new Rectangle(0, 0, 228, 64)))
             {
-                AnchorPosition = AnchorPosition.BottomRight,
+                AnchorPosition = AnchorPosition.BottomLeft,
                 Size = new Point(_game.Window.ClientBounds.Width / 8, _game.Window.ClientBounds.Height / 16),
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 - 10, -_game.Window.ClientBounds.Height / 16 - 10),
+                RelativePosition = new Point(10, -_game.Window.ClientBounds.Height / 16 - 10),
                 LayerDepth = 0.3f,
                 Focused = false,
                 Visible = false
