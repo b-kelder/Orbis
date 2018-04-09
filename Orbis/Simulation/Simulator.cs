@@ -102,7 +102,7 @@ namespace Orbis.Simulation
         /// </summary>
         public void SimulateOneTick()
         {
-            if (IsPaused())
+            if (IsPaused() && CurrentTick < MaxTick)
             {
                 Tick();
             }
@@ -133,6 +133,7 @@ namespace Orbis.Simulation
             // Check if the max ticks has been reached
             if (MaxTick > 0 && CurrentTick >= MaxTick || pause)
             {
+                pause = true;
                 return;
             }
 
