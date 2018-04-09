@@ -78,7 +78,7 @@ namespace Orbis.Engine
         /// </summary>
         public static void TogglePlay(bool repeating = DEFAULT_REPEATING, float volume = DEFAULT_VOLUME)
         {
-            // If audio is currently enabled, set to pause
+            // If audio is currently enabled, Stop audio
             if (audioEnabled)
             {
                 EnableAudio(false);
