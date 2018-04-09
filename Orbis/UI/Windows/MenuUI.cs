@@ -6,35 +6,44 @@ using Orbis.UI.Elements;
 using Orbis.UI.Utility;
 using System;
 
+/// <Author>
+/// Bram Kelder, Thomas Stoevelaar
+/// </Author>
 namespace Orbis.UI.Windows
 {
     public class MenuUI : UIWindow
     {
+        // Referance to the orbis class
         private Orbis orbis;
-        private RelativeTexture background;
-        private RelativeTexture backgroundPopup;
-        private RelativeTexture logo;
-        private Button popupButton;
-        private Button startButton;
-        private Button optionsButton;
+        // Main menu background and items
+        private RelativeTexture menuBackground;
+        private RelativeTexture orbisLogo;
+        private Button openPopupButton;
+        private Button settingsMenu;
         private Button quitButton;
-        private StateManager stateManager;
-
+        // Popup background and items
+        private RelativeTexture popupBackground;
+        private Button startButton;
+        private RelativeText text;
         private InputNumberField seed;
         private InputNumberField civs;
         private InputNumberField radius;
         private InputNumberField ticks;
 
-        private Color BACKGROUND_COLOR = Color.LightGray;
-        private RelativeText text;
+        private StateManager stateManager;
 
+        /// <summary>
+        /// Constructor for the menu UI
+        /// </summary>
+        /// <param name="game"></param>
         public MenuUI(Game game) : base(game)
         {
             orbis = (Orbis)game;
             stateManager = StateManager.GetInstance();
+            SpriteFont font = _contentManager.GetFont("DebugFont");
 
-            // Background for UI
-            AddChild(background = new RelativeTexture(this, new SpriteDefinition(_contentManager.GetColorTexture(BACKGROUND_COLOR), new Rectangle(0, 0, 1, 1)))
+            // Background for the menu
+            AddChild(menuBackground = new RelativeTexture(this, new SpriteDefinition(_contentManager.GetColorTexture(Color.LightGray), new Rectangle(0, 0, 1, 1)))
             {
                 Size = new Point(_game.Window.ClientBounds.Width, _game.Window.ClientBounds.Height),
                 AnchorPosition = AnchorPosition.TopLeft,
@@ -42,7 +51,8 @@ namespace Orbis.UI.Windows
                 LayerDepth = 1,
             });
 
-            AddChild(logo = new RelativeTexture(this, new SpriteDefinition(_contentManager.GetTexture("UI/Orbis-Icon"), new Rectangle(0, 0, 1520, 1520)))
+            // The orbis logo
+            AddChild(orbisLogo = new RelativeTexture(this, new SpriteDefinition(_contentManager.GetTexture("UI/Orbis-Icon"), new Rectangle(0, 0, 1520, 1520)))
             {
                 Size = new Point(_game.Window.ClientBounds.Width / 4, _game.Window.ClientBounds.Width / 4),
                 AnchorPosition = AnchorPosition.Center,
@@ -50,7 +60,8 @@ namespace Orbis.UI.Windows
                 LayerDepth = 0.5f
             });
 
-            AddChild(popupButton = new Button(this, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Start"), new Rectangle(0, 0, 228, 64)))
+            // Button to open the popup menu
+            AddChild(openPopupButton = new Button(this, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Start"), new Rectangle(0, 0, 228, 64)))
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(_game.Window.ClientBounds.Width / 6, _game.Window.ClientBounds.Height / 12),
@@ -59,7 +70,8 @@ namespace Orbis.UI.Windows
                 Focused = true
             });
 
-            AddChild(optionsButton = new Button(this, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Settings"), new Rectangle(0, 0, 228, 64)))
+            // Button for settings menu
+            AddChild(settingsMenu = new Button(this, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Settings"), new Rectangle(0, 0, 228, 64)))
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(_game.Window.ClientBounds.Width / 6, _game.Window.ClientBounds.Height / 12),
@@ -68,6 +80,7 @@ namespace Orbis.UI.Windows
                 Focused = true
             });
 
+            // Button for exiting the game
             AddChild(quitButton = new Button(this, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Quit"), new Rectangle(0, 0, 228, 64)))
             {
                 AnchorPosition = AnchorPosition.Center,
@@ -77,7 +90,8 @@ namespace Orbis.UI.Windows
                 Focused = true
             });
 
-            AddChild(backgroundPopup = new RelativeTexture(this, new SpriteDefinition(_contentManager.GetColorTexture(Color.DarkGray), new Rectangle(0, 0, 1, 1)))
+            // Background for the popup menu
+            AddChild(popupBackground = new RelativeTexture(this, new SpriteDefinition(_contentManager.GetColorTexture(Color.DarkGray), new Rectangle(0, 0, 1, 1)))
             {
                 Size = new Point(_game.Window.ClientBounds.Width / 3, _game.Window.ClientBounds.Height / 3),
                 AnchorPosition = AnchorPosition.Center,
@@ -86,67 +100,69 @@ namespace Orbis.UI.Windows
                 Visible = false
             });
 
-            AddChild(text = new RelativeText(this, _contentManager.GetFont("DebugFont"))
+            // Text for the popup window
+            AddChild(text = new RelativeText(this, font)
             {
                 AnchorPosition = AnchorPosition.Center,
                 RelativePosition = new Point(-_game.Window.ClientBounds.Width / 6 + 10, 10),
-                Text = "Generate a world based on the following settings:\r\n" +
-                "\r\nSeed: " +
-                "\r\n\r\nCivilization count: " +
-                "\r\n\r\nMap radius: " +
-                "\r\n\r\nMonths to simulate: ",
+                Text = "Generate a world based on the following settings:\r\n\r\nSeed:\r\n\r\nCivilization count:\r\n\r\nMap radius:\r\n\r\nMonths to simulate:",
                 Visible = false
             });
 
-            SpriteFont font = _contentManager.GetFont("DebugFont");
-
-            int b = (int)Math.Ceiling(font.MeasureString("Civilization count: ").X);
-            int e = (int)Math.Ceiling(font.MeasureString("S").Y);
+            // Get the length and height of text
+            int textLength = (int)Math.Ceiling(font.MeasureString("Civilization count: ").X);
+            int textHeight = (int)Math.Ceiling(font.MeasureString("A").Y);
+            // Get the width of the max amount of input
             int fieldWidth = (int)Math.Ceiling(font.MeasureString("99999999").X);
 
+            // Add the seed input field
             AddChild(seed = new InputNumberField(this)
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + b, 2 * e + 5),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + textLength, 2 * textHeight + 5),
                 MaxDigits = 8,
                 Visible = false,
                 LayerDepth = 0.03F
             });
+            // Add the civ number input field
             AddChild(civs = new InputNumberField(this)
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + b, 4 * e + 5),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + textLength, 4 * textHeight + 5),
                 MaxDigits = 8,
                 Visible = false,
                 LayerDepth = 0.03F
             });
+            // Add the radius input field
             AddChild(radius = new InputNumberField(this)
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + b, 6 * e + 5),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + textLength, 6 * textHeight + 5),
                 MaxDigits = 8,
                 Visible = false,
                 LayerDepth = 0.03F
             });
+            // Add the ticks input field
             AddChild(ticks = new InputNumberField(this)
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + b, 8 * e + 5),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + textLength, 8 * textHeight + 5),
                 MaxDigits = 8,
                 Visible = false,
                 LayerDepth = 0.03F
             });
 
+            // Add text input events to the input fields
             game.Window.TextInput += seed.Window_TextInput;
             game.Window.TextInput += civs.Window_TextInput;
             game.Window.TextInput += radius.Window_TextInput;
             game.Window.TextInput += ticks.Window_TextInput;
 
-
+            // Add startbutton to the popup menu
             AddChild(startButton = new Button(this, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Start"), new Rectangle(0, 0, 228, 64)))
             {
                 AnchorPosition = AnchorPosition.Center,
@@ -157,15 +173,19 @@ namespace Orbis.UI.Windows
                 Visible = false
             });
 
+            // Add button click listeners
             startButton.Click += StartButton_Click;
-            optionsButton.Click += OptionsButton_Click;
+            settingsMenu.Click += SettingsButton_Click;
             quitButton.Click += QuitButton_Click;
-            popupButton.Click += PopupButton_Click;
+            openPopupButton.Click += PopupButton_Click;
         }
 
+        /// <summary>
+        /// Popup button click listener
+        /// </summary>
         private void PopupButton_Click(object sender, EventArgs e)
         {
-            backgroundPopup.Visible = true;
+            popupBackground.Visible = true;
             startButton.Visible = true;
             text.Visible = true;
 
@@ -174,23 +194,33 @@ namespace Orbis.UI.Windows
             radius.Visible = true;
             ticks.Visible = true;
 
-            popupButton.Focused = false;
-            optionsButton.Focused = false;
+            openPopupButton.Focused = false;
+            settingsMenu.Focused = false;
             quitButton.Focused = false;
         }
 
+        /// <summary>
+        /// Quit button click listener
+        /// </summary>
         private void QuitButton_Click(object sender, EventArgs e)
         {
             orbis.Exit();
         }
 
-        private void OptionsButton_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Settings button click listener
+        /// </summary>
+        private void SettingsButton_Click(object sender, EventArgs e)
         {
             orbis.UI.CurrentWindow = new SettingsUI(orbis);
         }
 
+        /// <summary>
+        /// Start button click listener
+        /// </summary>
         private void StartButton_Click(object sender, EventArgs e)
         {
+            // Generate a new world :D
             orbis.GenerateWorld(seed.GetValue(), orbis.DecorationSettings, orbis.WorldSettings, orbis.BiomeCollection, orbis.CivSettings, civs.GetValue(), radius.GetValue(), ticks.GetValue());
             orbis.UI.CurrentWindow = new GameUI(orbis);
             stateManager.SetActiveState(StateManager.State.GAME);
@@ -212,8 +242,9 @@ namespace Orbis.UI.Windows
         {
             base.Update();
 
-            if (backgroundPopup.Visible)
+            if (popupBackground.Visible)
             {
+                // Check if input is valid
                 if (seed.GetValue() > 0 && civs.GetValue() > 0 && radius.GetValue() > 0 && ticks.GetValue() > -1)
                 {
                     startButton.Focused = true;
@@ -230,7 +261,7 @@ namespace Orbis.UI.Windows
         /// </summary>
         protected override void Window_ClientSizeChanged(object sender, EventArgs e)
         {
-            background.Size = new Point(_game.Window.ClientBounds.Width, _game.Window.ClientBounds.Height);
+            menuBackground.Size = new Point(_game.Window.ClientBounds.Width, _game.Window.ClientBounds.Height);
         }
     }
 }
