@@ -88,8 +88,6 @@ namespace Orbis.Simulation
                     + (Attacker.TotalWealth / Defender.TotalWealth)
                     + (Defender.WarCount - Attacker.WarCount));
 
-                System.Diagnostics.Debug.WriteLine(battleResult);
-
                 if (battleResult > BATTLE_VICTORY_THRESHOLD)
                 {
                     result.Winner = Attacker;
