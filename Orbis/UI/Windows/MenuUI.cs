@@ -24,6 +24,7 @@ namespace Orbis.UI.Windows
         // Popup background and items
         private RelativeTexture popupBackground;
         private Button startButton;
+        private Button closeButton;
         private RelativeText text;
         private InputNumberField seed;
         private InputNumberField civs;
@@ -93,18 +94,18 @@ namespace Orbis.UI.Windows
             // Background for the popup menu
             AddChild(popupBackground = new RelativeTexture(this, new SpriteDefinition(_contentManager.GetColorTexture(Color.DarkGray), new Rectangle(0, 0, 1, 1)))
             {
-                Size = new Point(_game.Window.ClientBounds.Width / 3, _game.Window.ClientBounds.Height / 3),
+                Size = new Point(_game.Window.ClientBounds.Width / 3, _game.Window.ClientBounds.Height / 3 + 20),
                 AnchorPosition = AnchorPosition.Center,
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 6, 0),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 6, -(_game.Window.ClientBounds.Height / 3 + 20) / 2),
                 LayerDepth = 0.4f,
                 Visible = false
             });
 
             // Text for the popup window
-            AddChild(text = new RelativeText(this, font)
+            AddChild(text = new RelativeText(popupBackground, font)
             {
-                AnchorPosition = AnchorPosition.Center,
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 6 + 10, 10),
+                AnchorPosition = AnchorPosition.TopLeft,
+                RelativePosition = new Point(10,10),
                 Text = "Generate a world based on the following settings:\r\n\r\nSeed:\r\n\r\nCivilization count:\r\n\r\nMap radius:\r\n\r\nMonths to simulate:",
                 Visible = false
             });
@@ -116,41 +117,41 @@ namespace Orbis.UI.Windows
             int fieldWidth = (int)Math.Ceiling(font.MeasureString("99999999").X);
 
             // Add the seed input field
-            AddChild(seed = new InputNumberField(this)
+            AddChild(seed = new InputNumberField(popupBackground)
             {
-                AnchorPosition = AnchorPosition.Center,
+                AnchorPosition = AnchorPosition.TopRight,
                 Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + textLength, 2 * textHeight + 5),
+                RelativePosition = new Point(-20 - fieldWidth + 2, 43),
                 MaxDigits = 8,
                 Visible = false,
                 LayerDepth = 0.03F
             });
             // Add the civ number input field
-            AddChild(civs = new InputNumberField(this)
+            AddChild(civs = new InputNumberField(popupBackground)
             {
-                AnchorPosition = AnchorPosition.Center,
+                AnchorPosition = AnchorPosition.TopRight,
                 Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + textLength, 4 * textHeight + 5),
+                RelativePosition = new Point(-20 - fieldWidth + 2, 83),
                 MaxDigits = 8,
                 Visible = false,
                 LayerDepth = 0.03F
             });
             // Add the radius input field
-            AddChild(radius = new InputNumberField(this)
+            AddChild(radius = new InputNumberField(popupBackground)
             {
-                AnchorPosition = AnchorPosition.Center,
+                AnchorPosition = AnchorPosition.TopRight,
                 Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + textLength, 6 * textHeight + 5),
+                RelativePosition = new Point(-20 - fieldWidth + 2, 123),
                 MaxDigits = 8,
                 Visible = false,
                 LayerDepth = 0.03F
             });
             // Add the ticks input field
-            AddChild(ticks = new InputNumberField(this)
+            AddChild(ticks = new InputNumberField(popupBackground)
             {
-                AnchorPosition = AnchorPosition.Center,
+                AnchorPosition = AnchorPosition.TopRight,
                 Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 + 10 + textLength, 8 * textHeight + 5),
+                RelativePosition = new Point(-20 - fieldWidth + 2, 163),
                 MaxDigits = 8,
                 Visible = false,
                 LayerDepth = 0.03F
@@ -163,11 +164,22 @@ namespace Orbis.UI.Windows
             game.Window.TextInput += ticks.Window_TextInput;
 
             // Add startbutton to the popup menu
-            AddChild(startButton = new Button(this, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Start"), new Rectangle(0, 0, 228, 64)))
+            AddChild(startButton = new Button(popupBackground, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Start"), new Rectangle(0, 0, 228, 64)))
             {
-                AnchorPosition = AnchorPosition.Center,
+                AnchorPosition = AnchorPosition.BottomLeft,
                 Size = new Point(_game.Window.ClientBounds.Width / 8, _game.Window.ClientBounds.Height / 16),
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 16, (int)(_game.Window.ClientBounds.Width / 7.5)),
+                RelativePosition = new Point(10, -_game.Window.ClientBounds.Height / 16 - 10),
+                LayerDepth = 0.3f,
+                Focused = false,
+                Visible = false
+            });
+
+            // Add startbutton to the popup menu
+            AddChild(closeButton = new Button(popupBackground, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Back"), new Rectangle(0, 0, 228, 64)))
+            {
+                AnchorPosition = AnchorPosition.BottomRight,
+                Size = new Point(_game.Window.ClientBounds.Width / 8, _game.Window.ClientBounds.Height / 16),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 8 - 10, -_game.Window.ClientBounds.Height / 16 - 10),
                 LayerDepth = 0.3f,
                 Focused = false,
                 Visible = false
@@ -178,6 +190,31 @@ namespace Orbis.UI.Windows
             settingsMenu.Click += SettingsButton_Click;
             quitButton.Click += QuitButton_Click;
             openPopupButton.Click += PopupButton_Click;
+
+            closeButton.Click += CloseButton_Click;
+        }
+
+        private void Toggle_Popup()
+        {
+            popupBackground.Visible = !popupBackground.Visible;
+            startButton.Visible = !startButton.Visible;
+            closeButton.Visible = !closeButton.Visible;
+            closeButton.Focused = !closeButton.Focused;
+            text.Visible = !text.Visible;
+
+            seed.Visible = !seed.Visible;
+            civs.Visible = !civs.Visible;
+            radius.Visible = !radius.Visible;
+            ticks.Visible = !ticks.Visible;
+
+            openPopupButton.Focused = !openPopupButton.Focused;
+            settingsMenu.Focused = !settingsMenu.Focused;
+            quitButton.Focused = !quitButton.Focused;
+        }
+
+        private void CloseButton_Click(object sender, EventArgs e)
+        {
+            Toggle_Popup();
         }
 
         /// <summary>
@@ -185,18 +222,7 @@ namespace Orbis.UI.Windows
         /// </summary>
         private void PopupButton_Click(object sender, EventArgs e)
         {
-            popupBackground.Visible = true;
-            startButton.Visible = true;
-            text.Visible = true;
-
-            seed.Visible = true;
-            civs.Visible = true;
-            radius.Visible = true;
-            ticks.Visible = true;
-
-            openPopupButton.Focused = false;
-            settingsMenu.Focused = false;
-            quitButton.Focused = false;
+            Toggle_Popup();
         }
 
         /// <summary>
@@ -225,18 +251,7 @@ namespace Orbis.UI.Windows
             orbis.UI.CurrentWindow = orbis.UI.GameUI;
             stateManager.SetActiveState(StateManager.State.GAME);
 
-            popupBackground.Visible = false;
-            startButton.Visible = false;
-            text.Visible = false;
-
-            seed.Visible = false;
-            civs.Visible = false;
-            radius.Visible = false;
-            ticks.Visible = false;
-
-            openPopupButton.Focused = true;
-            settingsMenu.Focused = true;
-            quitButton.Focused = true;
+            Toggle_Popup();
         }
 
         /// <summary>
