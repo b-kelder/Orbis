@@ -212,6 +212,11 @@ namespace Orbis.UI.Windows
                 cellInfoBackground.Visible = !cellInfoBackground.Visible;
             }
 
+            if (orbis.Input.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape))
+            {
+                orbis.UI.CurrentWindow = orbis.UI.MenuUI;
+            }
+
             if (orbis.SceneRenderer.HighlightedCell != null)
             {
                 text.Text = TextHelper.WrapText(

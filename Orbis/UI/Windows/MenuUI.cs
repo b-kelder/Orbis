@@ -212,7 +212,7 @@ namespace Orbis.UI.Windows
         /// </summary>
         private void SettingsButton_Click(object sender, EventArgs e)
         {
-            orbis.UI.CurrentWindow = new SettingsUI(orbis);
+            orbis.UI.CurrentWindow = orbis.UI.SettingUI;
         }
 
         /// <summary>
@@ -222,7 +222,7 @@ namespace Orbis.UI.Windows
         {
             // Generate a new world :D
             orbis.GenerateWorld(seed.GetValue(), orbis.DecorationSettings, orbis.WorldSettings, orbis.BiomeCollection, orbis.CivSettings, civs.GetValue(), radius.GetValue(), ticks.GetValue());
-            orbis.UI.CurrentWindow = new GameUI(orbis);
+            orbis.UI.CurrentWindow = orbis.UI.GameUI;
             stateManager.SetActiveState(StateManager.State.GAME);
         }
 

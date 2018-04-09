@@ -61,7 +61,7 @@ namespace Orbis.UI.Windows
 
         private void BackButton_Click(object sender, EventArgs e)
         {
-            orbis.UI.CurrentWindow = new MenuUI(orbis);
+            orbis.UI.CurrentWindow = orbis.UI.MenuUI;
         }
 
         private void AudioCheckbox_Click(object sender, EventArgs e)

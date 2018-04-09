@@ -109,6 +109,8 @@ namespace Orbis
             Debug.WriteLine("Generated world in " + stopwatch.ElapsedMilliseconds + " ms");
             // Let the scene renderer generate the new meshes
             SceneRenderer.OnNewWorldGenerated(Scene, seed);
+
+            UI.GameUI = new GameUI(this);
         }
 
         /// <summary>
@@ -131,7 +133,7 @@ namespace Orbis
             var biomeData = Content.Load<XMLModel.BiomeCollection>("Config/Biomes");
             BiomeCollection = new BiomeCollection(biomeData, Content);
 
-            UI.CurrentWindow = new MenuUI(this);
+            UI.CurrentWindow = UI.MenuUI;
         }
 
         /// <summary>
