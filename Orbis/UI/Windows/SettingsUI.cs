@@ -13,6 +13,7 @@ namespace Orbis.UI.Windows
         private RelativeTexture background;
         private Button audioCheckbox;
         private Button backButton;
+        private RelativeText audioCheckboxText;
 
         private Color BACKGROUND_COLOR = Color.LightGray;
 
@@ -35,6 +36,14 @@ namespace Orbis.UI.Windows
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(_game.Window.ClientBounds.Width / 50, _game.Window.ClientBounds.Height / 30),
                 RelativePosition = new Point(-_game.Window.ClientBounds.Width / 16, (int)(_game.Window.ClientBounds.Width / 10)),
+                LayerDepth = 0.3f,
+            });
+
+            AddChild(audioCheckboxText = new RelativeText(this, _contentManager.GetFont("DebugFont"))
+            {
+                AnchorPosition = AnchorPosition.Center,
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 10, (int)(_game.Window.ClientBounds.Width / 10)),
+                Text = "Audio",
                 LayerDepth = 0.3f,
             });
 
