@@ -15,11 +15,15 @@ namespace Orbis.UI.Windows
         private Button backButton;
         private RelativeText audioCheckboxText;
 
+        private InputNumberField decorationDensity;
+        private InputNumberField fog;
+
         private Color BACKGROUND_COLOR = Color.LightGray;
 
         public SettingsUI(Game game) : base(game)
         {
             orbis = (Orbis)game;
+            SpriteFont font = _contentManager.GetFont("DebugFont");
 
             // Background for UI
             AddChild(background = new RelativeTexture(this, new SpriteDefinition(_contentManager.GetColorTexture(BACKGROUND_COLOR), new Rectangle(0, 0, 1, 1)))
@@ -39,7 +43,7 @@ namespace Orbis.UI.Windows
                 LayerDepth = 0.3f,
             });
 
-            AddChild(audioCheckboxText = new RelativeText(audioCheckbox, _contentManager.GetFont("DebugFont"))
+            AddChild(audioCheckboxText = new RelativeText(audioCheckbox, font)
             {
                 AnchorPosition = AnchorPosition.Center,
                 RelativePosition = new Point(40, -9),
@@ -54,6 +58,37 @@ namespace Orbis.UI.Windows
                 RelativePosition = new Point(-_game.Window.ClientBounds.Width / 16, (int)(_game.Window.ClientBounds.Width / 7.5)),
                 LayerDepth = 0.3f,
             });
+
+            // Get the length and height of text
+            int textLength = (int)Math.Ceiling(font.MeasureString("Civilization count: ").X);
+            int textHeight = (int)Math.Ceiling(font.MeasureString("A").Y);
+            // Get the width of the max amount of input
+            int fieldWidth = (int)Math.Ceiling(font.MeasureString("99999999").X);
+            // Add the seed input field
+
+            AddChild(fog = new InputNumberField(this)
+            {
+                AnchorPosition = AnchorPosition.Center,
+                Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 16, 0),
+                MaxDigits = 8,
+                Visible = true,
+                LayerDepth = 0.03F
+            });
+
+            AddChild(decorationDensity = new InputNumberField(this)
+            {
+                AnchorPosition = AnchorPosition.Center,
+                Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 16, 30),
+                MaxDigits = 8,
+                Visible = true,
+                LayerDepth = 0.03F
+            });
+
+            // Add button click listeners
+            game.Window.TextInput += fog.Window_TextInput;
+            game.Window.TextInput += decorationDensity.Window_TextInput;
 
             audioCheckbox.Click += AudioCheckbox_Click;
             backButton.Click += BackButton_Click;
@@ -86,6 +121,19 @@ namespace Orbis.UI.Windows
         /// </summary>
         public override void Update()
         {
+            if (orbis.SceneRenderer.FogDistance != fog.GetValue())
+            {
+                orbis.SceneRenderer.FogDistance = fog.GetValue();
+            }
+
+            if (decorationDensity.GetValue() >= 0 && decorationDensity.GetValue() <= 100)
+            {
+                if (orbis.SceneRenderer.DecorationDensityCap != decorationDensity.GetValue() / 100)
+                {
+                    orbis.SceneRenderer.FogDistance = decorationDensity.GetValue() / 100;
+                }
+            }
+
             base.Update();
         }
 

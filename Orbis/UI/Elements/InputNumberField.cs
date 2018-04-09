@@ -137,6 +137,11 @@ namespace Orbis.UI.Elements
         {
             return (Int32.TryParse(_textSb.ToString().TrimEnd('_'), out int result)) ? result : -1; // return the result or -1 if it can't be parsed.
         }
+
+        public void SetValue(int value)
+        {
+            _textSb.Clear().Append(value);
+        }
         
         /// <summary>
         ///     Event handler function for text input.
