@@ -68,6 +68,14 @@ namespace Orbis.Engine
         /// <param name="enabled"></param>
         public static void EnableAudio(bool enabled)
         {
+            if(!enabled)
+            {
+                PauseSong();
+            }
+            else
+            {
+                ResumeSong();
+            }
             audioEnabled = enabled;
         }
 
@@ -80,7 +88,7 @@ namespace Orbis.Engine
         public static void PlaySong(string name, bool repeating = DEFAULT_REPEATING, float volume = DEFAULT_VOLUME)
         {
             // Only play if audio is enabled
-            if (!audioEnabled)
+            if (!IsEnabled())
             {
                 Debug.WriteLine("AUDIO MANAGER: audio not playing as it has been disabled in config.");
                 return;
@@ -112,7 +120,7 @@ namespace Orbis.Engine
         public static void PlayEffect(string name)
         {
             // Only play if audio is enabled
-            if (!audioEnabled)
+            if (!IsEnabled())
             {
                 Debug.WriteLine("AUDIO MANAGER: audio not playing as it has been disabled in config.");
                 return;
@@ -157,12 +165,27 @@ namespace Orbis.Engine
         /// </summary>
         public static void ResumeSong()
         {
-            if(MediaPlayer.State == MediaState.Paused)
-            {
-                MediaPlayer.Resume();
-            }
+            MediaPlayer.Resume();
         }
-    
+
+        /// <summary>
+        /// Gets the enabled state
+        /// </summary>
+        /// <returns>Returns the enabled state</returns>
+        public static bool IsEnabled()
+        {
+            return audioEnabled;
+        }
+
+        /// <summary>
+        /// Check if the audio is playing
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsPlaying()
+        {
+            return MediaPlayer.State == MediaState.Playing;
+        }
+
         /// <summary>
         /// Load all songs
         /// </summary>
@@ -212,15 +235,6 @@ namespace Orbis.Engine
             {
                 Debug.WriteLine(ex);
             }
-        }
-
-        /// <summary>
-        /// Gets the enabled state
-        /// </summary>
-        /// <returns>Returns the enabled state</returns>
-        public static bool IsEnabled()
-        {
-            return audioEnabled;
         }
     }
 }
