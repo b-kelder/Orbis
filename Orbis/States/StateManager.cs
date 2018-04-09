@@ -9,16 +9,19 @@ namespace Orbis.States
     /// </summary>
     class StateManager
     {
-        private Dictionary<State, IState> states;
-        private IState activeState;
+        private Dictionary<State, IState> states;   // The states the system uses
+        private IState activeState;                 // The current state that is active
+        private bool stateChanged;                  // Indicates if the state has changed
         private static StateManager stateManager;
-        private bool stateChanged;
 
+        // Defines the states possible to use
         public enum State { MENU, GAME }
 
         private StateManager()
         {
             states = new Dictionary<State, IState>();
+
+            // Set the default system states
             SetDefaultStates();
         }
 
@@ -42,6 +45,7 @@ namespace Orbis.States
         /// <param name="state">The state object</param>
         public void AddState(State key, IState state)
         {
+            // Prevent duplicate states
             if (!states.ContainsValue(state) && !states.ContainsKey(key))
             {
                 states.Add(key, state);
@@ -54,6 +58,7 @@ namespace Orbis.States
         /// <param name="key">The key to identify the state</param>
         public void SetActiveState(State key)
         {
+            // Make sure the state exists
             if (states.ContainsKey(key))
             {
                 activeState     = states[key];
@@ -66,6 +71,7 @@ namespace Orbis.States
         /// </summary>
         public void RunState()
         {
+            // Only run state if we have a state
             if (activeState != null)
             {
                 activeState.Run();
@@ -92,8 +98,8 @@ namespace Orbis.States
         /// </summary>
         private void SetDefaultStates()
         {
-            states.Add(State.MENU, new MenuState());
-            states.Add(State.GAME, new GameState());
+            states.Add(State.MENU, new MenuState());    // State when the menu is active
+            states.Add(State.GAME, new GameState());    // State when the game is active
 
             // Set the default active state
             SetActiveState(State.MENU);

@@ -20,6 +20,8 @@ namespace Orbis.Events.Exporters
             Task.Run(() =>
             {
                 Debug.WriteLine("\n\nExported at: " + DateTime.Now.ToString() + "\n\n");
+
+                // Copy to array (prevent modification while writing exception), write to console
                 foreach (Log log in logs.ToArray())
                 {
                     Debug.WriteLine(log.ToString());

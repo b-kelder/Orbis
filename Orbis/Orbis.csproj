@@ -151,7 +151,7 @@
     <Compile Include="Simulation\Civilization.cs" />
     <Compile Include="Simulation\War.cs" />
     <Compile Include="States\State\GameState.cs" />
-    <Compile Include="States\IState.cs" />
+    <Compile Include="States\State\IState.cs" />
     <Compile Include="States\StateManager.cs" />
     <Compile Include="States\State\MenuState.cs" />
     <Compile Include="TopographyHelper.cs" />
