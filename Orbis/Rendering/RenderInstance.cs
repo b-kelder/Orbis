@@ -13,7 +13,13 @@ namespace Orbis.Rendering
     /// </summary>
     struct RenderInstance
     {
+        /// <summary>
+        /// Mesh to render
+        /// </summary>
         public RenderableMesh mesh;
+        /// <summary>
+        /// Transformation (world) matrix to apply
+        /// </summary>
         public Matrix matrix;
     }
 }

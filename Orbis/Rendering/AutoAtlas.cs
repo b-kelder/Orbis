@@ -12,22 +12,25 @@ using Windows.ApplicationModel;
 namespace Orbis.Rendering
 {
     /// <summary>
-    /// Automated texture atlas for combining textures into a single large one.
+    /// Automated texture atlas for combining textures into a single large texture.
     /// </summary>
     class AutoAtlas
     {
         private Dictionary<Texture2D, Matrix> textureUVOffset;
         private Dictionary<Texture2D, Point> textureAtlasOffset;
-        private Texture2D atlas;
         private int width;
         private int height;
 
+        // Variables for placing new textures in the atlas.
+        // The current implementation uses a simple row based approach where each row's height
+        // is the tallest texture in that row. This wastes some space when textures vary a lot
+        // in size but it works for our use case.
         private int border;
         private int currentFreeX;
         private int currentFreeY;
         private int nextFreeRowY;
 
-        public Texture2D Texture { get { return atlas; } }
+        public Texture2D Texture { get; private set; }
 
         /// <summary>
         /// Creates a new atlas.
@@ -51,6 +54,7 @@ namespace Orbis.Rendering
         /// <exception cref="Exception">Thrown when atlas is full</exception>
         public void AddTexture(Texture2D texture)
         {
+            // Don't add duplicates
             if(textureUVOffset.ContainsKey(texture))
             {
                 return;
@@ -62,6 +66,11 @@ namespace Orbis.Rendering
             }
         }
 
+        /// <summary>
+        /// Tries to add a texture to the atlas
+        /// </summary>
+        /// <param name="texture">The texture to add</param>
+        /// <returns>Success</returns>
         private bool TryAddTexture(Texture2D texture)
         {
             int texWidth = texture.Width + border * 2;
@@ -69,9 +78,10 @@ namespace Orbis.Rendering
 
             if(currentFreeX + texWidth <= width)
             {
+                // Current row is available
                 if(currentFreeY + texHeight <= height)
                 {
-                    // fits!
+                    // It fits
                     AddTexForCurrent(texture);
                     return true;
                 }
@@ -83,14 +93,13 @@ namespace Orbis.Rendering
             }
             else
             {
-                // Try next row
+                // Try the next row
                 currentFreeX = 0;
                 currentFreeY = nextFreeRowY;
                 if (currentFreeY + texHeight <= height)
                 {
-                    // fits!
+                    // It fits
                     AddTexForCurrent(texture);
-
                     return true;
                 }
                 else
@@ -112,6 +121,7 @@ namespace Orbis.Rendering
                 Matrix.CreateTranslation((float)(currentFreeX + border) / width, (float)(currentFreeY + border) / height, 0);
             textureUVOffset.Add(texture, matrix);
 
+            // Update next free Y coordinate if this texture is higher than anything on this row
             if (currentFreeY + texHeight > nextFreeRowY)
             {
                 nextFreeRowY = currentFreeY + texHeight;
@@ -165,6 +175,11 @@ namespace Orbis.Rendering
             }
         }
 
+        /// <summary>
+        /// Creates a quad with borders used for rendering a texture to an atlas.
+        /// </summary>
+        /// <param name="borderSize">Relative border size [0-1]</param>
+        /// <returns></returns>
         private VertexPositionColorTexture[] CreateQuad(float borderSize)
         {
             var floorVerts = new VertexPositionColorTexture[6 * 5];
@@ -260,7 +275,7 @@ namespace Orbis.Rendering
         /// <summary>
         /// Creates the atlas using the given graphics device for rendering.
         /// </summary>
-        /// <param name="device"></param>
+        /// <param name="device">The game's graphic device</param>
         public void Create(GraphicsDevice device)
         {
             // Since GPUs are very good at doing parallel operations we will use it to create our texture atlas
@@ -285,7 +300,6 @@ namespace Orbis.Rendering
             // Set up render target
             var renderTarget = new RenderTarget2D(device, width, height);
             device.SetRenderTarget(renderTarget);
-
             device.Clear(Color.Black);
 
             // Now render a quad per texture
@@ -313,7 +327,7 @@ namespace Orbis.Rendering
 
             // Clean up a bit
             shader.Dispose();
-            atlas = renderTarget;
+            Texture = renderTarget;
         }
 
         /// <summary>
