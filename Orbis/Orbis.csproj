@@ -236,6 +236,7 @@
     <Content Include="Content\Meshes\cactus.obj" />
     <Content Include="Content\Meshes\boat.obj" />
     <Content Include="Content\Meshes\flag.obj" />
+    <None Include="CDRendering.cd" />
     <None Include="Orbis_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
