@@ -20,6 +20,8 @@ namespace Orbis.UI.Windows
 
         private Color BACKGROUND_COLOR = Color.LightGray;
 
+        private bool initialized = false;
+
         public SettingsUI(Game game) : base(game)
         {
             orbis = (Orbis)game;
@@ -39,7 +41,7 @@ namespace Orbis.UI.Windows
             {
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(_game.Window.ClientBounds.Width / 50, _game.Window.ClientBounds.Height / 30),
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 16, (int)(_game.Window.ClientBounds.Width / 10)),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 16, 60),
                 LayerDepth = 0.3f,
             });
 
@@ -71,9 +73,17 @@ namespace Orbis.UI.Windows
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
                 RelativePosition = new Point(-_game.Window.ClientBounds.Width / 16, 0),
-                MaxDigits = 8,
+                MaxDigits = 4,
                 Visible = true,
                 LayerDepth = 0.03F
+            });
+
+            AddChild(new RelativeText(fog, font)
+            {
+                AnchorPosition = AnchorPosition.TopRight,
+                RelativePosition = new Point(16, 3),
+                Text = "Fog/Render Distance",
+                LayerDepth = 0.3f,
             });
 
             AddChild(decorationDensity = new InputNumberField(this)
@@ -81,10 +91,19 @@ namespace Orbis.UI.Windows
                 AnchorPosition = AnchorPosition.Center,
                 Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
                 RelativePosition = new Point(-_game.Window.ClientBounds.Width / 16, 30),
-                MaxDigits = 8,
+                MaxDigits = 3,
                 Visible = true,
                 LayerDepth = 0.03F
             });
+
+            AddChild(new RelativeText(decorationDensity, font)
+            {
+                AnchorPosition = AnchorPosition.TopRight,
+                RelativePosition = new Point(16, 3),
+                Text = "Vegetation density (%)",
+                LayerDepth = 0.3f,
+            });
+
 
             // Add button click listeners
             game.Window.TextInput += fog.Window_TextInput;
@@ -121,17 +140,22 @@ namespace Orbis.UI.Windows
         /// </summary>
         public override void Update()
         {
-            if (orbis.SceneRenderer.FogDistance != fog.GetValue())
+            if(!initialized)
             {
-                orbis.SceneRenderer.FogDistance = fog.GetValue();
+                fog.SetValue((int)(orbis.SceneRenderer.FogDistance));
+                decorationDensity.SetValue((int)(orbis.SceneRenderer.DecorationDensityCap * 100));
+                fog.Refresh();
+                decorationDensity.Refresh();
+                initialized = true;
             }
 
             if (decorationDensity.GetValue() >= 0 && decorationDensity.GetValue() <= 100)
             {
-                if (orbis.SceneRenderer.DecorationDensityCap != decorationDensity.GetValue() / 100)
-                {
-                    orbis.SceneRenderer.FogDistance = decorationDensity.GetValue() / 100;
-                }
+                orbis.SceneRenderer.DecorationDensityCap = decorationDensity.GetValue() / 100.0f;
+            }
+            if(fog.GetValue() >= 1)
+            {
+                orbis.SceneRenderer.FogDistance = fog.GetValue();
             }
 
             base.Update();

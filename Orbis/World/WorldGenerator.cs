@@ -30,6 +30,7 @@ namespace Orbis.World
             "The {0}-{1} Trade Federation",
             "Republic of {0} also known as {1}",
             "The Republic Formerly Known as {0}",
+            "The Free Nation of {1}",
         };
 
         /// <summary>
