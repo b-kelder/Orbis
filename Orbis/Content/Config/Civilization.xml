@@ -1255,6 +1255,14 @@
 		</Color>
 	</Item>
 	<Item>
+		<name>Hyrule</name>
+		<Color>
+			<R>0</R>
+			<G>255</G>
+			<B>0</B>
+		</Color>
+	</Item>
+	<Item>
 		<name>Singapore</name>
 		<Color>
 			<R>38</R>
