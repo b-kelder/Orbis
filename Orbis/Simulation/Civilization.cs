@@ -92,6 +92,7 @@ namespace Orbis.Simulation
                 if (_population <= 0)
                 {
                     _isAlive = false;
+                    _population = 0;
                 }
             }
         }
@@ -122,6 +123,11 @@ namespace Orbis.Simulation
         /// <returns></returns>
         public SimulationAction DetermineAction()
         {
+            if (!_isAlive)
+            {
+                return null;
+            }
+
             // Start by trimming dead neighbours from the opinions.
             int neighbourCivs = CivOpinions.Count;
             for (int i = 0; i < neighbourCivs; i++)
@@ -156,12 +162,6 @@ namespace Orbis.Simulation
 
             if (expand > exterminate)
             {
-                if (Neighbours.Count <= 0)
-                {
-                    LoseCell(Territory.FirstOrDefault());
-                    return null;
-                }
-
                 Cell cell = Neighbours.First();
 
                 int cellCount = Neighbours.Count;
@@ -228,6 +228,18 @@ namespace Orbis.Simulation
             {
                 return false;
             }
+
+            // Decrement population.
+            Population -= cell.population;
+            TotalHousing -= cell.MaxHousing;
+            TotalResource -= cell.resources;
+            TotalWealth -= cell.wealth;
+
+            // Reset cell values.
+            cell.food = 0;
+            cell.population = 0;
+            cell.resources = 0;
+            cell.wealth = 0;
 
             // Decrement the land counter if the cell is a land cell.
             if (!cell.IsWater)

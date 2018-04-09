@@ -14,6 +14,10 @@ namespace Orbis.World
 {
     public class Cell
     {
+        #region constants
+        const float HARD_CAP = 10000;
+        #endregion
+
         /// <summary>
         /// List of neighbour cells
         /// </summary>
@@ -72,10 +76,65 @@ namespace Orbis.World
         public double food;
         public double resources;
         public double wealth;
+        public SettlementSize settlementSize;
 
         public Cell(Point coordinates)
         {
             Coordinates = coordinates;
+        }
+
+        /// <summary>
+        ///     Simulate this cell.
+        /// </summary>
+        /// <param name="rand">The random to use for simulation.</param>
+        /// <returns>Whether the owner lost the cell.</returns>
+        public bool Simulate(Random rand)
+        {
+            if (population <= 0 && !IsWater)
+            {
+                return true;
+            }
+
+            // Roll a dice for the food, wealth and resource harvest
+            int roll = rand.Next(5, 25);
+
+            // Calculate food, wealth and resources based on cell modifiers
+            food = MathHelper.Clamp((float)food + roll * 100 * (float)FoodMod, 0, HARD_CAP);
+            double newResources = MathHelper.Clamp((float)resources + roll * 5 * (float)ResourceMod, 0, HARD_CAP);
+            double newWealth = MathHelper.Clamp((float)wealth + roll * 5 * (float)WealthMod, 0, HARD_CAP);
+
+            // Calculate the amount of people without food
+            int peopleWithNoFood = (int)Math.Ceiling(population - food);
+
+            // Calculate births based of the sie of the cells Population
+            int birth = 3 * rand.Next(0, population / 5);
+
+            // Calculate deaths based on cells Population and the amount of people without food
+            int death = rand.Next(0, population / 5) + peopleWithNoFood;
+
+            // Eat food
+            food = MathHelper.Clamp((float)food - population, 0, HARD_CAP);
+
+            // Clamp the max Population to the max housing of the cell
+            int newPopulation = MathHelper.Clamp(population + birth - death, 0, MaxHousing);
+
+            // Get the differences between the old and new values so we can modify the owner.
+            int populationDiff = newPopulation - population;
+            double resourcesDiff = newResources - resources;
+            double wealthDiff = newWealth - wealth;
+
+            // Write the new values to the fields.
+            population = newPopulation;
+            resources = newResources;
+            wealth = newWealth;
+
+            // Update the owner's values.
+            Owner.TotalResource += resourcesDiff;
+            Owner.TotalWealth += wealthDiff;
+            Owner.Population += populationDiff;
+
+            // The cell didn't lose its owner.
+            return false;
         }
     }
 }

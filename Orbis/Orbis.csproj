@@ -165,6 +165,7 @@
     <Compile Include="World\Biome.cs" />
     <Compile Include="World\BiomeCollection.cs" />
     <Compile Include="World\Cell.cs" />
+    <Compile Include="World\SettlementSize.cs" />
     <Compile Include="World\Map.cs" />
     <Compile Include="World\Scene.cs" />
     <Compile Include="World\WorldGenerator.cs" />

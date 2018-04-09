@@ -80,6 +80,8 @@ namespace Orbis.Simulation
                     + (Attacker.TotalWealth / Defender.TotalWealth)
                     + (Defender.WarCount - Attacker.WarCount));
 
+                System.Diagnostics.Debug.WriteLine(battleResult);
+
                 if (battleResult > BATTLE_VICTORY_THRESHOLD)
                 {
                     result.Winner = Attacker;
@@ -103,7 +105,7 @@ namespace Orbis.Simulation
 
                 int endScore = _random.Next(1, 6) - _battleBalance + _duration;
 
-                System.Diagnostics.Debug.WriteLine("End score for war between " + Attacker.Name + " and " + Defender.Name + ": " + endScore);
+                //System.Diagnostics.Debug.WriteLine("End score for war between " + Attacker.Name + " and " + Defender.Name + ": " + endScore);
 
                 warEnded = (endScore > WAR_END_THRESHOLD || endScore < -WAR_END_THRESHOLD);
             }
