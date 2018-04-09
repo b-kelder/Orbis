@@ -274,13 +274,9 @@ namespace Orbis.Simulation
         {
             Cell[] cells = SimulateCells(civilization);
 
-            // If a civ does not have a population
-            if (civilization.Population <= 0)
+            // If a civ does not have a population or no land.
+            if (!civilization.IsAlive || !civilization.HasLand)
             {
-                // set civ to dead
-                civilization.IsAlive = false;
-                // Set the Population to 0 to prevent negative numbers
-                civilization.Population = 0;
                 // Go through all cells
                 foreach (Cell cell in civilization.Territory)
                 {

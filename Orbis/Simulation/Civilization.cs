@@ -1,16 +1,16 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using Orbis.World;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Orbis.World;
 
-/// <summary>
-/// Author: Bram Kelder, Wouter Brookhuis, Kaj van der Veen
-/// </summary>
 namespace Orbis.Simulation
 {
+    /// <summary>
+    ///     A civilization within the simulation.
+    ///     A civ expands or wages war.
+    /// </summary>
+    /// <Author>Bram Kelder, Wouter Brookhuis, Kaj van der Veen</Author>
     public class Civilization
     {
         #region Constants
@@ -27,6 +27,15 @@ namespace Orbis.Simulation
         #endregion
 
         /// <summary>
+        /// Does the civ have land?
+        /// </summary>
+        public bool HasLand
+        {
+            get => _landCount > 0;
+        }
+        private int _landCount;
+
+        /// <summary>
         /// The name of the civ
         /// </summary>
         public string Name { get; set; }
@@ -39,8 +48,8 @@ namespace Orbis.Simulation
             get => _isAlive;
             set => _isAlive = value;
         }
-
         private bool _isAlive;
+
         /// <summary>
         /// Is currently at war
         /// </summary>
@@ -203,6 +212,11 @@ namespace Orbis.Simulation
             return val;
         }
 
+        /// <summary>
+        ///     Remove a cell from the civ's territory.
+        /// </summary>
+        /// <param name="cell">The cell to remove.</param>
+        /// <returns>Whether the cell could be removed.</returns>
         public bool LoseCell(Cell cell)
         {
             if (cell == null || cell.Owner != this)
@@ -213,6 +227,12 @@ namespace Orbis.Simulation
             if (!Territory.Remove(cell))
             {
                 return false;
+            }
+
+            // Decrement the land counter if the cell is a land cell.
+            if (!cell.IsWater)
+            {
+                _landCount--;
             }
 
             cell.Owner = null;
@@ -254,6 +274,12 @@ namespace Orbis.Simulation
 
             cell.Owner = this;
             Territory.Add(cell);
+
+            // Increment the land counter if the cell is a land cell.
+            if (!cell.IsWater)
+            {
+                _landCount++;
+            }
 
             for (var neighbourIndex = 0; neighbourIndex < cell.Neighbours.Count; neighbourIndex++)
             {
