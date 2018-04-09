@@ -24,9 +24,10 @@ namespace Orbis.Rendering
 
         VertexDeclaration IVertexType.VertexDeclaration => CustomVertexData.VertexDeclaration;
 
-        public Vector3 Position { get; set; }
-        public Vector2 TextureCoordinate0 { get; set; }
-        public Vector2 TextureCoordinate1 { get; set; }
-        public Color Color { get; set; }
+        // Can't be properties, crashes on release build otherwise
+        public Vector3 Position;
+        public Vector2 TextureCoordinate0;
+        public Vector2 TextureCoordinate1;
+        public Color Color;
     }
 }
