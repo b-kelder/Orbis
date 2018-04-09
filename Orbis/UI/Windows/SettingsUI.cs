@@ -10,7 +10,7 @@ namespace Orbis.UI.Windows
     {
         private Orbis orbis;
         private RelativeTexture background;
-        private InputNumberField numberField;
+        private Button backButton;
 
         private Color BACKGROUND_COLOR = Color.LightGray;
 
@@ -27,21 +27,24 @@ namespace Orbis.UI.Windows
                 LayerDepth = 1
             });
 
-            SpriteFont font = _contentManager.GetFont("DebugFont");
-            int fieldWidth = (int)Math.Ceiling(font.MeasureString("99999999").X);
-            
-            AddChild(numberField = new InputNumberField(this)
+            AddChild(backButton = new Button(this, new SpriteDefinition(_contentManager.GetTexture("UI/Button_Back"), new Rectangle(0, 0, 228, 64)))
             {
-                Size = new Point(fieldWidth + 2, font.LineSpacing + 2),
-                RelativePosition = new Point(200, 200),
+                AnchorPosition = AnchorPosition.Center,
+                Size = new Point(_game.Window.ClientBounds.Width / 8,  _game.Window.ClientBounds.Height / 16),
+                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 16, (int)(_game.Window.ClientBounds.Width / 7.5)),
+                LayerDepth = 0.3f,
                 Focused = true,
-                MaxDigits = 8,
-                Visible = true,
-                LayerDepth = 0.09F
+                Visible = true
             });
 
-            game.Window.TextInput += numberField.Window_TextInput;
+            backButton.Click += BackButton_Click;
         }
+
+        private void BackButton_Click(object sender, EventArgs e)
+        {
+            orbis.UI.CurrentWindow = new MenuUI(orbis);
+        }
+
         /// <summary>
         ///     Draw the TestWindow.
         /// </summary>
