@@ -37,18 +37,7 @@ namespace Orbis.Simulation
         public bool IsAlive
         {
             get => _isAlive;
-            set
-            {
-                _isAlive = value;
-
-                if (!value)
-                {
-                    foreach (Cell cell in Territory)
-                    {
-                        cell.Owner = null;
-                    }
-                }
-            }
+            set => _isAlive = value;
         }
 
         private bool _isAlive;
@@ -93,7 +82,7 @@ namespace Orbis.Simulation
                 _population = value;
                 if (_population <= 0)
                 {
-                    IsAlive = false;
+                    _isAlive = false;
                 }
             }
         }
@@ -110,7 +99,7 @@ namespace Orbis.Simulation
 
         public Civilization()
         {
-            IsAlive = true;
+            _isAlive = true;
             Territory = new HashSet<Cell>();
             Neighbours = new HashSet<Cell>();
             _currentWars = new List<War>();

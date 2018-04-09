@@ -38,7 +38,7 @@ namespace Orbis.Simulation
         private Task simulationTask;
         private List<Task> taskList;
         private List<War> ongoingWars;
-        private ConcurrentDictionary<Cell, Civilization> removeOwner;
+        private Dictionary<Cell, Civilization> removeOwner;
         private bool pause;
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Orbis.Simulation
             taskList = new List<Task>();
             cellsChanged = new ConcurrentQueue<Cell[]>();
             ongoingWars = new List<War>();
-            removeOwner = new ConcurrentDictionary<Cell, Civilization>();
+            removeOwner = new Dictionary<Cell, Civilization>();
         }
 
         /// <summary>
@@ -284,8 +284,10 @@ namespace Orbis.Simulation
                 // Go through all cells
                 foreach (Cell cell in civilization.Territory)
                 {
-                    // Add the cells to the remove owner list
-                    removeOwner.TryAdd(cell, civilization);
+                    lock (removeOwner)
+                    {
+                        removeOwner.Add(cell, civilization);
+                    }
                 }
             }
 
@@ -316,9 +318,12 @@ namespace Orbis.Simulation
                 // If Population is negative or zero
                 if (cell.population <= 0 && !cell.IsWater)
                 {
-                    // Add the cell to a list to remove its owner
-                    removeOwner.TryAdd(cell, civilization);
-
+                    lock (removeOwner)
+                    {
+                        // Add the cell to a list to remove its owner
+                        removeOwner.Add(cell, civilization);
+                    }
+                    
                     // Skip the simulation
                     continue;
                 }
