@@ -1375,6 +1375,14 @@
 		</Color>
 	</Item>
 	<Item>
+		<name>Wakanda</name>
+		<Color>
+			<R>0</R>
+			<G>0</G>
+			<B>0</B>
+		</Color>
+	</Item>
+	<Item>
 		<name>Thailand</name>
 		<Color>
 			<R>139</R>
