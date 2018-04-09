@@ -165,11 +165,7 @@ namespace Orbis.UI.Elements
                     }
                 }
 
-                _renderText.Text = _textSb.ToString();
-                if (_textSb.Length < MaxDigits)
-                {
-                    _renderText.Text += "_";
-                }
+                Refresh();
             }
         }
 
@@ -209,6 +205,15 @@ namespace Orbis.UI.Elements
             {
                 _background.Render(spriteBatch);
                 _renderText.Render(spriteBatch);
+            }
+        }
+
+        public void Refresh()
+        {
+            _renderText.Text = _textSb.ToString();
+            if (Focused && _textSb.Length < MaxDigits)
+            {
+                _renderText.Text += "_";
             }
         }
     }
