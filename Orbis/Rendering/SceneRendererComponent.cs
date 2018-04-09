@@ -326,6 +326,10 @@ namespace Orbis.Rendering
                     {
                         cellMesh.Dispose();
                     }
+                    foreach(var decorationPool in this.decorations)
+                    {
+                        decorationPool.Value.Clear();
+                    }
                     // Cell decorations are in cellMappedData, so they will be overwritten. Their meshes will be reused so MUST NOT be disposed
                     // Update main data sets
                     var meshData = meshTask.Result;

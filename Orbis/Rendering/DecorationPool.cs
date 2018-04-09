@@ -192,5 +192,13 @@ namespace Orbis.Rendering
             }
             return instances;
         }
+
+        public void Clear()
+        {
+            for(int i = 0; i < occupation.Count; i++)
+            {
+                FreeIndex(i);
+            }
+        }
     }
 }
