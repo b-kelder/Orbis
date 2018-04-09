@@ -1,18 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-
 using Orbis.Engine;
 using Orbis.Rendering;
 using Orbis.Simulation;
 using Orbis.States;
-using Orbis.World;
-
-using Orbis.UI.Windows;
 using Orbis.UI;
+using Orbis.UI.Windows;
+using Orbis.World;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Orbis
@@ -22,11 +20,6 @@ namespace Orbis
     /// </summary>
     public class Orbis : Game
     {
-        public static readonly int TEST_SEED = 1000;
-        public static readonly int TEST_CIVS = 15;
-        public static readonly int TEST_RADIUS = 128;
-        public static readonly int TEST_TICKS = 10000;
-
         public InputHandler Input { get { return InputHandler.GetInstance(); } }
         public GraphicsDeviceManager Graphics { get { return graphics; } }
 
@@ -52,6 +45,9 @@ namespace Orbis
         private bool drawDebugText;
         private List<string> debugLines;
 
+        /// <summary>
+        /// Create a new instance of the main game class.
+        /// </summary>
         public Orbis()
         {
             debugLines = new List<string>();
@@ -134,14 +130,6 @@ namespace Orbis
             BiomeCollection = new BiomeCollection(biomeData, Content);
 
             UI.CurrentWindow = UI.MenuUI;
-        }
-
-        /// <summary>
-        /// UnloadContent will be called once per game and is the place to unload
-        /// game-specific content.
-        /// </summary>
-        protected override void UnloadContent()
-        {
         }
 
         /// <summary>
