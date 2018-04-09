@@ -89,6 +89,7 @@ namespace Orbis.Simulation
             set
             {
                 _population = value;
+                // Check for the civ dying.
                 if (_population <= 0)
                 {
                     _isAlive = false;
@@ -115,6 +116,7 @@ namespace Orbis.Simulation
         /// </summary>
         public double TotalResource { get; set; }
 
+        // Base values for likelood to expand and likelihood to exterminate.
         public double BaseExpand = DEFAULT_BASE_EXPAND;
         public double BaseExterminate = DEFAULT_BASE_EXTERMINATE;
 
@@ -196,6 +198,9 @@ namespace Orbis.Simulation
             return (action.Action != CivDecision.DONOTHING) ? action : null;
         }
 
+        /// <summary>
+        ///     Calculate the value of a cell.
+        /// </summary>
         public double CalculateCellValue(Cell cell)
         {
             // Calculate value based on needs.
@@ -258,9 +263,12 @@ namespace Orbis.Simulation
                 _landCount--;
             }
 
+            // Lose the cell.
             cell.Owner = null;
+
             HashSet<Cell> newNeighbours = new HashSet<Cell>();
 
+            // Iterate through all of the cell's neighbours remove them from the neigbours.
             for (var neighbourIndex = 0; neighbourIndex < cell.Neighbours.Count; neighbourIndex++)
             {
                 Cell c = cell.Neighbours[neighbourIndex];
@@ -268,6 +276,7 @@ namespace Orbis.Simulation
 
                 if (c.Owner != this) continue;
 
+                // Iterate through all the neigbour's neighbours and add them to the neighbours.
                 for (var newNeighbourIndex = 0; newNeighbourIndex < c.Neighbours.Count; newNeighbourIndex++)
                 {
                     Cell cc = c.Neighbours[newNeighbourIndex];
@@ -278,6 +287,7 @@ namespace Orbis.Simulation
                 }
             }
 
+            // Actually add the new neighbours to the new neighbours.
             foreach(Cell c in newNeighbours)
             {
                 Neighbours.Add(c);
@@ -331,14 +341,22 @@ namespace Orbis.Simulation
             return true;
         }
 
+        /// <summary>
+        ///     Notify the civ of a war starting.
+        /// </summary>
+        /// <param name="war"></param>
         public void StartWar(War war)
         {
             _currentWars.Add(war);
         }
 
+        /// <summary>
+        ///     Notify the civ of a war ending.
+        /// </summary>
         public void EndWar(War war)
         {
             _currentWars.Remove(war);
+            // Add to the war cooldown so declaring a new war is less likely after the end of this one.
             _warCooldown = MathHelper.Clamp(_warCooldown + WAR_COOLDOWN_VALUE, 0, 100);
         }
     }

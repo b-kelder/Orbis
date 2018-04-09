@@ -51,9 +51,11 @@ namespace Orbis.Simulation
             Attacker = attacker;
             Defender = defender;
 
+            // Notify the participants that the war has properly started.
             Attacker.StartWar(this);
             Defender.StartWar(this);
 
+            // Create the logger and log the start of the war.
             _logger = Logger.GetInstance();
             _logger.AddWithGameTime(string.Format(WAR_START, Attacker.Name, Defender.Name), Simulator.Date, "war");
         }
@@ -104,8 +106,6 @@ namespace Orbis.Simulation
                 }
 
                 int endScore = _random.Next(1, 6) - _battleBalance + _duration;
-
-                //System.Diagnostics.Debug.WriteLine("End score for war between " + Attacker.Name + " and " + Defender.Name + ": " + endScore);
 
                 warEnded = (endScore > WAR_END_THRESHOLD || endScore < -WAR_END_THRESHOLD);
             }
