@@ -66,7 +66,8 @@ namespace Orbis.UI.Windows
 
         private void AudioCheckbox_Click(object sender, EventArgs e)
         {
-            AudioManager.EnableAudio(!AudioManager.IsEnabled());
+            // Toggle the audio
+            AudioManager.TogglePlay(true);
             string checkBoxTexture = AudioManager.IsEnabled() ? "UI/Checkbox_Checked" : "UI/Checkbox_Unchecked";
             audioCheckbox.SpriteDefinition = new SpriteDefinition(_contentManager.GetTexture(checkBoxTexture), new Rectangle(0, 0, 16, 16));
         }

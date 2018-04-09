@@ -27,6 +27,7 @@ namespace Orbis.Engine
 
         // Variable Audio config
         private static bool audioEnabled;
+        private static Song currentSong;
 
         // Libs for songs/effects
         private static Dictionary<string, Song> songLib;
@@ -39,6 +40,7 @@ namespace Orbis.Engine
             songLib         = new Dictionary<string, Song>();
             effectLib       = new Dictionary<string, SoundEffectInstance>();
             audioEnabled    = true;
+            currentSong     = null;
         }
 
         /// <summary>
@@ -68,15 +70,25 @@ namespace Orbis.Engine
         /// <param name="enabled"></param>
         public static void EnableAudio(bool enabled)
         {
-            if(!enabled)
-            {
-                PauseSong();
-            }
-            else
-            {
-                ResumeSong();
-            }
             audioEnabled = enabled;
+        }
+
+        /// <summary>
+        /// Toggle pause state of playing song
+        /// </summary>
+        public static void TogglePlay(bool repeating = DEFAULT_REPEATING, float volume = DEFAULT_VOLUME)
+        {
+            // If audio is currently enabled, set to pause
+            if (audioEnabled)
+            {
+                EnableAudio(false);
+                StopSong();
+            }
+            else if(currentSong != null)
+            {
+                EnableAudio(true);
+                PlaySong(currentSong.Name, repeating, volume);
+            }
         }
 
         /// <summary>
@@ -103,8 +115,10 @@ namespace Orbis.Engine
             // Make sure the song exists
             if (songLib.ContainsKey(name))
             {
+                currentSong             = songLib[name];
                 MediaPlayer.IsRepeating = repeating;
                 MediaPlayer.Volume      = volume;
+
                 MediaPlayer.Play(songLib[name]);
             }
             else
