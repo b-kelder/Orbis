@@ -135,6 +135,13 @@
 		</Color>
 	</Item>
 	<Item>
+		<name>Bikinibottom</name>
+		<Color>
+			<R>255</R>
+			<G>255</G>
+			<B>60</B>
+	</Item>
+	<Item>
 		<name>Bulgaria</name>
 		<Color>
 			<R>247</R>

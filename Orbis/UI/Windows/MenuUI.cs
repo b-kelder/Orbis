@@ -245,7 +245,7 @@ namespace Orbis.UI.Windows
             if (popupBackground.Visible)
             {
                 // Check if input is valid
-                if (seed.GetValue() > 0 && civs.GetValue() > 0 && radius.GetValue() > 0 && ticks.GetValue() > -1)
+                if (seed.GetValue() >= 0  && civs.GetValue() > 0 && radius.GetValue() > 0 && ticks.GetValue() >= 0)
                 {
                     startButton.Focused = true;
                 }
