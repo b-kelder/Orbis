@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Orbis.Rendering.AtlasModelLoader" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EEAAAAAAAAQAAAQAAIAIAAAAAAAAAAAAABAAQEIAAAA=</HashCode>
+      <FileName>Rendering\AtlasModelLoader.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Orbis.Rendering.AutoAtlas" Collapsed="true">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIEAAAAAIAAAwUQAAAQABAAAAAAEAAAQYABAAAIAA=</HashCode>
+      <FileName>Rendering\AutoAtlas.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Orbis.Rendering.Camera" Collapsed="true">
+    <Position X="4" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIIAAAAAgAAAAAAAAIIABAAAAAAAAAACACAA=</HashCode>
+      <FileName>Rendering\Camera.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Orbis.Rendering.DecorationManager" Collapsed="true">
+    <Position X="5.75" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAQAAAAAAA=</HashCode>
+      <FileName>Rendering\DecorationManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Orbis.Rendering.DecorationPool" Collapsed="true">
+    <Position X="0.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AISAABACAAAAAAAAAAAACAAAAAAAAgBAAAQAAAGEAAA=</HashCode>
+      <FileName>Rendering\DecorationPool.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Orbis.Rendering.Material" Collapsed="true">
+    <Position X="2.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAgAAAAAAAAAAAAAAAAAAAEAAAIAAAAAAAA=</HashCode>
+      <FileName>Rendering\Material.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Orbis.Rendering.Mesh" Collapsed="true">
+    <Position X="4" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAAAABABAAAAEAAAADAAAAEIgAhAAAAAA=</HashCode>
+      <FileName>Rendering\Mesh.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Orbis.Rendering.MeshCombiner" Collapsed="true">
+    <Position X="5.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAAAAEAEAAAAAAAAABAAAAAAAABAAAAAIA=</HashCode>
+      <FileName>Rendering\MeshCombiner.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Orbis.Rendering.Model" Collapsed="true">
+    <Position X="0.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAA=</HashCode>
+      <FileName>Rendering\Model.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Orbis.Rendering.ObjParser" Collapsed="true">
+    <Position X="2.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAA=</HashCode>
+      <FileName>Rendering\ObjParser.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Orbis.Rendering.RenderableMesh" Collapsed="true">
+    <Position X="4" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAACAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAUAA=</HashCode>
+      <FileName>Rendering\RenderableMesh.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Orbis.Rendering.SceneRendererComponent" Collapsed="true">
+    <Position X="5.75" Y="2.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAUBEgAADgBYEwQSJACAAwBAAkgAAAAQQAQIIIBBAEQ=</HashCode>
+      <FileName>Rendering\SceneRendererComponent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="Orbis.Rendering.CustomVertexData" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="0.5" Y="3.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAgAAAAIAAAAABAAAABAAAAgAAAAAA=</HashCode>
+      <FileName>Rendering\CustomVertexData.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Struct>
+  <Struct Name="Orbis.Rendering.MeshInstance" Collapsed="true">
+    <Position X="2.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAgAAAAAAAAAAAAACAAAAABAACAAAAAAAAAAAA=</HashCode>
+      <FileName>Rendering\Mesh.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Orbis.Rendering.RenderInstance" Collapsed="true">
+    <Position X="4" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAACAAAAABAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Rendering\RenderInstance.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Enum Name="Orbis.Rendering.CameraMode" Collapsed="true">
+    <Position X="0.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAA=</HashCode>
+      <FileName>Rendering\Camera.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
