@@ -1,6 +1,6 @@
 # Orbis
 Random generator for a world with a form of history, using multi-threading
-![Screenshot of Orbis rendered world](https://i.imgur.com/gWtcado.jpg)
+![Screenshot of Orbis rendered world](https://i.imgur.com/yjVTdE4.jpg)
 # Requirements
 |Resource|Link|
 |---|---|
