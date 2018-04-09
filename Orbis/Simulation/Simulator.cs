@@ -3,7 +3,6 @@ using Orbis.World;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -11,22 +10,34 @@ using System.Threading.Tasks;
 /// </summary>
 namespace Orbis.Simulation
 {
+    /// <summary>
+    ///     Handles simulation of the world.
+    /// </summary>
     public class Simulator
     {
         /// <summary>
-        /// Current tick of the simulation
+        /// Current tick of the simulation.
         /// </summary>
         public int CurrentTick { get; set; }
-        public static DateTime Date { get; set; }
+
         /// <summary>
-        /// The scene to simulate
+        /// The date of the simulation.
+        /// </summary>
+        public static DateTime Date { get; set; }
+
+        /// <summary>
+        /// The scene to simulate.
         /// </summary>
         public Scene Scene { get; set; }
+
         /// <summary>
-        /// The minimum length of a tick in seconds
+        /// The minimum length of a tick in seconds.
         /// </summary>
         public double TickLengthInSeconds { get; set; }
 
+        /// <summary>
+        /// The maximum tick for the simulation, being the last one.
+        /// </summary>
         public int MaxTick { get; set; }
 
         // Private Variables
@@ -380,8 +391,9 @@ namespace Orbis.Simulation
         }
 
         /// <summary>
-        /// Simulate all ongoing wars
+        ///     Simulate all ongoing wars
         /// </summary>
+        /// 
         /// /// <returns>
         ///     A list of cells changed during the simulation
         /// </returns>
