@@ -19,7 +19,6 @@ namespace Orbis.Rendering
         private AutoAtlas colorAtlas;
         private Effect shader;
         private ContentManager contentManager;
-        private Material material;
 
         /// <summary>
         /// Base directory for model file loading.
@@ -32,16 +31,22 @@ namespace Orbis.Rendering
         /// <summary>
         /// Material used by all models loaded by this loader.
         /// </summary>
-        public Material Material { get { return material; } }
+        public Material Material { get; private set; }
 
-
+        /// <summary>
+        /// Creates a new AtlasModelLoader.
+        /// </summary>
+        /// <param name="atlasWidth">Width of texture atlasses</param>
+        /// <param name="atlasHeight">Height of texture atlasses</param>
+        /// <param name="shader">Shader to use for the Material</param>
+        /// <param name="contentManager">ContentManager used for loading textures</param>
         public AtlasModelLoader(int atlasWidth, int atlasHeight, Effect shader, ContentManager contentManager)
         {
             atlas = new AutoAtlas(atlasWidth, atlasHeight, 32);
             colorAtlas = new AutoAtlas(atlasWidth, atlasHeight, 32);
             this.shader = shader;
             this.contentManager = contentManager;
-            this.material = new Material(shader);
+            this.Material = new Material(shader);
 
             BaseModelDirectory = "Meshes";
             BaseTextureDirectory = "Textures";
@@ -69,9 +74,16 @@ namespace Orbis.Rendering
         public Model LoadModel(string meshFile, string diffuseName, string colorName)
         {
             Mesh mesh = null;
-            using (var stream = TitleContainer.OpenStream("Content/" + BaseModelDirectory + "/" + meshFile + ".obj"))
+            try
             {
-                mesh = ObjParser.FromStream(stream);
+                using (var stream = TitleContainer.OpenStream("Content/" + BaseModelDirectory + "/" + meshFile + ".obj"))
+                {
+                    mesh = ObjParser.FromStream(stream);
+                }
+            }
+            catch(Exception e)
+            {
+                throw new Exception("Exception when loading model", e);
             }
             var diffuseTexture = TryLoadTexture(BaseTextureDirectory + "/" + diffuseName);
             var colorTexture = TryLoadTexture(BaseTextureDirectory + "/" + colorName);
@@ -85,7 +97,7 @@ namespace Orbis.Rendering
             atlas.UpdateMeshUVs(mesh, diffuseTexture, 0);
             colorAtlas.UpdateMeshUVs(mesh, colorTexture, 1);
 
-            return new Model(mesh, material);
+            return new Model(mesh, Material);
         }
 
         private Texture2D TryLoadTexture(string name)
@@ -110,9 +122,10 @@ namespace Orbis.Rendering
             atlas.Create(graphicsDevice);
             colorAtlas.Create(graphicsDevice);
 
-            material.Texture = atlas.Texture;
-            material.ColorMap = colorAtlas.Texture;
+            Material.Texture = atlas.Texture;
+            Material.ColorMap = colorAtlas.Texture;
 
+            // Unload partial textures to save on memory
             atlas.UnloadNonAtlasTextures();
             colorAtlas.UnloadNonAtlasTextures();
         }

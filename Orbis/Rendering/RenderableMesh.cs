@@ -12,9 +12,18 @@ namespace Orbis.Rendering
     /// </summary>
     class RenderableMesh
     {
+        /// <summary>
+        /// This mesh's vertex buffer
+        /// </summary>
         public VertexBuffer VertexBuffer { get; set; }
+        /// <summary>
+        /// This mesh's index buffer
+        /// </summary>
         public IndexBuffer IndexBuffer { get; set; }
-        public CustomVertexData[] VertexData { get; set; }
+        /// <summary>
+        /// Vertex data in an editable format
+        /// </summary>
+        public CustomVertexData[] VertexData { get; private set; }
 
         /// <summary>
         /// Creates a new Renderable Mesh.
@@ -34,16 +43,12 @@ namespace Orbis.Rendering
         /// </summary>
         public void UpdateVertexBuffer()
         {
-            if(VertexBuffer.VertexCount != VertexData.Length)
-            {
-                throw new NotImplementedException();
-                // TODO: Use this?
-                //VertexBuffer.Dispose();
-                //VertexBuffer = new VertexBuffer(device, typeof(CustomVertexData), VertexData.Length, BufferUsage.WriteOnly);
-            }
             VertexBuffer.SetData(VertexData);
         }
 
+        /// <summary>
+        /// Disposes any used graphic resources.
+        /// </summary>
         public void Dispose()
         {
             VertexBuffer.Dispose();

@@ -221,7 +221,7 @@ namespace Orbis.UI.Windows
                     .AppendLine("Owner: " + (orbis.SceneRenderer.HighlightedCell.Owner != null ? orbis.SceneRenderer.HighlightedCell.Owner.Name : "Nobody"))
                     .AppendLine("Biome: " + orbis.SceneRenderer.HighlightedCell.Biome.Name)
                     .AppendLine("Temperature: " + orbis.SceneRenderer.HighlightedCell.Temperature.ToString("#.#"))
-                    .AppendLine("Elevation: " + ((orbis.SceneRenderer.HighlightedCell.Elevation - orbis.SceneRenderer.renderedScene.Settings.SeaLevel) * 450).ToString("#.#"))
+                    .AppendLine("Elevation: " + ((orbis.SceneRenderer.HighlightedCell.Elevation - orbis.Scene.Settings.SeaLevel) * 450).ToString("#.#"))
                     .AppendLine("Population: " + orbis.SceneRenderer.HighlightedCell.population + "/" + orbis.SceneRenderer.HighlightedCell.MaxHousing)
                     .AppendLine("Food: " + orbis.SceneRenderer.HighlightedCell.food.ToString("#.#"))
                     .AppendLine("Modifiers (F/R/W): " + orbis.SceneRenderer.HighlightedCell.FoodMod.ToString("#.#") + "/"
