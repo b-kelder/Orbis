@@ -1,5 +1,4 @@
-﻿
-/// <summary>
+﻿/// <summary>
 /// Author: AukeM, Bram Kelder, Wouter Brookhuis, Kaj v.d. Veen
 /// </summary>
 namespace Orbis.Engine
@@ -27,7 +26,7 @@ namespace Orbis.Engine
             for(int i = 0; i < octaves; i++)
 
             {
-                total += perlin(x * frequency, y * frequency, z * frequency) * amplitude;
+                total += PerlinFunc(x * frequency, y * frequency, z * frequency) * amplitude;
 
                 maxValue += amplitude;
 
@@ -70,7 +69,7 @@ namespace Orbis.Engine
             }
         }
 
-        public double perlin(double x, double y, double z)
+        public double PerlinFunc(double x, double y, double z)
         {
 
             if(repeat > 0)
@@ -88,20 +87,20 @@ namespace Orbis.Engine
             double yf = y - (int)y;
 
             double zf = z - (int)z;
-            double u = fade(xf);
-            double v = fade(yf);
-            double w = fade(zf);
+            double u = Fade(xf);
+            double v = Fade(yf);
+            double w = Fade(zf);
 
             int aaa, aba, aab, abb, baa, bba, bab, bbb;
 
             aaa = p[p[p[xi] + yi] + zi];
-            aba = p[p[p[xi] + inc(yi)] + zi];
-            aab = p[p[p[xi] + yi] + inc(zi)];
-            abb = p[p[p[xi] + inc(yi)] + inc(zi)];
-            baa = p[p[p[inc(xi)] + yi] + zi];
-            bba = p[p[p[inc(xi)] + inc(yi)] + zi];
-            bab = p[p[p[inc(xi)] + yi] + inc(zi)];
-            bbb = p[p[p[inc(xi)] + inc(yi)] + inc(zi)];
+            aba = p[p[p[xi] + Inc(yi)] + zi];
+            aab = p[p[p[xi] + yi] + Inc(zi)];
+            abb = p[p[p[xi] + Inc(yi)] + Inc(zi)];
+            baa = p[p[p[Inc(xi)] + yi] + zi];
+            bba = p[p[p[Inc(xi)] + Inc(yi)] + zi];
+            bab = p[p[p[Inc(xi)] + yi] + Inc(zi)];
+            bbb = p[p[p[Inc(xi)] + Inc(yi)] + Inc(zi)];
 
 
             /* 
@@ -111,20 +110,20 @@ namespace Orbis.Engine
              */
             double x1, x2, y1, y2;
 
-            x1 = lerp(grad(aaa, xf, yf, zf), grad(baa, xf - 1, yf, zf), u);
-            x2 = lerp(grad(aba, xf, yf - 1, zf), grad(bba, xf - 1, yf - 1, zf), u);
-            y1 = lerp(x1, x2, v);
+            x1 = Lerp(Grad(aaa, xf, yf, zf), Grad(baa, xf - 1, yf, zf), u);
+            x2 = Lerp(Grad(aba, xf, yf - 1, zf), Grad(bba, xf - 1, yf - 1, zf), u);
+            y1 = Lerp(x1, x2, v);
 
-            x1 = lerp(grad(aab, xf, yf, zf - 1), grad(bab, xf - 1, yf, zf - 1), u);
-            x2 = lerp(grad(abb, xf, yf - 1, zf - 1), grad(bbb, xf - 1, yf - 1, zf - 1), u);
+            x1 = Lerp(Grad(aab, xf, yf, zf - 1), Grad(bab, xf - 1, yf, zf - 1), u);
+            x2 = Lerp(Grad(abb, xf, yf - 1, zf - 1), Grad(bbb, xf - 1, yf - 1, zf - 1), u);
 
-            y2 = lerp(x1, x2, v);
+            y2 = Lerp(x1, x2, v);
 
             // For convenience we bound it to 0 - 1 (theoretical min/max before is -1 - 1)
-            return (lerp(y1, y2, w) + 1) / 2;
+            return (Lerp(y1, y2, w) + 1) / 2;
         }
 
-        public int inc(int num)
+        public int Inc(int num)
         {
             num++;
 
@@ -134,9 +133,8 @@ namespace Orbis.Engine
             return num;
         }
 
-        public static double grad(int hash, double x, double y, double z)
+        public static double Grad(int hash, double x, double y, double z)
         {
-
             switch (hash & 0xF)
             {
                 case 0x0: return x  + y;
@@ -159,16 +157,30 @@ namespace Orbis.Engine
             }
         }
 
-        public static double fade(double t)
+        /// <summary>
+        /// Fade function as defined by Ken Perlin. This eases coordinate values so that they will "ease" towards integral values.
+        /// This ends up smoothing the final output.
+        /// </summary>
+        /// <param name="t">Value to fade</param>
+        /// <returns>
+        ///     
+        /// </returns>
+        public static double Fade(double t)
         {
-            /* 
-             * Fade function as defined by Ken Perlin. This eases coordinate values so that they will "ease" towards integral values.
-             * This ends up smoothing the final output.
-             */
-            return t * t * t * (t * (t * 6 - 15) + 10); // 6t^5 - 15t^4 + 10t^3
+            // 6t^5 - 15t^4 + 10t^3
+            return t * t * t * (t * (t * 6 - 15) + 10);
         }
 
-        public static double lerp(double a, double b, double x)
+        /// <summary>
+        /// Interpolate between two values
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="x"></param>
+        /// <returns>
+        ///     
+        /// </returns>
+        public static double Lerp(double a, double b, double x)
         {
             return a + x * (b - a);
         }
