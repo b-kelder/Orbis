@@ -10,18 +10,27 @@ namespace Orbis.Simulation
     /// <summary>
     ///     Represents a war between two civilizations.
     /// </summary>
-    /// <author>
-    ///     Kaj van der Veen
-    /// </author>
+    /// 
+    /// <author> Kaj van der Veen</author>
     public class War
     {
+        #region Constants
+        // Calculation values.
+        private const int BATTLE_VICTORY_THRESHOLD = 3;    // The battle result value above which a battle is won by the attacker.
+        private const int BATTLE_DEFEAT_THRESHOLD = 12;     // The battle result value below which a battle is lost by the attacker.
+        private const int WAR_END_THRESHOLD = 20; // The minimum end score value required for a war to end.
+
+        // Logger messages.
+        private const string WAR_START = "{0} has declared war on {1}.";                               // Displayed when a war is declared.
+        private const string BATTLE_WON = "{0} has defeated {1} in battle.";                           // Displayed when a battle is won.
+        private const string BATTLE_STALEMATE = "A battle between {0} and {1} ended in a stalemate.";  // Displayed when a battle ends in a tie.
+        private const string WAR_END = "The war between {0} and {1} has ended.";                       // Displayed when a war ends.
+        #endregion
+
         public Civilization Attacker { get; set; }
         public Civilization Defender { get; set; }
 
         private Random _random;
-        private int _upperBound;
-        private int _lowerBound;
-        private Scene _scene;
         private int _battleBalance;
         private int _duration;
         private Logger _logger;
@@ -33,22 +42,20 @@ namespace Orbis.Simulation
         /// </summary>
         /// <param name="attacker">The initiator of the war.</param>
         /// <param name="defender">The defending civ.</param>
-        public War(Scene scene, Civilization attacker, Civilization defender)
+        /// <param name="seed">The seed used for random outcomes.</param>
+        public War( Civilization attacker, Civilization defender, int seed)
         {
-            _random = new Random(scene.Seed);
-            _upperBound = 3;
-            _lowerBound = 0;
-            _scene = scene;
+            _random = new Random(seed);
             _battleBalance = 0;
             _duration = 1;
             Attacker = attacker;
             Defender = defender;
 
-            Attacker.Wars.Add(this);
-            Defender.Wars.Add(this);
+            Attacker.StartWar(this);
+            Defender.StartWar(this);
 
             _logger = Logger.GetInstance();
-            _logger.AddWithGameTime(Attacker.Name + " has declared war on ." + Defender.Name, Simulator.Date, "war");
+            _logger.AddWithGameTime(string.Format(WAR_START, Attacker.Name, Defender.Name), Simulator.Date, "war");
         }
 
         /// <summary>
@@ -67,50 +74,48 @@ namespace Orbis.Simulation
             }
             else
             {
-                int battleResult = (int)Math.Floor(_random.Next(-2, 3) * (0.3 * _duration) +
+                // Result strongly favours the bigger civ, however there is a chance of the smaller civ pushing back.
+                int battleResult = (int)Math.Floor( _random.Next(1, 4)
                     + ((double)Attacker.Population / Defender.Population)
-                    + ((double)Attacker.TotalWealth / Defender.TotalWealth)
-                    + ( Defender.Wars.Count - Attacker.Wars.Count));
+                    + (Attacker.TotalWealth / Defender.TotalWealth)
+                    + (Defender.WarCount - Attacker.WarCount));
 
+                System.Diagnostics.Debug.WriteLine(battleResult);
 
-                //+ (0.4 * Attacker.Population + 10 * Attacker.Wars.Count)
-                //- (0.4 * Defender.Population + 10 * Defender.Wars.Count));
-
-                _logger.AddWithGameTime("Battle result for battle between " + Attacker.Name + " and " + Defender.Name + ": " + battleResult + ".", Simulator.Date, "war");
-
-                if (battleResult > _upperBound)
+                if (battleResult > BATTLE_VICTORY_THRESHOLD)
                 {
                     result.Winner = Attacker;
                     result.OccupiedTerritory = GetOccupiedTerritory(Attacker, Defender);
+                    _battleBalance++;
 
-                    _logger.AddWithGameTime(Attacker.Name + "(" + Attacker.Population + ") has won a battle against " + Defender.Name + "(" + Defender.Population + ")", Simulator.Date, "war");
+                    _logger.AddWithGameTime(string.Format(BATTLE_WON, Attacker.Name, Defender.Name), Simulator.Date, "war");
                 }
-                else if (battleResult < _lowerBound)
+                else if (battleResult < BATTLE_DEFEAT_THRESHOLD)
                 {
                     result.Winner = Defender;
                     result.OccupiedTerritory = GetOccupiedTerritory(Defender, Attacker);
+                    _battleBalance--;
 
-                    _logger.AddWithGameTime(Defender.Name + "(" + Defender.Population + ") has won a battle against " + Attacker.Name + "(" + Attacker.Population + ")", Simulator.Date, "war");
+                    _logger.AddWithGameTime(string.Format(BATTLE_WON, Defender.Name, Attacker.Name), Simulator.Date, "war");
+                }
+                else
+                {
+                    _logger.AddWithGameTime(string.Format(BATTLE_STALEMATE, Attacker.Name, Defender.Name), Simulator.Date, "war");
                 }
 
                 int endScore = _random.Next(1, 6) - _battleBalance + _duration;
 
-                warEnded = (endScore > 20);
+                //System.Diagnostics.Debug.WriteLine("End score for war between " + Attacker.Name + " and " + Defender.Name + ": " + endScore);
+
+                warEnded = (endScore > WAR_END_THRESHOLD || endScore < -WAR_END_THRESHOLD);
             }
 
             if (warEnded)
             {
-                _logger.AddWithGameTime("The war between " + Attacker.Name + "(" + Attacker.Population + ") and " + Defender.Name + "(" + Defender.Population + ") has ended. (Duration: " + _duration + ")", Simulator.Date, "war");
+                Attacker.EndWar(this);
+                Defender.EndWar(this);
 
-                Attacker.Wars.Remove(this);
-                Defender.Wars.Remove(this);
-
-                // Add real war cooldown for civs.
-                Attacker.BorderCivs.Remove(Defender);
-                Attacker.CivOpinions.Remove(Defender);
-
-                Defender.BorderCivs.Remove(Attacker);
-                Defender.CivOpinions.Remove(Attacker);
+                _logger.AddWithGameTime(string.Format(WAR_END, Attacker.Name, Defender.Name), Simulator.Date, "war");
             }
 
             _duration++;
@@ -134,7 +139,6 @@ namespace Orbis.Simulation
         /// </returns>
         private Cell[] GetOccupiedTerritory(Civilization winner, Civilization loser)
         {
-
             HashSet<Cell> cells = new HashSet<Cell>();
             foreach (Cell cell in winner.Neighbours)
             {

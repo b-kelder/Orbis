@@ -100,19 +100,7 @@ namespace Orbis.World
                             continue;
                         }
 
-                        cell.Owner = civ;
-                        civ.Territory.Add(cell);
-
-                        foreach (Cell c in cell.Neighbours)
-                        {
-                            if (c.Owner != civ && !c.IsWater)
-                            {
-                                civ.Neighbours.Add(c);
-                            }
-                        }
-
-                        cell.population = 1;
-                        civ.TotalHousing += cell.MaxHousing;
+                        civ.ClaimCell(cell);
 
                         break;
                     }

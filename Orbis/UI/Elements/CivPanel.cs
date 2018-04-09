@@ -110,7 +110,7 @@ namespace Orbis.UI.Elements
                 _scrollbar = new Scrollbar(this)
                 {
                     AnchorPosition = AnchorPosition.TopRight,
-                    Size = new Point(15, this.Size.Y),
+                    Size = new Point(15, Size.Y),
                     RelativePosition = new Point(-15, 0)
                 };
 

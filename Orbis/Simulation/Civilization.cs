@@ -1,41 +1,66 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using Orbis.World;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Orbis.World;
 
-/// <summary>
-/// Author: Bram Kelder, Wouter Brookhuis, Kaj van der Veen
-/// </summary>
 namespace Orbis.Simulation
 {
+    /// <summary>
+    ///     A civilization within the simulation.
+    ///     A civ expands or wages war.
+    /// </summary>
+    /// <Author>Bram Kelder, Wouter Brookhuis, Kaj van der Veen</Author>
     public class Civilization
     {
+        #region Constants
+        // Default Base modifiers
+        private const double DEFAULT_BASE_EXPAND = 1;
+        private const double DEFAULT_BASE_EXTERMINATE = 1;
+
+        // Used for war decisions.
+        private const int HATE_THRESHOLD = -100;       // Minimum dislike for starting wars.
+        private const float HATE_MOD = 0.1F;           // Modifier applied to hate for decisions.
+        private const float WAR_COOLDOWN_MOD = 2F;     // Modifier applied to war cooldown for decisions.
+        private const int WAR_COOLDOWN_VALUE = 20;     // Value added to war cooldown after a war ends.
+        private const int WAR_COOLDOWN_DECAY = 1;      // Amount by which the war cooldown decays each month.
+        #endregion
+
+        /// <summary>
+        /// Does the civ have land?
+        /// </summary>
+        public bool HasLand
+        {
+            get => _landCount > 0;
+        }
+        private int _landCount;
+
         /// <summary>
         /// The name of the civ
         /// </summary>
         public string Name { get; set; }
+
         /// <summary>
         /// If the civ has died
         /// </summary>
-        public bool IsAlive { get; set; }
+        public bool IsAlive
+        {
+            get => _isAlive;
+            set => _isAlive = value;
+        }
+        private bool _isAlive;
+
         /// <summary>
         /// Is currently at war
         /// </summary>
-        public bool AtWar
-        {
-            get
-            {
-                return (Wars.Count != 0);
-            }
-        }
+        public bool AtWar { get => _currentWars.Count != 0; }
 
         /// <summary>
-        /// The current wars for this Civ.
+        /// The number of wars this civilization is involved in.
         /// </summary>
-        public List<War> Wars { get; set; }
+        public int WarCount { get => _currentWars.Count; }
+        private List<War> _currentWars;
+        private int _warCooldown;
 
         /// <summary>
         /// The cells owned by this civ
@@ -46,10 +71,7 @@ namespace Orbis.Simulation
         /// All neighbour cells of the civs territory
         /// </summary>
         public HashSet<Cell> Neighbours { get; set; }
-        /// <summary>
-        ///     All civs this civ borders.
-        /// </summary>
-        public HashSet<Civilization> BorderCivs { get; set; }
+
         /// <summary>
         ///     The opinion this civ has of neighbouring civs.
         /// </summary>
@@ -69,7 +91,8 @@ namespace Orbis.Simulation
                 _population = value;
                 if (_population <= 0)
                 {
-                    IsAlive = false;
+                    _isAlive = false;
+                    _population = 0;
                 }
             }
         }
@@ -92,25 +115,17 @@ namespace Orbis.Simulation
         /// </summary>
         public double TotalResource { get; set; }
 
-        public double BaseExpand = 1;
-        public double BaseExploit = 1;
-        public double BaseExplore = 1;
-        public double BaseExterminate = 1;
-
-        private double housingNeed = 1;
-        private double foodNeed = 1;
-        private double resourceNeed = 1;
-        private double wealthNeed = 1;
+        public double BaseExpand = DEFAULT_BASE_EXPAND;
+        public double BaseExterminate = DEFAULT_BASE_EXTERMINATE;
 
         public Civilization()
         {
-            IsAlive = true;
+            _isAlive = true;
             Territory = new HashSet<Cell>();
             Neighbours = new HashSet<Cell>();
-            Wars = new List<War>();
-            BorderCivs = new HashSet<Civilization>();
+            _currentWars = new List<War>();
             CivOpinions = new Dictionary<Civilization, int>();
-
+            _warCooldown = 0;
         }
 
         /// <summary>
@@ -119,31 +134,45 @@ namespace Orbis.Simulation
         /// <returns></returns>
         public SimulationAction DetermineAction()
         {
-            SimulationAction action = new SimulationAction(this, Simulation4XAction.DONOTHING, null);
+            if (!_isAlive)
+            {
+                return null;
+            }
+
+            // Start by trimming dead neighbours from the opinions.
+            int neighbourCivs = CivOpinions.Count;
+            for (int i = 0; i < neighbourCivs; i++)
+            {
+                Civilization neighbour = CivOpinions.ElementAt(i).Key;
+                if (!neighbour.IsAlive)
+                {
+                    CivOpinions.Remove(neighbour);
+                    i--;
+                    neighbourCivs--;
+                }
+            }
+
+            SimulationAction action = new SimulationAction(this, CivDecision.DONOTHING, null);
+
+            _warCooldown = MathHelper.Clamp(_warCooldown - WAR_COOLDOWN_DECAY, 0, 100);
 
             if (AtWar)
             {
                 return null;
             }
 
-            double expand = 1, exploit = 1, explore = 1, exterminate = 1;
+            double expand = 1, exterminate = 1;
 
             expand *= BaseExpand + (Population / (double)TotalHousing);
-            exploit *= BaseExploit;
-            explore *= BaseExplore;
 
-            // TODO: make picking targets use logic instead of "The first one I hate (which is the first guy I border) will do".
-            Civilization iHate = BorderCivs.FirstOrDefault(c => CivOpinions[c] <= -100);
-            exterminate *= BaseExterminate + (iHate != null ? ((Math.Abs(CivOpinions[iHate]) - 100) / 20) : 0);
+            // Find the most suitable war target.
+            KeyValuePair<Civilization, int> warTarget = CivOpinions.OrderBy(c => c.Value).FirstOrDefault(c => c.Value < HATE_THRESHOLD);
+            exterminate *= BaseExterminate;
+            exterminate -= _warCooldown * WAR_COOLDOWN_MOD;
+            exterminate = (warTarget.Key != null) ? exterminate + MathHelper.Clamp(Math.Abs(warTarget.Value) * HATE_MOD, 0, 10): 0;
 
-            if (expand > exploit && expand > explore && expand > exterminate)
+            if (expand > exterminate)
             {
-                if (Neighbours.Count <= 0)
-                {
-                    LoseCell(Territory.FirstOrDefault());
-                    return action;
-                }
-
                 Cell cell = Neighbours.First();
 
                 int cellCount = Neighbours.Count;
@@ -155,35 +184,22 @@ namespace Orbis.Simulation
                     }
                 }
 
-                action.Action = Simulation4XAction.EXPAND;
+                action.Action = CivDecision.EXPAND;
                 action.Params = new object[] { cell };
             }
-            else if (exploit > expand && exploit > explore && exploit > exterminate)
+            else
             {
-                action.Action = Simulation4XAction.EXPLOIT;
-                action.Params = null;
-            }
-            else if (explore > expand && explore > exploit && explore > exterminate)
-            {
-                action.Action = Simulation4XAction.EXPLORE;
-                action.Params = null;
-            }
-            else if (exterminate > expand && exterminate > exploit && exterminate > explore)
-            {
-                if (iHate != null)
-                {
-                    action.Action = Simulation4XAction.EXTERMINATE;
-                    action.Params = new object[] { iHate };
-                }
+                action.Action = CivDecision.EXTERMINATE;
+                action.Params = new object[] { warTarget.Key };
             }
 
-            return (action.Action != Simulation4XAction.DONOTHING) ? action : null;
+            return (action.Action != CivDecision.DONOTHING) ? action : null;
         }
 
         public double CalculateCellValue(Cell cell)
         {
             // Calculate value based on needs.
-            double val = (cell.MaxHousing / 1000 * housingNeed) + (cell.FoodMod * foodNeed) + (cell.ResourceMod * resourceNeed) + (cell.WealthMod * wealthNeed);
+            double val = (cell.MaxHousing / 1000d) + (cell.FoodMod) + (cell.ResourceMod) + (cell.WealthMod);
 
             if (cell.Owner == null)
             {
@@ -207,6 +223,11 @@ namespace Orbis.Simulation
             return val;
         }
 
+        /// <summary>
+        ///     Remove a cell from the civ's territory.
+        /// </summary>
+        /// <param name="cell">The cell to remove.</param>
+        /// <returns>Whether the cell could be removed.</returns>
         public bool LoseCell(Cell cell)
         {
             if (cell == null || cell.Owner != this)
@@ -219,20 +240,40 @@ namespace Orbis.Simulation
                 return false;
             }
 
+            // Decrement population.
+            Population -= cell.population;
+            TotalHousing -= cell.MaxHousing;
+            TotalResource -= cell.resources;
+            TotalWealth -= cell.wealth;
+
+            // Reset cell values.
+            cell.food = 0;
+            cell.population = 0;
+            cell.resources = 0;
+            cell.wealth = 0;
+
+            // Decrement the land counter if the cell is a land cell.
+            if (!cell.IsWater)
+            {
+                _landCount--;
+            }
+
             cell.Owner = null;
             HashSet<Cell> newNeighbours = new HashSet<Cell>();
 
-            foreach (Cell c in cell.Neighbours)
+            for (var neighbourIndex = 0; neighbourIndex < cell.Neighbours.Count; neighbourIndex++)
             {
+                Cell c = cell.Neighbours[neighbourIndex];
                 Neighbours.Remove(c);
-                if (c.Owner == this)
+
+                if (c.Owner != this) continue;
+
+                for (var newNeighbourIndex = 0; newNeighbourIndex < c.Neighbours.Count; newNeighbourIndex++)
                 {
-                    foreach (Cell cc in c.Neighbours)
+                    Cell cc = c.Neighbours[newNeighbourIndex];
+                    if (cc.Owner != this)
                     {
-                        if (cc.Owner != this)
-                        {
-                            newNeighbours.Add(cc);
-                        }
+                        newNeighbours.Add(cc);
                     }
                 }
             }
@@ -252,40 +293,53 @@ namespace Orbis.Simulation
         /// <returns>True if succesfull</returns>
         public bool ClaimCell(Cell cell)
         {
-            if (cell.Owner != null)
-            {
-                cell.Owner.LoseCell(cell);
-            }
+            cell.Owner?.LoseCell(cell);
 
             cell.Owner = this;
             Territory.Add(cell);
 
-            foreach (Cell c in cell.Neighbours)
+            // Increment the land counter if the cell is a land cell.
+            if (!cell.IsWater)
             {
-                if (c.Owner != this)
-                {
-                    Neighbours.Add(c);
+                _landCount++;
+            }
 
-                    if (c.Owner != null)
-                    {
-                        if (BorderCivs.Add(c.Owner))
-                        {
-                            CivOpinions.Add(c.Owner, -20);
-                        }
-                        else
-                        {
-                            CivOpinions[c.Owner] -= 20;
-                        }
-                    }
+            for (var neighbourIndex = 0; neighbourIndex < cell.Neighbours.Count; neighbourIndex++)
+            {
+                Cell c = cell.Neighbours[neighbourIndex];
+                if (c.Owner == this) continue;
+
+                Neighbours.Add(c);
+
+                if (c.Owner == null) continue;
+
+                if (!CivOpinions.ContainsKey(c.Owner))
+                {
+                    CivOpinions.Add(c.Owner, -20);
+                }
+                else
+                {
+                    CivOpinions[c.Owner] -= 20;
                 }
             }
 
             Neighbours.Remove(cell);
             TotalHousing += cell.MaxHousing;
 
-            cell.population = 100;
+            cell.population = (!cell.IsWater) ? 100 : 0;
 
             return true;
+        }
+
+        public void StartWar(War war)
+        {
+            _currentWars.Add(war);
+        }
+
+        public void EndWar(War war)
+        {
+            _currentWars.Remove(war);
+            _warCooldown = MathHelper.Clamp(_warCooldown + WAR_COOLDOWN_VALUE, 0, 100);
         }
     }
 }
