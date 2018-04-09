@@ -72,20 +72,46 @@ namespace Orbis.Rendering
             public Dictionary<Cell, CellMappedData> cellData;
         }
 
+        private const string DECORATION_SETTLEMENT_SMALL = "Small Settlement";
+        private const string DECORATION_SETTLEMENT_MEDIUM = "Medium Settlement";
+        private const string DECORATION_SETTLEMENT_LARGE = "Large Settlement";
+
+        /// <summary>
+        /// Main Orbis instance
+        /// </summary>
         private Orbis orbis;
-
-        private Dictionary<string, DecorationData> decorations = new Dictionary<string, DecorationData>();
+        /// <summary>
+        /// Decoration pools mapped to decoration names
+        /// </summary>
+        private Dictionary<string, DecorationPool> decorations = new Dictionary<string, DecorationPool>();
+        /// <summary>
+        /// Biome render data mapped to biome names
+        /// </summary>
         private Dictionary<string, BiomeMappedData> biomeMappedData = new Dictionary<string, BiomeMappedData>();
+        /// <summary>
+        /// Cell render data mapped to cells
+        /// </summary>
         private Dictionary<Cell, CellMappedData> cellMappedData = new Dictionary<Cell, CellMappedData>();
+        /// <summary>
+        /// List of combined cell meshes
+        /// </summary>
         private List<RenderableMesh> cellMeshes = new List<RenderableMesh>();
+        /// <summary>
+        /// RenderInstances that will be rendered
+        /// </summary>
         private List<RenderInstance> renderInstances = new List<RenderInstance>();
-        public Scene renderedScene;
-
+        /// <summary>
+        /// The scene that we are rendering
+        /// </summary>
+        private Scene renderedScene;
+        /// <summary>
+        /// Shader used for all rendering
+        /// </summary>
         private Effect basicShader;
-        private AtlasModelLoader modelLoader;
-        private DecorationManager decorationManager;
+        /// <summary>
+        /// Random based on world generation seed
+        /// </summary>
         private Random random;
-
         /// <summary>
         /// Mode used for setting cell hex vertex colors. Only gets applied when cells are updated.
         /// </summary>
@@ -96,7 +122,6 @@ namespace Orbis.Rendering
         private float rotation;
         private float distance;
         private float angle;
-        private Cell currentCamCell;
         private RenderableMesh tileHighlightMesh;
 
         // Concurrency and single threaded queueing
@@ -177,7 +202,7 @@ namespace Orbis.Rendering
         /// <summary>
         /// The cell currently highlighted by the camera. Might be null.
         /// </summary>
-        public Cell HighlightedCell { get { return currentCamCell; } }
+        public Cell HighlightedCell { get; private set; }
         /// <summary>
         /// Render target used by this component.
         /// </summary>
@@ -216,13 +241,13 @@ namespace Orbis.Rendering
             basicShader.Parameters["FogEndDistance"].SetValue(FogDistance);
 
             // Load models, decoration and biome data
-            modelLoader = new AtlasModelLoader(2048, 2048, basicShader, Game.Content);
+            var modelLoader = new AtlasModelLoader(2048, 2048, basicShader, Game.Content);
             var decorationData = orbis.Content.Load<XMLModel.DecorationCollection>("Config/Decorations");
-            decorationManager = new DecorationManager(decorationData, modelLoader, GraphicsDevice);
+            var decorationManager = new DecorationManager(decorationData, modelLoader, GraphicsDevice);
             // Load decorations
             foreach(var data in decorationData.Decorations)
             {
-                decorations.Add(data.Name, new DecorationData(decorationManager.GetDecorationMesh(data.Name), GraphicsDevice, 1));
+                decorations.Add(data.Name, new DecorationPool(decorationManager.GetDecorationMesh(data.Name), GraphicsDevice, 1));
             }
             var biomeData = orbis.Content.Load<XMLModel.BiomeCollection>("Config/Biomes");
             biomeMappedData = new Dictionary<string, BiomeMappedData>();
@@ -300,6 +325,10 @@ namespace Orbis.Rendering
                     foreach(var cellMesh in this.cellMeshes)
                     {
                         cellMesh.Dispose();
+                    }
+                    foreach(var decorationPool in this.decorations)
+                    {
+                        decorationPool.Value.Clear();
                     }
                     // Cell decorations are in cellMappedData, so they will be overwritten. Their meshes will be reused so MUST NOT be disposed
                     // Update main data sets
@@ -447,29 +476,29 @@ namespace Orbis.Rendering
             camera.LookTarget = camera.LookTarget + Vector3.Transform(camMoveDelta, Matrix.CreateRotationZ(MathHelper.ToRadians(rotation)));
             // Update highlighted cell, snap Camera elevation to it if we can
             var camTile = TopographyHelper.RoundWorldToHex(new Vector2(camera.LookTarget.X, camera.LookTarget.Y));
-            currentCamCell = renderedScene.WorldMap.GetCell(camTile.X, camTile.Y);
-            if(currentCamCell != null)
+            HighlightedCell = renderedScene.WorldMap.GetCell(camTile.X, camTile.Y);
+            if(HighlightedCell != null)
             {
                 var pos = camera.LookTarget;
-                pos.Z = currentCamCell.IsWater ? renderedScene.Settings.SeaLevel : (float)currentCamCell.Elevation;
+                pos.Z = HighlightedCell.IsWater ? renderedScene.Settings.SeaLevel : (float)HighlightedCell.Elevation;
                 camera.LookTarget = pos;
 
                 for(int i = 0; i < tileHighlightMesh.VertexData.Length; i++)
                 {
-                    tileHighlightMesh.VertexData[i].Color = currentCamCell.Owner != null ?
-                        currentCamCell.Owner.Color :
+                    tileHighlightMesh.VertexData[i].Color = HighlightedCell.Owner != null ?
+                        HighlightedCell.Owner.Color :
                         new Color(230, 232, 237);
                 }
                 tileHighlightMesh.UpdateVertexBuffer();
 
                 // Draw some cell debug data
-                orbis.DrawDebugLine("Current cell: " + currentCamCell.Coordinates);
-                orbis.DrawDebugLine("Owner: " + (currentCamCell.Owner != null ? currentCamCell.Owner.Name : "Nobody"));
-                orbis.DrawDebugLine("Biome: " + currentCamCell.Biome.Name);
-                orbis.DrawDebugLine("Temperature: " + currentCamCell.Temperature.ToString("#.#"));
-                orbis.DrawDebugLine("Elevation: " + ((currentCamCell.Elevation - renderedScene.Settings.SeaLevel) * 450).ToString("#.#"));
-                orbis.DrawDebugLine("Population: " + currentCamCell.population);
-                orbis.DrawDebugLine("Food: " + currentCamCell.food.ToString("#.#"));
+                orbis.DrawDebugLine("Current cell: " + HighlightedCell.Coordinates);
+                orbis.DrawDebugLine("Owner: " + (HighlightedCell.Owner != null ? HighlightedCell.Owner.Name : "Nobody"));
+                orbis.DrawDebugLine("Biome: " + HighlightedCell.Biome.Name);
+                orbis.DrawDebugLine("Temperature: " + HighlightedCell.Temperature.ToString("#.#"));
+                orbis.DrawDebugLine("Elevation: " + ((HighlightedCell.Elevation - renderedScene.Settings.SeaLevel) * 450).ToString("#.#"));
+                orbis.DrawDebugLine("Population: " + HighlightedCell.population);
+                orbis.DrawDebugLine("Food: " + HighlightedCell.food.ToString("#.#"));
             }
 
             // Move camera back from its target
@@ -516,6 +545,7 @@ namespace Orbis.Rendering
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.BlendState = BlendState.Opaque;
 
+            // Get camera matrixes
             float aspectRatio = orbis.Graphics.PreferredBackBufferWidth / (float)orbis.Graphics.PreferredBackBufferHeight;
             if(renderTarget != null)
             {
@@ -524,7 +554,7 @@ namespace Orbis.Rendering
             Matrix viewMatrix = camera.CreateViewMatrix();
             Matrix projectionMatrix = camera.CreateProjectionMatrix(aspectRatio);
 
-            // Create batches sorted by mesh, minimizes buffer switching?
+            // Create batches sorted by mesh, this should minimize buffer switching?
             var meshBatches = new Dictionary<RenderableMesh, List<RenderInstance>>();
             foreach (var instance in renderInstances)
             {
@@ -535,10 +565,9 @@ namespace Orbis.Rendering
                 meshBatches[instance.mesh].Add(instance);
             }
             // Draw tile highlighter if we are on the map
-            if (currentCamCell != null)
+            if (HighlightedCell != null)
             {
-                var pos = camera.LookTarget;/*new Vector3(TopographyHelper.HexToWorld(currentCamCell.Coordinates),
-                    camera.LookTarget.Z);*/
+                var pos = camera.LookTarget;
                 meshBatches[tileHighlightMesh] = new List<RenderInstance>()
                 {
                     new RenderInstance()
@@ -617,7 +646,7 @@ namespace Orbis.Rendering
             var renderableMeshes = new List<RenderableMesh>();
             var rawMeshes = new List<Mesh>();
             var cellData = new Dictionary<Cell, CellMappedData>();
-
+            // Stopwatch used for performance logging
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             // Create world meshes
@@ -718,15 +747,15 @@ namespace Orbis.Rendering
                 var prevDecoration = data.Decoration.Key;
                 if(cell.population >= renderedScene.DecorationSettings.LargePopulationThreshold)
                 {
-                    SetCellDecoration(cell, data, "Large Settlement");
+                    SetCellDecoration(cell, data, DECORATION_SETTLEMENT_LARGE);
                 }
                 else if(cell.population >= renderedScene.DecorationSettings.MediumPopulationThreshold)
                 {
-                    SetCellDecoration(cell, data, "Medium Settlement");
+                    SetCellDecoration(cell, data, DECORATION_SETTLEMENT_MEDIUM);
                 }
                 else if(cell.population >= renderedScene.DecorationSettings.SmallPopulationThreshold)
                 {
-                    SetCellDecoration(cell, data, "Small Settlement");
+                    SetCellDecoration(cell, data, DECORATION_SETTLEMENT_SMALL);
                 }
 
                 // Check if previous or new decoration meshes need updating due to changes we just made
@@ -798,13 +827,10 @@ namespace Orbis.Rendering
                 this.decorations[cellMappedData.Decoration.Key].FreeIndex(cellMappedData.Decoration.Value);
             }
 
+            // Set new decoration
             if(decoration != null && decoration.Length > 0)
             {
                 var index = this.decorations[decoration].GetFreeIndex();
-                if (index < 0)
-                {
-                    return;
-                }
                 cellMappedData.Decoration = new KeyValuePair<string, int>(decoration, index);
                 this.decorations[decoration].SetPosition(index, new Vector3(TopographyHelper.HexToWorld(cell.Coordinates), (float)cell.Elevation));
             }

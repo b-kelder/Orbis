@@ -30,10 +30,10 @@ namespace Orbis.Rendering
         public int Add(MeshInstance instance)
         {
             int index = 0;
+            // Check if we still have space in the current mesh
             if(instance.mesh.VertexCount + currentVertexCount > ushort.MaxValue)
             {
                 Combine();
-                index = combinedMeshes.Count - 1;
             }
             instances.Add(instance);
             currentVertexCount += instance.mesh.VertexCount;

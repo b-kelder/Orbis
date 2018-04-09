@@ -79,7 +79,7 @@ namespace Orbis.Rendering
 
             if(objVerts.Count > ushort.MaxValue)
             {
-                throw new IndexOutOfRangeException("Too many vertices in mesh, yell at dev to auto split meshes in this case!");
+                throw new IndexOutOfRangeException("Too many vertices in mesh, tell dev to auto split meshes in this case!");
             }
 
             // Since we can only have a 1:1 relation between our vertices and uvs we must
@@ -103,8 +103,8 @@ namespace Orbis.Rendering
                     triangles.Add(index);
                     vertices.Add(objVerts[face.vertIndex]);
                     uvs.Add(objUvs[face.uvIndex]);
-                    //TODO: Load actual vertex color
-                    colors.Add(Color.Black);
+                    // OBJ doesn't support vertex colors, we'll use White as a default
+                    colors.Add(Color.White);
                     faceDict.Add(face, index);
                 }
             }

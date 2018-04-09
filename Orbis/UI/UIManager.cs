@@ -17,6 +17,10 @@ namespace Orbis.UI
         /// </summary>
         public UIWindow CurrentWindow { get; set; }
 
+        public UIWindow GameUI { get; set; }
+        public UIWindow MenuUI { get; private set; }
+        public UIWindow SettingUI { get; private set; }
+
         /// <summary>
         ///     The spritebatch used to draw the UI.
         /// </summary>
@@ -28,7 +32,7 @@ namespace Orbis.UI
         /// <param name="game"></param>
         public UIManager(Game game) : base(game)
         {
-            
+
         }
 
         /// <summary>
@@ -49,6 +53,9 @@ namespace Orbis.UI
         {
             // The UIContentManager needs to be created with the game as a parameter.
             UIContentManager.CreateInstance(Game);
+
+            MenuUI = new MenuUI(Game);
+            SettingUI = new SettingsUI(Game);
 
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
 

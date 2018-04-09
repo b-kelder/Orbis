@@ -285,16 +285,28 @@ namespace Orbis.Engine
                    GetButtonState(mButton)         == ButtonState.Released;
         }
 
+        /// <summary>
+        /// Checks if the mousewheel has been used.
+        /// </summary>
+        /// <returns>Returns an integer with the mousewheel position.</returns>
         public int MouseScroll()
         {
             return mState.ScrollWheelValue - mStatePrevious.ScrollWheelValue;
         }
 
+        /// <summary>
+        /// Returns the difference in position of the mouse cursor since last check.
+        /// </summary>
+        /// <returns>Returns Point of difference.</returns>
         public Point MouseMove()
         {
             return mState.Position - mStatePrevious.Position;
         }
 
+        /// <summary>
+        /// Gets the current mousecursor position.
+        /// </summary>
+        /// <returns>Returns Point of current possition.</returns>
         public Point GetMousePosition()
         {
             return mState.Position;

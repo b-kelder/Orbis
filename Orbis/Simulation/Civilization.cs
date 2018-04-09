@@ -98,10 +98,21 @@ namespace Orbis.Simulation
         }
         private int _population;
 
+        /// <summary>
+        /// The color of the civ
+        /// </summary>
         public Color Color { get; set; }
-
+        /// <summary>
+        /// The total amount of available housing for all of the civs territory
+        /// </summary>
         public int TotalHousing { get; set; }
+        /// <summary>
+        /// The total wealth of the civ
+        /// </summary>
         public double TotalWealth { get; set; }
+        /// <summary>
+        /// The total amount of recources of the civ
+        /// </summary>
         public double TotalResource { get; set; }
 
         public double BaseExpand = DEFAULT_BASE_EXPAND;

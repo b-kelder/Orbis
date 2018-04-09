@@ -135,6 +135,14 @@
 		</Color>
 	</Item>
 	<Item>
+		<name>Bikinibottom</name>
+		<Color>
+			<R>255</R>
+			<G>255</G>
+			<B>60</B>
+		</Color>
+	</Item>
+	<Item>
 		<name>Bulgaria</name>
 		<Color>
 			<R>247</R>
@@ -452,6 +460,14 @@
 			<R>169</R>
 			<G>147</G>
 			<B>186</B>
+		</Color>
+	</Item>
+	<Item>
+		<name>Fantacy Land</name>
+		<Color>
+			<R>255</R>
+			<G>0</G>
+			<B>220</B>
 		</Color>
 	</Item>
 	<Item>
@@ -1239,6 +1255,14 @@
 		</Color>
 	</Item>
 	<Item>
+		<name>Hyrule</name>
+		<Color>
+			<R>0</R>
+			<G>255</G>
+			<B>0</B>
+		</Color>
+	</Item>
+	<Item>
 		<name>Singapore</name>
 		<Color>
 			<R>38</R>
@@ -1356,6 +1380,14 @@
 			<R>78</R>
 			<G>173</G>
 			<B>214</B>
+		</Color>
+	</Item>
+	<Item>
+		<name>Wakanda</name>
+		<Color>
+			<R>0</R>
+			<G>0</G>
+			<B>0</B>
 		</Color>
 	</Item>
 	<Item>

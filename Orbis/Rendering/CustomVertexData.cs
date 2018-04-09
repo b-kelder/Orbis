@@ -13,6 +13,7 @@ namespace Orbis.Rendering
     /// </summary>
     struct CustomVertexData : IVertexType
     {
+        // Indicates location of specific vertex data inside this struct
         public static readonly VertexDeclaration VertexDeclaration = new VertexDeclaration
         (
             new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
@@ -23,14 +24,10 @@ namespace Orbis.Rendering
 
         VertexDeclaration IVertexType.VertexDeclaration => CustomVertexData.VertexDeclaration;
 
-        Vector3 _position;
-        Vector2 _texCoord0;
-        Vector2 _texCoord1;
-        Color _color;
-
-        public Vector3 Position { get { return _position; } set { _position = value; } }
-        public Vector2 TextureCoordinate0 { get { return _texCoord0; } set { _texCoord0 = value; } }
-        public Vector2 TextureCoordinate1 { get { return _texCoord1; } set { _texCoord1 = value; } }
-        public Color Color { get { return _color; } set { _color = value; } }
+        // Can't be properties, crashes on release build otherwise
+        public Vector3 Position;
+        public Vector2 TextureCoordinate0;
+        public Vector2 TextureCoordinate1;
+        public Color Color;
     }
 }

@@ -33,7 +33,7 @@ namespace Orbis.Events
                 throw new Exception("Attempted to export without any configuered exporters.");
             }
 
-            // Make sure we have something to write to.
+            // Check if the given list with logs are not null and contain at least 1 log object(.
             if (logs != null && logs.Count > 0)
             {
                 try
@@ -46,7 +46,7 @@ namespace Orbis.Events
                 }
                 catch(Exception ex)
                 {
-                    // TODO: Handle exception
+                    System.Diagnostics.Debug.WriteLine("Export write issue: " + ex);
                 }
             }
         }
@@ -54,7 +54,7 @@ namespace Orbis.Events
         /// <summary>
         /// Export a log
         /// </summary>
-        /// <param name="log"></param>
+        /// <param name="log">The log to export</param>
         public void Export(Log log)
         {
             // To avoid duplication, put the log in a list, and use the list export method
@@ -67,7 +67,7 @@ namespace Orbis.Events
         /// <summary>
         /// Add an exporter
         /// </summary>
-        /// <param name="exporter"></param>
+        /// <param name="exporter">The exporter to add</param>
         public void AddExporter(ILogExporter exporter)
         {
             if (!exporters.Contains(exporter))
@@ -79,7 +79,7 @@ namespace Orbis.Events
         /// <summary>
         /// Remove an exporter
         /// </summary>
-        /// <param name="exporter"></param>
+        /// <param name="exporter">The exporter to remove</param>
         public void RemoveExporter(ILogExporter exporter)
         {
             if (exporters.Contains(exporter))
@@ -89,14 +89,14 @@ namespace Orbis.Events
         }
 
         /// <summary>
-        /// Set default exporters the system always will use.
+        /// Set default exporters the system will always use
         /// </summary>
         private void SetDefaultExporters()
         {
             // Add an exporter to console, txt and xml
-            exporters.Add(new ConsoleExporter());       // Console Exporter
-            exporters.Add(new TextFileExporter());      // Text File (.txt) Eporter
-            exporters.Add(new XMLFileExporter());       // XML exporter
+            exporters.Add(new ConsoleExporter());       // Console      (System.Diagnostics.Debug.WriteLine)
+            exporters.Add(new TextFileExporter());      // Text File    (.txt) 
+            exporters.Add(new XMLFileExporter());       // XML          (.xml)
         }
     }
 }

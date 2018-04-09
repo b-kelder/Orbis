@@ -27,6 +27,7 @@ namespace Orbis.Engine
 
         // Variable Audio config
         private static bool audioEnabled;
+        private static Song currentSong;
 
         // Libs for songs/effects
         private static Dictionary<string, Song> songLib;
@@ -39,6 +40,7 @@ namespace Orbis.Engine
             songLib         = new Dictionary<string, Song>();
             effectLib       = new Dictionary<string, SoundEffectInstance>();
             audioEnabled    = true;
+            currentSong     = null;
         }
 
         /// <summary>
@@ -72,6 +74,24 @@ namespace Orbis.Engine
         }
 
         /// <summary>
+        /// Toggle pause state of playing song
+        /// </summary>
+        public static void TogglePlay(bool repeating = DEFAULT_REPEATING, float volume = DEFAULT_VOLUME)
+        {
+            // If audio is currently enabled, Stop audio
+            if (audioEnabled)
+            {
+                EnableAudio(false);
+                StopSong();
+            }
+            else if(currentSong != null)
+            {
+                EnableAudio(true);
+                PlaySong(currentSong.Name, repeating, volume);
+            }
+        }
+
+        /// <summary>
         /// Play a song
         /// </summary>
         /// <param name="name">The name of the song</param>
@@ -80,7 +100,7 @@ namespace Orbis.Engine
         public static void PlaySong(string name, bool repeating = DEFAULT_REPEATING, float volume = DEFAULT_VOLUME)
         {
             // Only play if audio is enabled
-            if (!audioEnabled)
+            if (!IsEnabled())
             {
                 Debug.WriteLine("AUDIO MANAGER: audio not playing as it has been disabled in config.");
                 return;
@@ -95,8 +115,10 @@ namespace Orbis.Engine
             // Make sure the song exists
             if (songLib.ContainsKey(name))
             {
+                currentSong             = songLib[name];
                 MediaPlayer.IsRepeating = repeating;
                 MediaPlayer.Volume      = volume;
+
                 MediaPlayer.Play(songLib[name]);
             }
             else
@@ -112,7 +134,7 @@ namespace Orbis.Engine
         public static void PlayEffect(string name)
         {
             // Only play if audio is enabled
-            if (!audioEnabled)
+            if (!IsEnabled())
             {
                 Debug.WriteLine("AUDIO MANAGER: audio not playing as it has been disabled in config.");
                 return;
@@ -157,12 +179,27 @@ namespace Orbis.Engine
         /// </summary>
         public static void ResumeSong()
         {
-            if(MediaPlayer.State == MediaState.Paused)
-            {
-                MediaPlayer.Resume();
-            }
+            MediaPlayer.Resume();
         }
-    
+
+        /// <summary>
+        /// Gets the enabled state
+        /// </summary>
+        /// <returns>Returns the enabled state</returns>
+        public static bool IsEnabled()
+        {
+            return audioEnabled;
+        }
+
+        /// <summary>
+        /// Check if the audio is playing
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsPlaying()
+        {
+            return MediaPlayer.State == MediaState.Playing;
+        }
+
         /// <summary>
         /// Load all songs
         /// </summary>

@@ -35,7 +35,7 @@ namespace Orbis.Simulation
         private int _duration;
         private Logger _logger;
         
-        // amount of lost battles/ duration of the war / random shit
+        // amount of lost battles/ duration of the war / random things
 
         /// <summary>
         ///  Start a new war between two civs.
