@@ -1,5 +1,5 @@
 ﻿
-namespace Orbis.States
+namespace Orbis.States.State
 {
     /// <summary>
     /// Author: AukeM
@@ -7,6 +7,9 @@ namespace Orbis.States
     /// </summary>
     interface IState
     {
+        /// <summary>
+        /// Run the state
+        /// </summary>
         void Run();
     }
 }

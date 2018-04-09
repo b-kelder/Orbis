@@ -43,7 +43,7 @@ namespace Orbis.Events.Exporters
                     foreach (Log log in logs.ToArray())
                     {
                         writer.WriteStartElement("Log");
-                        writer.WriteAttributeString("exportedAt", timestamp);
+                        writer.WriteAttributeString("exportedAt", timestamp);   // Timestamp of when the log got exported
 
                         // Write al log data dynamically
                         foreach (KeyValuePair<string, string> data in log.GetData())

@@ -9,9 +9,10 @@ namespace Orbis.Events
     /// </summary>
     class Log
     {
-        private const string DEFAULT_FORMAT = "{0}: ({1}) > {2}";
-        private string format;
-        private Dictionary<string, string> data;
+        private const string DEFAULT_FORMAT = "{0}: ({1}) > {2}";   // The default format to use when no format is given
+
+        private string format;                                      // The current format of the log object (how will it be displayed in e.g: textfiles/console)
+        private Dictionary<string, string> data;                    // The data the log object holds
 
         /// <summary>
         /// Create a standard log with format options
@@ -21,12 +22,15 @@ namespace Orbis.Events
         /// <param name="format">Display format of the log object</param>
         public Log(string item, string type, string format = DEFAULT_FORMAT)
         {
+            // Create the data for the log to hold
             data = new Dictionary<string, string>
             {
                 { "Timestamp",  DateTime.Now.ToString() },
                 { "Type",       type },
                 { "Item",       item }
             };
+
+            // Set the format of the log, if none given, fallback to: DEFAULT_FORMAT
             this.format = format;
         }
 
@@ -62,9 +66,11 @@ namespace Orbis.Events
         /// <summary>
         /// Convert the log to string
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Formatted string</returns>
         public override string ToString()
         {
+            // As String.Format needs a string array, we copy the Dictionary.Values into an string array.
+
             // Variable to hold the value array of the data Dictionary
             string[] arrayData = new string[data.Count];
 

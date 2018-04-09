@@ -35,6 +35,7 @@ namespace Orbis.Events.Helpers
         /// </summary>
         public async void OpenStorageFolder()
         {
+            // If no storage folderi s specified, do not continue
             if (!IsStorageFolderConfiguered())
             {
                 return;
@@ -47,7 +48,7 @@ namespace Orbis.Events.Helpers
         /// </summary>
         public async void OpenStorageFolderOrDefault()
         {
-            // If no storage folder is configuered, set default
+            // If no storage folder is configuered, set default and continue
             if (!IsStorageFolderConfiguered())
             {
                 SetLocalFolder();
@@ -85,7 +86,7 @@ namespace Orbis.Events.Helpers
 
                 try
                 {
-                    // Create a Picker
+                    // Create a Picker with specified config
                     FolderPicker folderPicker = new FolderPicker()
                     {
                         SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
@@ -97,7 +98,7 @@ namespace Orbis.Events.Helpers
                     StorageFolder folder = await folderPicker.PickSingleFolderAsync();
                     if (folder != null)
                     {
-                        // Application now has read/write access to all contents in the picked folder (including other sub-folder contents)
+                        // Store picked folder in cache so it does not need to be picked again.
                         StorageApplicationPermissions.FutureAccessList.AddOrReplace(FOLDER_TOKEN, folder);
 
                         storageFolder = folder;
@@ -112,6 +113,7 @@ namespace Orbis.Events.Helpers
             }
             finally
             {
+                // Make sure lock is released
                 pickerLock.Release();
             }
         }
@@ -131,6 +133,7 @@ namespace Orbis.Events.Helpers
                 SetLocalFolder();
             }
 
+            // Try to create a file
             try
             {
                 string fileName = name + "." + extension;
@@ -162,6 +165,7 @@ namespace Orbis.Events.Helpers
                 SetLocalFolder();
             }
 
+            // Try to write to file
             try
             {
                 await FileIO.AppendTextAsync(file, text);
@@ -173,6 +177,7 @@ namespace Orbis.Events.Helpers
             }
             finally
             {
+                // Make sure lock is released
                 writeLock.Release();
             }
             return false;
@@ -184,6 +189,7 @@ namespace Orbis.Events.Helpers
         /// <param name="text">The text to write</param>
         public async void WriteToCurrentFile(string text)
         {
+            // Only write to current file if it exists
             if (currentfile != null)
             {
                 await WriteToFile(currentfile, text);
