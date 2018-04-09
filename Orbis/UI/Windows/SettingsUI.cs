@@ -128,9 +128,10 @@ namespace Orbis.UI.Windows
 
             if (decorationDensity.GetValue() >= 0 && decorationDensity.GetValue() <= 100)
             {
-                if (orbis.SceneRenderer.DecorationDensityCap != decorationDensity.GetValue() / 100)
+                float dens = decorationDensity.GetValue() / 100.0f;
+                if (orbis.SceneRenderer.DecorationDensityCap != dens)
                 {
-                    orbis.SceneRenderer.DecorationDensityCap = decorationDensity.GetValue() / 100;
+                    orbis.SceneRenderer.DecorationDensityCap = dens;
                 }
             }
 
