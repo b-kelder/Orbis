@@ -43,7 +43,6 @@ namespace Orbis.UI.Windows
             {
                 AnchorPosition = AnchorPosition.Center,
                 RelativePosition = new Point(40, -9),
-                //RelativePosition = new Point(-_game.Window.ClientBounds.Width / 10, (int)(_game.Window.ClientBounds.Width / 10)),
                 Text = "Music Enabled",
                 LayerDepth = 0.3f,
             });
