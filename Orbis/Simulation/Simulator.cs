@@ -221,7 +221,7 @@ namespace Orbis.Simulation
         /// </returns>
         private Cell[] SimulateCivilization()
         {
-            List<Cell> changed = new List<Cell>();
+            var changed = new ConcurrentQueue<Cell>();
 
             // Loop through all civilizations in the scene
             for (int i = 0; i < civCount; i++)
@@ -245,10 +245,9 @@ namespace Orbis.Simulation
                 taskList.Add(Task.Run(() =>
                 {
                     Cell[] cells = CivilizationTask(civ);
-
-                    lock (changed)
+                    foreach(var c in cells)
                     {
-                        changed.AddRange(cells);
+                        changed.Enqueue(c);
                     }
                 }));
             }
