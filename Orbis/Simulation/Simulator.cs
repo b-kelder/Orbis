@@ -3,6 +3,7 @@ using Orbis.World;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -168,6 +169,7 @@ namespace Orbis.Simulation
                 // Add the cells to the changed cells list
                 changed.Add(cellKeyValue.Key);
             }
+            removeOwner.Clear();
 
             // Perform all the actions chosen by the civs
             changed.AddRange(PerformCivilizationActions());
@@ -177,28 +179,6 @@ namespace Orbis.Simulation
 
             // Enqueue the changed cells
             cellsChanged.Enqueue(changed.ToArray());
-        }
-
-        /// <summary>
-        /// Check population threshold for updating tile decorations
-        /// </summary>
-        /// <param name="cell">
-        ///     The cell to check
-        /// </param>
-        /// <param name="newPopulation">
-        ///     The new amount of population
-        /// </param>
-        /// <returns>
-        ///     True if over a new threshold
-        /// </returns>
-        private bool WentOverPopulationThreshold(Cell cell, int newPopulation)
-        {
-            return (cell.population < Scene.DecorationSettings.SmallPopulationThreshold &&
-                newPopulation >= Scene.DecorationSettings.SmallPopulationThreshold) ||
-                (cell.population < Scene.DecorationSettings.MediumPopulationThreshold &&
-                newPopulation >= Scene.DecorationSettings.MediumPopulationThreshold) ||
-                (cell.population < Scene.DecorationSettings.LargePopulationThreshold &&
-                newPopulation >= Scene.DecorationSettings.LargePopulationThreshold);
         }
 
         /// <summary>
@@ -221,16 +201,28 @@ namespace Orbis.Simulation
         /// </returns>
         private Cell[] SimulateCivilization()
         {
-            var changed = new ConcurrentQueue<Cell>();
+            ConcurrentBag<Cell> changed = new ConcurrentBag<Cell>();
 
             // Loop through all civilizations in the scene
             for (int i = 0; i < civCount; i++)
             {
                 // Get the civ
                 Civilization civ = Scene.Civilizations[i];
-                // Skip the civ if its dead
-                if (!civ.IsAlive)
+
+                bool hasTerritory = civ.Territory.Count != 0;
+
+                // Dead civs or civs without land tiles that do still have territory have their territory removed.
+                if ((!civ.IsAlive || !civ.HasLand) && hasTerritory)
                 {
+                    // Use a parallel loop to increase performance for larger civs.
+                    Parallel.ForEach(civ.Territory, cell => {
+                        removeOwner.TryAdd(cell, civ);
+                    });
+                }
+
+                if (!hasTerritory)
+                {
+                    // skip civs without territory.
                     continue;
                 }
 
@@ -245,9 +237,12 @@ namespace Orbis.Simulation
                 taskList.Add(Task.Run(() =>
                 {
                     Cell[] cells = CivilizationTask(civ);
-                    foreach(var c in cells)
+
+                    int cellCount = cells.Length;
+                    for (int cellIndex = 0; cellIndex < cellCount; cellIndex++)
                     {
-                        changed.Enqueue(c);
+                        Cell cell = cells[cellIndex];
+                        changed.Add(cell);
                     }
                 }));
             }
@@ -270,24 +265,9 @@ namespace Orbis.Simulation
         /// </returns>
         private Cell[] CivilizationTask(Civilization civilization)
         {
-            Cell[] cells = SimulateCells(civilization);
+            Cell[] changedCells = SimulateCells(civilization);
 
-            // If a civ does not have a population
-            if (civilization.Population <= 0)
-            {
-                // set civ to dead
-                civilization.IsAlive = false;
-                // Set the Population to 0 to prevent negative numbers
-                civilization.Population = 0;
-                // Go through all cells
-                foreach (Cell cell in civilization.Territory)
-                {
-                    // Add the cells to the remove owner list
-                    removeOwner.TryAdd(cell, civilization);
-                }
-            }
-
-            return cells;
+            return changedCells;
         }
 
         /// <summary>
@@ -303,61 +283,54 @@ namespace Orbis.Simulation
         {
             List<Cell> changed = new List<Cell>();
 
-            // Keep track of some vars
-            int Population = 0;
-            double wealth = 0;
-            double resources = 0;
-
-            // Loop through all cells owned by this civ
-            foreach (var cell in civilization.Territory)
-            {
-                // If Population is negative or zero
-                if (cell.population <= 0 && !cell.IsWater)
+            // Use a parralel loop to speed up territory simulation of large civs.
+            Parallel.ForEach(civilization.Territory, cell => {
+                if (cell.Simulate(rand))
                 {
-                    // Add the cell to a list to remove its owner
-                    removeOwner.TryAdd(cell, civilization);
-
-                    // Skip the simulation
-                    continue;
+                    removeOwner.TryAdd(cell, cell.Owner);
                 }
-
-                // Roll a dice for the food, wealth and resource harvest
-                int roll = rand.Next(5, 25);
-                // Calculate food, wealth and resources based on cell modifiers
-                const float hard_cap = 10000;
-                cell.food = MathHelper.Clamp((float)cell.food + roll * 100 * (float)cell.FoodMod, 0, hard_cap);
-                cell.resources = MathHelper.Clamp((float)cell.resources + roll * 5 * (float)cell.ResourceMod, 0, hard_cap);
-                cell.wealth = MathHelper.Clamp((float)cell.wealth + roll * 5 * (float)cell.WealthMod, 0, hard_cap);
-
-                // Calculate the amount of people without food
-                int peopleWithNoFood = (int)Math.Ceiling(cell.population - cell.food);
-                // Calculate births based of the sie of the cells Population
-                int birth = 3 * rand.Next(0, cell.population / 5);
-                // Calculate deaths based on cells Population and the amount of people without food
-                int death = rand.Next(0, cell.population / 5) + peopleWithNoFood;
-                // Eat food
-                cell.food = MathHelper.Clamp((float)cell.food - cell.population, 0, hard_cap);
-                // Check population threshold for updating tile decorations
-                if (WentOverPopulationThreshold(cell, MathHelper.Clamp(cell.population + birth - death, 0, cell.MaxHousing)))
+                else if(WentOverPopulationThreshold(cell))
                 {
                     changed.Add(cell);
                 }
-
-                // Clamp the max Population to the max housing of the cell
-                cell.population = MathHelper.Clamp(cell.population + birth - death, 0, cell.MaxHousing);
-
-                // Add gains to local trackers to update civ data at end of tick
-                Population += cell.population;
-                wealth += cell.wealth;
-                resources += cell.resources;
-            }
-
-            // Update the total values of the civ
-            civilization.TotalResource = resources;
-            civilization.TotalWealth = wealth;
-            civilization.Population = Population;
+            });
 
             return changed.ToArray();
+        }
+
+        /// <summary>
+        /// Check population threshold for updating tile decorations
+        /// </summary>
+        /// <param name="cell">
+        ///     The cell to check
+        /// </param>
+        /// <param name="newPopulation">
+        ///     The new amount of population
+        /// </param>
+        /// <returns>
+        ///     True if over a new threshold
+        /// </returns>
+        private bool WentOverPopulationThreshold(Cell cell)
+        {
+            bool crossedThreshold = false;
+            // Check the current size and whether it crossed a threshold, updating the size appropriately.
+            if (cell.settlementSize == SettlementSize.Tiny)
+            {
+                crossedThreshold = cell.population > Scene.DecorationSettings.SmallPopulationThreshold;
+                cell.settlementSize = SettlementSize.Small;
+            }
+            else if (cell.settlementSize == SettlementSize.Small)
+            {
+                crossedThreshold = cell.population > Scene.DecorationSettings.MediumPopulationThreshold;
+                cell.settlementSize = SettlementSize.Medium;
+            }
+            else if (cell.settlementSize == SettlementSize.Medium)
+            {
+                crossedThreshold = cell.population > Scene.DecorationSettings.LargePopulationThreshold;
+                cell.settlementSize = SettlementSize.Large;
+            }
+
+            return crossedThreshold;
         }
 
         /// <summary>
@@ -376,7 +349,7 @@ namespace Orbis.Simulation
                 // Try to dequeue the next action
                 if (actionQueue.TryDequeue(out SimulationAction action))
                 {
-                    if (action.Action == Simulation4XAction.EXPAND)
+                    if (action.Action == CivDecision.EXPAND)
                     {
                         // Get the cell to claim
                         Cell cell = (Cell)action.Params[0];
@@ -387,22 +360,18 @@ namespace Orbis.Simulation
                             changed.Add(cell);
                         }
                     }
-                    else if (action.Action == Simulation4XAction.EXTERMINATE)
+                    else if (action.Action == CivDecision.EXTERMINATE)
                     {
                         // Get the civ to declare war on
                         Civilization defender = (Civilization)action.Params[0];
+
+                        // Ensure that two countries aren't at war twice at the same time.
+                        if (ongoingWars.Find(w => (w.Defender == action.Civilization && w.Attacker == defender)) != null) continue;
+
                         // Create a new war
-                        War war = new War(Scene, action.Civilization, defender);
+                        War war = new War(action.Civilization, defender, Scene.Seed);
                         // Add to the ongoing war list
                         ongoingWars.Add(war);
-                    }
-                    else if (action.Action == Simulation4XAction.EXPLOIT)
-                    {
-                        // TODO: BOOST STUFF??
-                    }
-                    else if (action.Action == Simulation4XAction.EXPLORE)
-                    {
-                        // TODO: EXPLORATION??
                     }
                 }
             }

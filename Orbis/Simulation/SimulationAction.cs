@@ -9,15 +9,11 @@ using System.Threading.Tasks;
 /// </summary>
 namespace Orbis.Simulation
 {
-    public enum Simulation4XAction
+    public enum CivDecision
     {
-        // Explore
-        EXPLORE,
         // Expand territory
         EXPAND,
-        // Double resource earnings and increase research for this tick
-        EXPLOIT,
-        // Declare or fight war
+        // Declare war
         EXTERMINATE,
         // Don't do anything
         DONOTHING
@@ -26,10 +22,10 @@ namespace Orbis.Simulation
     public class SimulationAction
     {
         public Civilization Civilization { get; set; }
-        public Simulation4XAction Action { get; set; }
+        public CivDecision Action { get; set; }
         public object[] Params { get; set; }
 
-        public SimulationAction(Civilization civilization, Simulation4XAction action, object[] @params)
+        public SimulationAction(Civilization civilization, CivDecision action, object[] @params)
         {
             Civilization = civilization;
             Action = action;
