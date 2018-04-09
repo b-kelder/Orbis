@@ -224,6 +224,19 @@ namespace Orbis.UI.Windows
             orbis.GenerateWorld(seed.GetValue(), orbis.DecorationSettings, orbis.WorldSettings, orbis.BiomeCollection, orbis.CivSettings, civs.GetValue(), radius.GetValue(), ticks.GetValue());
             orbis.UI.CurrentWindow = orbis.UI.GameUI;
             stateManager.SetActiveState(StateManager.State.GAME);
+
+            popupBackground.Visible = false;
+            startButton.Visible = false;
+            text.Visible = false;
+
+            seed.Visible = false;
+            civs.Visible = false;
+            radius.Visible = false;
+            ticks.Visible = false;
+
+            openPopupButton.Focused = true;
+            settingsMenu.Focused = true;
+            quitButton.Focused = true;
         }
 
         /// <summary>
