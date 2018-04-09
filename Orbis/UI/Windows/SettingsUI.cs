@@ -39,11 +39,12 @@ namespace Orbis.UI.Windows
                 LayerDepth = 0.3f,
             });
 
-            AddChild(audioCheckboxText = new RelativeText(this, _contentManager.GetFont("DebugFont"))
+            AddChild(audioCheckboxText = new RelativeText(audioCheckbox, _contentManager.GetFont("DebugFont"))
             {
                 AnchorPosition = AnchorPosition.Center,
-                RelativePosition = new Point(-_game.Window.ClientBounds.Width / 10, (int)(_game.Window.ClientBounds.Width / 10)),
-                Text = "Audio",
+                RelativePosition = new Point(40, -9),
+                //RelativePosition = new Point(-_game.Window.ClientBounds.Width / 10, (int)(_game.Window.ClientBounds.Width / 10)),
+                Text = "Music Enabled",
                 LayerDepth = 0.3f,
             });
 
