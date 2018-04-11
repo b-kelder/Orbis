@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Orbis.Engine;
 using Orbis.UI.Elements;
-using Orbis.UI.Utility;
 using System;
 
 namespace Orbis.UI.Windows

@@ -1,8 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Orbis.UI.Utility;
 using Orbis.Engine;
+using Orbis.UI.Utility;
 using System;
 
 namespace Orbis.UI.Elements

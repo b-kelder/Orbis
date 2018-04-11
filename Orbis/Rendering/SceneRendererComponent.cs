@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Orbis.Simulation;
 using Orbis.World;
 using System;
 using System.Collections.Generic;

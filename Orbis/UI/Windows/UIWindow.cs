@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
-using System;
 using Orbis.UI.Utility;
+using System;
+using System.Collections.Generic;
 
 namespace Orbis.UI.Windows
 {

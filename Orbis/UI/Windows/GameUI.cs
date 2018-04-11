@@ -1,12 +1,11 @@
-﻿using System;
-using System.Text;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Orbis.UI.Utility;
-
-using Orbis.UI.Elements;
-using Orbis.Simulation;
 using Orbis.Events;
+using Orbis.Simulation;
+using Orbis.UI.Elements;
+using Orbis.UI.Utility;
+using System;
+using System.Text;
 
 namespace Orbis.UI.Windows
 {

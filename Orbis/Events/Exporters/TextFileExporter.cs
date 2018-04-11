@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Orbis.Events.Helpers;
+using System;
 using System.Collections.Generic;
-using Orbis.Events.Helpers;
 using Windows.Storage;
 
 namespace Orbis.Events.Exporters

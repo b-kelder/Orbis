@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Orbis.UI.Windows;
 using Orbis.UI.Utility;
+using Orbis.UI.Windows;
 
 namespace Orbis.UI
 {
