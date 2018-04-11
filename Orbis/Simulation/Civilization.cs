@@ -167,7 +167,7 @@ namespace Orbis.Simulation
 
             expand *= BaseExpand + (Population / (double)TotalHousing);
 
-            // Find the most suitable war target.
+            // Find the most suitable war target and calculate the exterminate value based on the opinion and war cooldown.
             KeyValuePair<Civilization, int> warTarget = CivOpinions.OrderBy(c => c.Value).FirstOrDefault(c => c.Value < HATE_THRESHOLD);
             exterminate *= BaseExterminate;
             exterminate -= _warCooldown * WAR_COOLDOWN_MOD;
@@ -177,6 +177,7 @@ namespace Orbis.Simulation
             {
                 Cell cell = Neighbours.FirstOrDefault();
 
+                // Break if the 
                 if (cell == null) return null;
 
                 foreach (Cell c in Neighbours)

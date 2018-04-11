@@ -51,10 +51,6 @@ namespace Orbis.World
         /// </summary>
         public bool IsWater { get; set; }
         /// <summary>
-        /// Indicates if this cell has a river.
-        /// </summary>
-        public bool HasRiver { get; set; }
-        /// <summary>
         /// Indicates how wet this cell is in equivalents of mms of rain per year.
         /// </summary>
         public double Wetness { get; set; }

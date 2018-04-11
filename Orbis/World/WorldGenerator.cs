@@ -277,52 +277,6 @@ namespace Orbis.World
             } while (cellsToCheck.Count > 0);
         }
 
-        private void SimulateWaterflow()
-        {
-            // Sort cells by height
-            var heightSortedCells = new List<Cell>();
-            foreach(var cell in scene.WorldMap.Cells)
-            {
-                if(cell != null && !cell.IsWater)
-                {
-                    heightSortedCells.Add(cell);
-                }
-            }
-            heightSortedCells = heightSortedCells.OrderByDescending(c => c.Elevation).ToList();
-
-            // Make water go down
-            foreach(var cell in heightSortedCells)
-            {
-                var elevation = cell.Elevation;
-                Cell targetCell = null;
-                foreach (var n in cell.Neighbours)
-                {
-                    if (n.Elevation < elevation)
-                    {
-                        elevation = n.Elevation;
-                        targetCell = n;
-                    }
-                }
-                if (targetCell != null)
-                {
-                    targetCell.Wetness += cell.Wetness;
-                }
-                else
-                {
-                    // Try to erode? Form a lake?
-                }
-
-                // TEST: Turn cells into water cells above threshold
-                /*if(cell.Wetness >= scene.Settings.LakeWetness)
-                {
-                    cell.IsWater = true;
-                }
-                else if (cell.Wetness >= scene.Settings.RiverWetness)
-                {
-                }*/
-            }
-        }
-
         private void AssignBiome(Cell cell)
         {
             // Right now these values are hardcoded
