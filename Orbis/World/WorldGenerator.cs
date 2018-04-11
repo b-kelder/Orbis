@@ -46,6 +46,10 @@ namespace Orbis.World
             random = new Random(scene.Seed);
         }
 
+        /// <summary>
+        ///     Generate the civs in the world.
+        /// </summary>
+        /// <param name="count">The maximum amount of civs to generate.</param>
         public void GenerateCivs(int count)
         {
             var availableCells = new List<Point>();
@@ -119,6 +123,10 @@ namespace Orbis.World
             }
         }
 
+        /// <summary>
+        ///     Generate a world.
+        /// </summary>
+        /// <param name="radius">The radius the world should have.</param>
         public void GenerateWorld(int radius)
         {
             double statLowestPoint = double.MaxValue;
@@ -258,6 +266,9 @@ namespace Orbis.World
             Debug.WriteLine("Water coverage:" + ((float)statSeaTiles / scene.WorldMap.CellCount * 100).ToString("##.##") + "%");
         }
 
+        /// <summary>
+        ///     Fill oceans with water.
+        /// </summary>
         private void FloodFillOceans()
         {
             var cell = scene.WorldMap.GetCell(scene.WorldMap.Radius, 0);
@@ -277,6 +288,10 @@ namespace Orbis.World
             } while (cellsToCheck.Count > 0);
         }
 
+        /// <summary>
+        ///     Assign a biome to a cell based on humidity and temperature.
+        /// </summary>
+        /// <param name="cell"></param>
         private void AssignBiome(Cell cell)
         {
             // Right now these values are hardcoded
