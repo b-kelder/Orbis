@@ -175,9 +175,10 @@ namespace Orbis.Simulation
 
             if (expand > exterminate)
             {
-                Cell cell = Neighbours.First();
+                Cell cell = Neighbours.FirstOrDefault();
 
-                int cellCount = Neighbours.Count;
+                if (cell == null) return null;
+
                 foreach (Cell c in Neighbours)
                 {
                     if (CalculateCellValue(c) > CalculateCellValue(cell))
