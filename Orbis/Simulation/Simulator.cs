@@ -329,17 +329,17 @@ namespace Orbis.Simulation
             if (cell.settlementSize == SettlementSize.Tiny)
             {
                 crossedThreshold = cell.population > Scene.DecorationSettings.SmallPopulationThreshold;
-                cell.settlementSize = SettlementSize.Small;
+                cell.settlementSize = (crossedThreshold) ? SettlementSize.Small : cell.settlementSize;
             }
             else if (cell.settlementSize == SettlementSize.Small)
             {
                 crossedThreshold = cell.population > Scene.DecorationSettings.MediumPopulationThreshold;
-                cell.settlementSize = SettlementSize.Medium;
+                cell.settlementSize = (crossedThreshold) ? SettlementSize.Medium : cell.settlementSize;
             }
             else if (cell.settlementSize == SettlementSize.Medium)
             {
                 crossedThreshold = cell.population > Scene.DecorationSettings.LargePopulationThreshold;
-                cell.settlementSize = SettlementSize.Large;
+                cell.settlementSize = (crossedThreshold) ? SettlementSize.Large : cell.settlementSize;
             }
 
             return crossedThreshold;
