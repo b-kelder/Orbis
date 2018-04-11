@@ -254,8 +254,6 @@ namespace Orbis.World
                 AssignBiome(cell);
             }
 
-            //SimulateWaterflow();
-
             // Log stats
             Debug.WriteLine("Stats for World Generation");
             Debug.WriteLine("Highest Point: " + statHighestMountain);
