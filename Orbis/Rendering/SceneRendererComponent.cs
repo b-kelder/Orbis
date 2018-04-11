@@ -291,11 +291,6 @@ namespace Orbis.Rendering
             base.LoadContent();
         }
 
-        protected override void UnloadContent()
-        {
-            base.UnloadContent();
-        }
-
         public override void Update(GameTime gameTime)
         {
             // Not worth updating if we don't have a scene
@@ -745,15 +740,15 @@ namespace Orbis.Rendering
 
                 // Update decoration based on population of the tile
                 var prevDecoration = data.Decoration.Key;
-                if(cell.population >= renderedScene.DecorationSettings.LargePopulationThreshold)
+                if(cell.settlementSize == SettlementSize.Large)
                 {
                     SetCellDecoration(cell, data, DECORATION_SETTLEMENT_LARGE);
                 }
-                else if(cell.population >= renderedScene.DecorationSettings.MediumPopulationThreshold)
+                else if(cell.settlementSize == SettlementSize.Medium)
                 {
                     SetCellDecoration(cell, data, DECORATION_SETTLEMENT_MEDIUM);
                 }
-                else if(cell.population >= renderedScene.DecorationSettings.SmallPopulationThreshold)
+                else if(cell.settlementSize == SettlementSize.Small)
                 {
                     SetCellDecoration(cell, data, DECORATION_SETTLEMENT_SMALL);
                 }
