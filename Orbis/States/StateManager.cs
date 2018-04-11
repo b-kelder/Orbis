@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Orbis.States.State;
+﻿using Orbis.States.State;
+using System.Collections.Generic;
 
 namespace Orbis.States
 {

@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Orbis.Events.Exporters;
+﻿using Orbis.Events.Exporters;
 using Orbis.Events.Helpers;
+using System;
+using System.Collections.Generic;
 
 namespace Orbis.Events
 {
